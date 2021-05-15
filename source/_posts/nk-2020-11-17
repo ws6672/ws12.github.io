@@ -1,0 +1,172 @@
+
+### 2020-11-17
+
+1.一个文件中的数据要在控制台上显示，首先需要（ C）
+A.System.out.print (buffer[i]);
+B.FileOutputStream fout = new FileOutputStream(this.filename);
+C.FileInputStream fin = new FileInputStream(this.filename);。
+D.System.in.read(buffer)
+
+---
+
+2.关于访问权限说法正确 的是 ？ ( B)
+A.外部类前面可以修饰public,protected和private
+B.成员内部类前面可以修饰public,protected和private
+C.局部内部类前面可以修饰public,protected和private
+D.以上说法都不正确
+
+---
+
+3.下列哪个选项是正确计算42度（角度）的余弦值？(c)
+
+A.double d=Math.cos（42）
+B.double d=Math.cosine（42）
+C.double d=Math.cos（Math.toRadians（42））
+D.double d=Math.cos（Math.toDegrees（42））
+
+---
+
+4.下列关于容器集合类的说法正确的是？(C)
+
+A.LinkedList继承自List
+B.AbstractSet继承自Set
+C.HashSet继承自AbstractSet
+D.WeakMap继承自HashMap
+
+> 解析：LinkedList是继承自AbstractSequentialList；本身是一个抽象类。继承自AbstractCollection；
+WeakMap不存在于java集合框架的。只有一个叫做WeakHashMap（继承自AbstractMap）
+
+---
+
+5.```
+
+class A {}
+class B extends A {}
+class C extends A {}
+class D extends B {}
+Which four statements are true ?
+```(A C D G  )
+
+A.The type List<A>is assignable to List.
+B.The type List<B>is assignable to List<A>.
+C.The type List<Object>is assignable to List<?>.
+D.The type List<D>is assignable to List<?extends B>.
+E.The type List<?extends A>is assignable to List<A>.
+F.The type List<Object>is assignable to any List reference.
+G.The type List<?extends B>is assignable to List<?extends A>.
+
+> 解析：如果尖括号里面带有问号，那么代表一个范围，<? extends A> 代表小于等于A的范围，<? super A>代表大于等于A的范围，<?>代表全部范围
+
+---
+
+### 2020-11-18
+
+1.有如下一段代码，请选择其运行结果（C）
+```
+public class StringDemo{
+  private static final String MESSAGE="taobao";
+  public static void main(String [] args) {
+    String a ="tao"+"bao";
+    String b="tao";
+    String c="bao";
+    System.out.println(a==MESSAGE); // 字符串+字符串，从常量池拿
+    System.out.println((b+c)==MESSAGE); // 对象+对象，不从常量池拿
+  }
+}
+```
+
+A.true true
+B.false false
+C.true false
+D.false true
+
+---
+
+2.JAVA语言的下面几种数组复制方法中，哪个效率最高？（B）
+A.for循环逐一复制
+B.System.arraycopy
+C.Arrays.copyOf  // 源码中调用System.arraycopy方法
+D.使用clone方法
+
+---
+
+3.What is displayed when the following is executed;（A）
+```
+double d1=-0.5;
+System.out.println("Ceil d1="+Math.ceil(d1));
+System.out.println("floor d1="+Math.floor(d1));
+```
+
+```
+A.Ceil d1=-0.0
+floor d1=-1.0
+
+B.Ceil d1=0.0
+floor d1=-1.0
+
+C.Ceil d1=-0.0
+floor d1=-0.0
+
+D.Ceil d1=0.0
+floor d1=0.0
+
+E.Ceil d1=0
+floor d1=-1
+```
+
+> 解析：ceil 方法如果参数小于0且大于-1.0，结果为 -0，向上取整；
+floor 方法向下取整。
+
+---
+
+### 2020-11-29
+
+1.在java7中，下列不能做switch()的参数类型是？(D)
+A.int型
+B.枚举类型
+C.字符串
+D.浮点型
+
+---
+
+2.在java中，下列对继承的说法，正确的是（ A）
+A.子类能继承父类的所有成员
+B.子类继承父类的非私有方法和状态
+C.子类只能继承父类的public方法和状态
+D.子类只能继承父类的方法
+
+---
+
+3.Java网络程序设计中,下列正确的描述是（AD）
+A.Java网络编程API建立在Socket基础之上
+B.Java网络接口只支持tcP以及其上层协议
+C.Java网络接口只支持UDP以及其上层协议
+D.Java网络接口支持IP以上的所有高层协议
+
+---
+
+4.下面选项中,哪些是interface中合法方法定义?(ABCD)
+A.`public void main(String [] args);`
+B.`private int getSum();`
+C.`boolean setFlag(Boolean [] test);`
+D.`public float get(int x);`
+
+---
+
+5.final、finally和finalize的区别中，下述说法正确的有？(AB)
+A.final用于声明属性，方法和类，分别表示属性不可变，方法不可覆盖，类不可继承。
+B.finally是异常处理语句结构的一部分，表示总是执行。
+C.finalize是Object类的一个方法，在垃圾收集器执行的时候会调用被回收对象的此方法，可以覆盖此方法提供垃圾收集时的其他资源的回收，例如关闭文件等。
+D.引用变量被final修饰之后，不能再指向其他对象，它指向的对象的内容也是不可变的。
+
+---
+
+6.以下类型为Final类型的为（）
+A.HashMap
+B.StringBuffer
+C.String
+D.Hashtable 
+
+> 解析：StringBuilder , StringBuffer ,String 都是 final 的，但StringBuilder , StringBuffer是可以进行修改的。不可变包括引用不可变以及对象不可变，而这三个属于引用不可变。而String的内容是一个整体，修改内容相当于修改引用。
+
+---

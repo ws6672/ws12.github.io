@@ -1,0 +1,7 @@
+git stash # 要保留服务器上的修改
+git stash list # 将当前的Git栈信息打印出来
+git pull # 暂存了本地修改之后，pull内容
+git stash pop stash@{0} # 还原暂存的内容,系统自动合并修改的内容，但是其中有冲突，需要解决其中的冲突
+
+
+

@@ -1,0 +1,2009 @@
+(1) 父类静态代码块(包括静态初始化块，静态属性，但不包括静态方法)
+(2) 子类静态代码块(包括静态初始化块，静态属性，但不包括静态方法 )
+(3) 父类非静态代码块( 包括非静态初始化块，非静态属性 )
+(4) 父类构造函数
+(5) 子类非静态代码块 ( 包括非静态初始化块，非静态属性 )
+(6) 子类构造函数
+
+内核实现策略：
+
+1.微内核。最基本的功能由中央内核（微内核）实现。所有其他的功能都委托给一些独立进程，这些进程通过明确定义的通信接口与中心内核通。代表系统是windows.
+
+2.宏内核。内核的所有代码，包括子系统（如内存管理、文件管理、设备驱动程序）都打包到一个文件中。内核中的每一个函数都可以访问到内核中所有其他部分。目前支持模块的动态装卸(裁剪)。Linux内核就是基于这个策略实现的。代表系统是Linux
+
+
+Linux进程
+采用层次结构，每个进程都依赖于一个父进程
+
+Linux中用到内核的地方：
++	进程通信
++	进程切换(同时执行的进程数最多不超过cpu数目)
++	进程调度（决定进程的运行时间）
+
+Linux进程的特点如下：
++	采用层次结构，每个进程都依赖于一个父进程。内核启动init程序作为第一个进程。但是，通过pstree命令查询。实际上centos7 中第一个进程是systemd。
++	系统中每一个进程都有一个唯一标识符(ID),用户（或其他进程）可以使用ID来访问进程
+
+
+init和Systemd的区别
++	init
+	+	启动时间长
+	+	串行启动，只有前一个进程启动完，才会启动下一个进程
+	+	启动脚本复杂
+	+	由Linux内核加载运行，位于 /sbin/init   ,是系统中第一个进程，PID永远为1
++	systemd
+	+	按需启动服务
+	+	尽可能并行启动进程，减少系统启动等待时间
+	+	由Linx内核加载运行，位于 /usr/lib/systemd/systemd  ，是系统中第一个进程，PID永远为1
+
+Linux内核源代码的目录结构
++	内核核心代码 各个子系统和子模块
++	其它非核心代码，例如库文件
++	编译脚本、配置文件、帮助文档、版权说明等辅助性文件
+
+具体文件内容如下：
+include/ ---- 内核头文件，需要提供给外部模块（例如用户空间代码）使用。
+kernel/ ---- Linux内核的核心代码，包含了3.2小节所描述的进程调度子系统，以及和进程调度相关的模块。
+mm/ ---- 内存管理子系统（3.3小节）。
+fs/ ---- VFS子系统（3.4小节）。
+net/ ---- 不包括网络设备驱动的网络子系统（3.5小节）。	
+ipc/ ---- IPC（进程间通信）子系统。
+arch// ---- 体系结构相关的代码，例如arm, x86等等。
+    arch//mach- ---- 具体的machine/board相关的代码。
+    arch//include/asm ---- 体系结构相关的头文件。
+    arch//boot/dts ---- 设备树（Device Tree）文件。
+init/ ---- Linux系统启动初始化相关的代码。
+block/ ---- 提供块设备的层次。
+sound/ ---- 音频相关的驱动及子系统，可以看作“音频子系统”。
+drivers/ ---- 设备驱动（在Linux kernel 3.10中，设备驱动占了49.4的代码量）。
+lib/ ---- 实现需要在内核中使用的库函数，例如CRC、FIFO、list、MD5等。
+crypto/ ----- 加密、解密相关的库函数。
+security/ ---- 提供安全特性（SELinux）。
+virt/ ---- 提供虚拟机技术（KVM等）的支持。
+usr/ ---- 用于生成initramfs的代码。
+firmware/ ---- 保存用于驱动第三方设备的固件。
+samples/ ---- 一些示例代码。
+tools/ ---- 一些常用工具，如性能剖析、自测试等。
+Kconfig, Kbuild, Makefile, scripts/ ---- 用于内核编译的配置文件、脚本等。
+COPYING ---- 版权声明。
+MAINTAINERS ----维护者名单。
+CREDITS ---- Linux主要的贡献者名单。
+REPORTING-BUGS ---- Bug上报的指南。
+Documentation, README ---- 帮助、说明文档。
+
+
++	用户空间：用户空间中又包含了，用户的应用程序，C库
++	内核空间：内核空间包括，系统调用，内核，以及与平台架构相关的代码
+	+	系统调用接口
+	+	进程管理
+	+	内存管理
+	+	虚拟文件系统
+	+	网络堆栈
+	+	设备驱动程序
+	+	硬件架构的相关代码
+	
+	
+
+
+
+jvm相关的基本知识
+
+Java字节码文件的格式
+
+Java源文件是 `.java`格式的，经过虚拟机编译后形成字节码文件，后缀为`.class`文件；jvm加载`.class`文件执行。
+
+字节码文件是由魔数，版本号，常量池，访问标志，类索引，父类索引，接口索引，字段表集合，方法，属性组成。
+
++	魔数： 4个字节，对应的是16进制的cafe babe,其是表明class文件的标志
++	版本号：例如0000 0034，0000代表次版本号，0034代表主版本号（52），52对应1.8
++	常量池：常量池主要包含字面量和符号引用，字面量如文本字符串，final声明的变量等，符号引用主要是类和接口的全局限定名，字段的名称和描述符，方法的名称和描述符
++	访问标志 Access_flag：声明class文件是类还是接口、声明访问权限
++	类索引、父类索引和接口索引
++	方法
++	属性
+
+
+jvm的内存结构
+jvm的内存结构分为三部分：类装载器子系统、运行时数据区、执行引擎。
++	类装载器子系统有三个类加载器，bootstrap class Loader、Extension class Loader、Application class Loader;
++	运行时数据区分为五个部分、两种类型；其一是共有的，如堆、方法区、本地方法栈；其二是线程私有的，如栈、PC寄存器。
+	+	堆：堆可以分为年轻代、老年代和元空间
+		+	年轻代：年轻代又分为新生区和两个幸存区，比例是8:1:1
+		+	老年代：幸存区中多次存活的对象会存放到老年区
+		+	元空间：JDK1.8之前称之为永久代，是方法区的实现，位于JVM中；而元空间与它类似，但位于本地内存。
+	+	方法区：所有类级别的数据都存储在这个地方（包括静态变量），是共享资源
+	+	本地方法栈：为虚拟机使用的native方法服务
+	+	栈：线程的私有内存，存放线程的局部变量
+	+	PC寄存器：用来存储执行下一条指令的地址，由执行引擎进行读取；线程私有，生命周期和线程生命周期保持一致。例如，ArrayList底层是一个数组;当遍历的时候，PC寄存器会存放指向 下一个单元的地址。
+
+
+
+
+1. Netty 任务队列（TaskQueue）
+
+TaskQueue的使用
++	用户自定义的普通任务
++	用户自定义定时任务
++	非当前Reactor线程调用Channel的各种方法
+
+相关实例如下：
+```class MyServerHandler extends ChannelInboundHandlerAdapter {
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ByteBuf byteBuf = Unpooled.copiedBuffer("你好，客户端", Charset.forName("utf-8"));
+        ctx.writeAndFlush(byteBuf);
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//        ByteBuf buf = (ByteBuf) msg;
+//        byte[] req = new byte[buf.readableBytes()];
+//        buf.readBytes(req);
+//        String body = new String(req, "UTF-8");
+//        System.out.println(body);
+
+//        假设读取的数据过多，耗时严重；可以由TaskQueue响应任务
+//        1. 用户自定义的普通任务（异步任务）
+        ctx.channel().eventLoop().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ByteBuf buf = (ByteBuf) msg;
+                    byte[] req = new byte[buf.readableBytes()];
+                    buf.readBytes(req);
+                    String body = new String(req, "UTF-8");
+                    System.out.println(body);
+                }  catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+//        2. 用户自定义定时任务
+        ctx.channel().eventLoop().schedule(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("用户自定义定时任务 执行 任务");
+            }
+        }, 1000, TimeUnit.MILLISECONDS);
+//        3. 非当前Reactor线程调用Channel的各种方法
+//        定义ChannelInitializer的 initChannel方法时，保存 SocketChannel到自定义队列；需要时，通过队列获取通道，通过通道的事件循环线程设置任务
+    }
+
+}
+```
+
+如上所示，任务队列其实是通过异步实现的。Netty的异步模型 是建立在 future和callback上的。callback是回调，如果有一个方法耗时严重，那么就返回一个 future。后续，我们可以通过 future 去监听方法的处理过程。
+
+
+2. ChannelFuture
+
+```
+	serverBootstrap.group(bgroup, workerGroup)
+		.channel(NioServerSocketChannel.class)
+		.option(ChannelOption.SO_BACKLOG, 1024)
+		.childHandler(new ChannelInitializer<SocketChannel>() {
+			@Override
+			protected void initChannel(SocketChannel sc) throws Exception {
+//                            DelimiterBasedFrameDecoder：解码器，接收的数据进行解码，加在SimpleServerHandler 的上面；maxFrameLength表示这一贞最大的大小；delimiter表示分隔符
+				sc.pipeline().addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, Delimiters.lineDelimiter()[0]));
+//                            将数据转换成byteBuf
+				sc.pipeline().addLast(new MyServerHandler());
+			}
+		});
+//          绑定端口8888
+ChannelFuture channelFuture = serverBootstrap.bind(9090).sync();
+```
+
+ChannelFuture
++	表示通道异步执行结果，用于检测执行过程.
++	ChannelFuture 是一个接口，可以添加监听器，当监听的事件发生时，就好通知监听器。
+	+	`    ChannelFuture addListener(GenericFutureListener<? extends Future<? super Void>> var1);`
+	
+pipeline()方法返回的是一个ChannelPipeline接口，这是一个双向队列。通过addLast方法，可以按序添加处理器。底层会形成一个链式操作，比如 （解码-数据传输-编码）。而通过serverBootstrap的sync()方法，可以获取ChannelFuture异步对象。通过这个对象可以获取责任链的执行结果。
+
+
+---------------------------------------------------------------------------------------
+
+
+/** Implementation for put and putIfAbsent */
+    final V putVal(K key, V value, boolean onlyIfAbsent) {
+	//	key or value 不允许为null
+        if (key == null || value == null) throw new NullPointerException();
+        int hash = spread(key.hashCode());
+        int binCount = 0;
+        for (Node<K,V>[] tab = table;;) {
+            Node<K,V> f; int n, i, fh;
+            if (tab == null || (n = tab.length) == 0)
+                tab = initTable();
+				
+            else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
+                if (casTabAt(tab, i, null,
+                             new Node<K,V>(hash, key, value, null)))
+                    break;                   // no lock when adding to empty bin
+            }
+            else if ((fh = f.hash) == MOVED)
+                tab = helpTransfer(tab, f);
+            else {
+                V oldVal = null;
+                synchronized (f) {
+                    if (tabAt(tab, i) == f) {
+                        if (fh >= 0) {
+                            binCount = 1;
+                            for (Node<K,V> e = f;; ++binCount) {
+                                K ek;
+                                if (e.hash == hash &&
+                                    ((ek = e.key) == key ||
+                                     (ek != null && key.equals(ek)))) {
+                                    oldVal = e.val;
+                                    if (!onlyIfAbsent)
+                                        e.val = value;
+                                    break;
+                                }
+                                Node<K,V> pred = e;
+                                if ((e = e.next) == null) {
+                                    pred.next = new Node<K,V>(hash, key,
+                                                              value, null);
+                                    break;
+                                }
+                            }
+                        }
+                        else if (f instanceof TreeBin) {
+                            Node<K,V> p;
+                            binCount = 2;
+                            if ((p = ((TreeBin<K,V>)f).putTreeVal(hash, key,
+                                                           value)) != null) {
+                                oldVal = p.val;
+                                if (!onlyIfAbsent)
+                                    p.val = value;
+                            }
+                        }
+                    }
+                }
+                if (binCount != 0) {
+                    if (binCount >= TREEIFY_THRESHOLD)
+                        treeifyBin(tab, i);
+                    if (oldVal != null)
+                        return oldVal;
+                    break;
+                }
+            }
+        }
+        addCount(1L, binCount);
+        return null;
+    }
+	
+
+transient volatile Node<K,V>[] table; // 数组结构
+
+
+private final Node<K,V>[] initTable() {
+	Node<K,V>[] tab; int sc;
+	while ((tab = table) == null || tab.length == 0) {
+	
+		/**
+		 * sizeCtl ：默认为0，用来控制table的初始化和扩容操；
+		 * -1 代表table正在初始化，保证只初始化一次
+		 * -N对应的二进制的低16位数值为M，此时有M-1个线程进行扩容；
+		 * 如果table初始化完成，表示table的容量，默认是table大小的0.75倍。
+		 */
+		if ((sc = sizeCtl) < 0)
+			Thread.yield(); // 已经有线程进行初始化
+			
+			/**
+			 * Unsafe compareAndSwapInt(Object var1, long var2, int var4, int var5);
+			 * var1：要修改的对象起始地址
+			 * var2：需要修改的具体内存地址
+			 * var4：期望内存中的值
+			 * var5：用于更新的值
+			 */
+		else if (U.compareAndSwapInt(this, SIZECTL, sc, -1)) {
+			try {
+				if ((tab = table) == null || tab.length == 0) {
+					int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
+					@SuppressWarnings("unchecked")
+					Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
+					table = tab = nt;
+					// >>> 表示右移两位，n的四分之一，所以sc是n的四分之三
+					sc = n - (n >>> 2);
+				}
+			} finally {
+				sizeCtl = sc;
+			}
+			break;
+		}
+	}
+	return tab;
+}
+
+修改sizeCtl的方法：
+
++	initTable()
++	addCount（）
++	tryPresize（）
++	transfer（）
++	helpTransfer（）
+
+
+
+-------------------------------------------------------------------------------------------
+
+
+
+属于被动引用不会出发子类初始化 
+ 1.子类引用父类的静态字段，只会触发子类的加载、父类的初始化，不会导致子类初始化 
+ 2.通过数组定义来引用类，不会触发此类的初始化 
+ 3.常量在编译阶段会进行常量优化，将常量存入调用类的常量池中， 本质上并没有直接引用到定义常量的类，因此不会触发定义常量的类的初始化。 
+ 
+-----------------------------------------------------------------------------------------------------------------
+
+
+man命令
+
+man命令用于查看命令的手册页条目。
+
+[cen@localhost systemd]$ man fdisk
+没有 disk 的手册页条目
+
+
+fdisk命令
+fdisk（以第一种形式调用）是一个以菜单问答形式出现的用来创建和修改分区的程序。它可以辩认 DOS 类型的分区表和 BSD 或 SUN 类型的磁盘标签。
+
+设备通常是下列之一：
+```
+[cen@localhost systemd]$ sudo fdisk -l
+
+hda一般是指IDE接口的硬盘
+	/dev/hda hda指第一块硬盘
+	/dev/hdb hdb指第二块硬盘
+sda一般是指SATA接口的硬盘
+	/dev/sda sda指第一块硬盘
+	/dev/sdb sdb指第二块硬盘
+```
+
+其它类似的工具：
++	cfdisk（交互好） cfdisk是一个漂亮的程序，它只接受最严谨的分区表， 而且它能生成高质量的分区表。
++	sfdisk（功能强大）是一个专为黑客提供的程序，它的用户界面很不友善，但它更精确，也比fdisk和cfdisk更有效。
+
+sed 命令
+Linux sed 命令是利用脚本来处理文本文件。
+sed 可依照脚本的指令来处理、编辑文本文件。
+Sed 主要用来自动编辑一个或多个文件、简化对文件的反复操作、编写转换程序等。
+
+语法：
+```
+sed [-hnV][-e<script>][-f<script文件>][文本文件]
+
+参数说明：
+	-e<script>或--expression=<script> 以选项中指定的script来处理输入的文本文件。
+	-f<script文件>或--file=<script文件> 以选项中指定的script文件来处理输入的文本文件。
+	-h或--help 显示帮助。
+	-n或--quiet或--silent 仅显示script处理后的结果。
+	-V或--version 显示版本信息。
+	
+动作说明
+	a ：新增， a 的后面可以接字串，而这些字串会在新的一行出现(目前的下一行)～
+	c ：取代， c 的后面可以接字串，这些字串可以取代 n1,n2 之间的行！
+	d ：删除，因为是删除啊，所以 d 后面通常不接任何咚咚；
+	i ：插入， i 的后面可以接字串，而这些字串会在新的一行出现(目前的上一行)；
+	p ：打印，亦即将某个选择的数据印出。通常 p 会与参数 sed -n 一起运行～
+	s ：取代，可以直接进行取代的工作哩！通常这个 s 的动作可以搭配正规表示法！例如 1,20s/old/new/g 就是啦！
+	
+```
+
+例如：
+
+```
+-- 第二行添加 NEWLINE 为一行
+sed -e 2a\NEWLINE LICENSE.txt 
+```
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+
+# 一、Java基础
+
+
+### Java IO
+
+1. 什么是IO流
+IO流是用来处理设备间的数据传输的，Java对数据的操作是通过流的形式，java对于流的操作都实现在io包中
+
+2. Java中流的分类
+Java中流按方向划分可以分为输入流和输出流、按实现功能划分可以分为顶点流（读写数据）和处理流（封装数据）、按类型划分可以分成字节流以及字符流。字节流继承于 InputStream 和 OutputStream，字符流继承于 InputStreamReader 和 OutputStreamWriter。
+
+3. 字节流如何转为字符流
+通过InputStreamReader可以将字节流如何转为字符流，通过OutPutStreamWriter可以将字符流转换为字节流
+
+4. 如何将一个 java 对象序列化到文件里
+实现Serializable接口，该接口没有任何方法，只是用于标记。
+
+5. 字节流 和 字符流 的区别
++	字节流 是读到一个字节就返回一个字节；字符流读取到一个或多个字节时，先去查询指定的编码表，然后转换为对应的字符返回；
++	字节流 可以处理所有类型的数据，而字符流只能处理纯文本数据。
+
+6. 字节缓冲输入流和字节缓冲输出流
+字节流一次读写一个数组的速度明显比一次读写一个字节的速度快很多，这是加入了数组这样的缓冲区效果
++	字节缓冲输出流：BufferedOutputStream
++	字节缓冲输入流：BufferedInputStream
+
+7. close( )和flush( )的区别?
++	close方法会先刷新一次流，再关闭流对象，之后流对象无法再使用。
++	flush方法只是用于刷新缓冲区
+
+8. read()方法返回值为什么是int，而不是byte
+因为如果读取到的byte 为11111111，即-1；那么表示读取到结尾，就不会继续读下去了。
+
+9. 如何实现对象克隆
++	实现Cloneable接口并重写Object的clone方法
++	实现Serializable接口，通过序列化可以实现深拷贝
+
+> [JAVA面试--IO](https://blog.csdn.net/huyang0304/article/details/82290626)
+
+### 多线程
+
+1. 进程，线程之间有什么区别
+进程是系统运行和资源分配的基本单位，线程是系统资源的共享单位。一个程序至少一个进程，一个进程至少一个线程。
+
+2. 守护线程和非守护线程有什么区别
+守护线程需要等待其它非守护线程结束之后，才会停止，最典型的是垃圾回收器；jvm会等待非守护线程完成后关闭，但是jvm不会等待守护线程
+
+3. 什么是多线程上下文切换
+多线程的上下文切换是指由一个正在执行的线程切换到另一个处于就绪态并等待获取CPU执行时间的线程的过程
+
+4. 怎么检测一个线程是否持有对象监视器
+Thread类提供了一个holdsLock(Object obj)方法，当且仅当对象obj的监视器被某条线程持有的时候才会返回true，注意这是一个static方法，这意味着”某条线程”指的是当前线程。
+
+5. 怎么唤醒一个阻塞的线程
+notify() notifyAll()
+
+6. 一个线程如果出现了运行时异常怎么办
+如果这个异常没有被捕获的话，这个线程就停止执行了。另外重要的一点是：如果这个线程持有某个某个对象的监视器，那么这个对象监视器会被立即释放
+
+7. 如何在两个线程间共享数据
++	堆外内存 MappedByteBuffer
++	阻塞队列BlockingQueue
++	共享对象
+
+8. 为什么要使用线程池
+避免频繁地创建和销毁线程，达到线程对象的重用。另外，使用线程池还可以根据项目灵活地控制并发的数目。
+
+> [java 线程面试题](https://blog.csdn.net/weixin_42298927/article/details/114032614)
+
+
+# 集合
+
+1. 常用集合
+
+集合（只能存储对象，对象类型可以不一样）的长度可变，可在多数情况下使用。
+
+Collection接口是集合类的根接口，Java中没有提供这个接口的直接的实现类。但是却让其被继承产生了两个接口，就是Set和List。
++	Collection
+	+	List 有序可重复
+		+	LinkedList 底层是一个双链表的数组结构，适合删除、插入较多的业务，因为链表删除的时间复杂度是O(1)
+		+	ArrayList 底层是一个数组，适合查询的较多的业务，因为数组底层是相连的
+			+	实现接口：`List<E>(列表), RandomAccess(标记接口，快速随机访问), Cloneable(标记接口，克隆), java.io.Serializable(标记接口，序列化)`
+			+	扩容：底层通过Arrays.copyOf（底层调用的是System.arraycopy）方法进行扩容，默认容量是10，扩容为1.5倍；如果扩容后小于最小容量，取最小容量。
+			+	删除：使用System.arraycopy 进行元素覆盖，设置最后一个元素未null
+		
+	+	Set 无序、不可重复
+		+	HashSet：实际为一个HashMap的实例，允许null元素
+		+	TreeSet：用 二叉排序树 保证有序，底层用TreeMap实现
+
+集合遍历：
+
++	Iterator/Iterable：迭代输出，是使用最多的输出方式。
+	+	Iterator是java.util包下的接口
+	+	Iterable是java.lang下的接口。Iterable只是包装了Iterator,从而允许实现此接口的对象成为foreach语句的目标
++	ListIterator：是Iterator的子接口，专门用于输出List中的内容。
++	foreach 输出：JDK1.5之后提供的新功能，可以输出数组或集合。
++	for循环
+
+集合遍历的使用：
+
+```
+// 1. for循环
+for（int i=0;i<arr.size();i++）{...} 
+// 2. foreach
+for（int　i：arr）{...} 
+// 3. iterator
+Iterator it = arr.iterator(); 
+while(it.hasNext()){ object o =it.next(); ...}
+```
+
+2. Map集合
+
+Map：存储的是键值对，键不能重复，值可以重复
++	HashMap（数组+链表+二叉排序树，元素超过8个就转换为红黑树）
++	TreeMap（用二叉排序树）
++	Hashtable：Hashtable与HashMap类似，是HashMap的线程安全版，它支持线程的同步；不允许记录的键或者值为null。
++	LinkedHashMap：保存了记录的插入顺序，在用Iteraor遍历LinkedHashMap时，先得到的记录肯定是先插入的，在遍历的时候会比HashMap慢，有HashMap的全部特性
++	TreeMap：实现SortMap接口，能够把它保存的记录根据键排序，默认是按键值的升序排序（自然顺序）
+
+Map集合有的不支持并发，有的并发能力差。所以，java current包提供了Map接口的并发实现
++	ConcurrentHashMap：线程安全，并且锁分离。1.7 中，ConcurrentHashMap内部使用段(Segment)来表示这些不同的部分；1.8中，使用CAS以及 voliate保证线程安全。
+
+map遍历：
++	KeySet：set具备迭代器。所有可以迭代方式取出所有的键，再根据get方法。获取每一个键对应的值
++	entrySet：返回此映射中包含的映射关系的 Set 视图
+
+
+---------------------------------------------------------------------------------------------------------
+
+@Transactional 失效的几个可能
+
++	数据库引擎不支持事务：如MySQL的MyISAM 引擎不支持事务，自然就无法使用事务。
++	数据源没有配置事务管理器（DataSourceTransactionManager）
++	没有被 Spring 管理 （@Transactional 没有加入Spring容器中）
++	方法不是 public 的
++	自非事务方法调用事务方法
++	异常在事务中被处理
++	异常抛出错误，默认只能抛出运行时异常，可以设置 `@Transactional(rollbackFor = Exception.class)`
+
+
+
+---------------------------------------------------------------------------------------------------------
+
+
+
+SpringBoot整合EhCache
+为了提高性能，减少数据库的压力，使用缓存是非常好的手段之一。Spring 定义 CacheManager 和 Cache 接口用来统一不同的缓存技术。例如 JCache、 EhCache、 Hazelcast、 Guava、 Redis 等。在使用 Spring 集成 Cache 的时候，我们需要注册实现的 CacheManager 的 Bean。
+
+
+
+
+1. 测试url存活
+
+URL.sh
+```
+#!/bin/bash 
+check_url() {
+-- $1 表示参数1，会自动注入到%{http_code}中
+HTTP_CODE=$(curl -o /dev/null --connect-timeout 3 -s -w "%{http_code}" $1
+
+)
+--	返回值测试
+    if [ $HTTP_CODE -ne 200 ]; then
+        echo "Warning: $1 Access failure!"
+    else
+        echo "网站正常"
+    fi
+}
+check_url $1
+```
+
+2. 定时检测服务状态脚本
+
+脚本功能：
++	定时监测该服务的返回状态，出现错误后，邮件告警
++	可自定义周期
+
+
+--------------------------------------------------------
+
+MySQL 优化
+
+MYSQL优化包括设计、功能、架构与高性能SQL几个方面。Mysql优化，一方面是找出系统的瓶颈，提高mysql数据库整体的性能，另外一个方面需要合理的结构设计和参数调整，以提高用户操作响应的速度。同时还要尽可能节省系统资源，以便系统可以提供更大负荷的服务。mysql数据库优化是多方面的，原则是减少系统的瓶颈，减少资源的占用，增加系统反应的速度。
+
++	设计：存储引擎，字段类型，范式与逆范式
++	功能：索引，缓存，分区分表
++	高性能SQL：SQL优化、explain
++	架构：主从复制，读写分离，负载均衡。
+
+# 一、设计优化
+
+
+### 存储引擎
+
+
+存储引擎是一种用来存储MySQL中对象（记录和索引）的一种特定的结构（文件结构），处于MySQL服务器的最底层，直接存储数据
+
+指定存储引擎：`Create table tableName () engine=myisam|innodb`
+
+
+1. 查询支持的引擎
+
+```
+show engines;
+````
+
+|Engine|Support|Comment|Transactions|XA|Savepoints|
+|:--|:--|:--|:--|:--|:--|
+|MEMORY|YES|基于哈希的，存储在内存中，对临时表有用|NO|NO|NO|
+|MRG_MYISAM|YES|与MyISAM表相同的集合|NO|NO|NO|
+|CSV|YES|CSV存储引擎|NO|NO|NO|
+|FEDERATED|NO|联合MySQL存储引擎||||
+|PERFORMANCE_SCHEMA|YES|性能模式|NO|NO|NO|
+|MyISAM|YES|MyISAM存储引擎|NO|NO|NO|
+|InnoDB|DEFAULT|支持事务、行级锁定和外键|YES|YES|YES|
+|BLACKHOLE|YES|/dev/null存储引擎（您向其写入的任何内容都将消失）|NO|NO|NO|
+|ARCHIVE|YES|存档存储引擎|NO|NO|NO|
+
+> 注：engine：引擎名称
+suppot：MySQL数据库是否支持
+comment：说明
+transactions：是够支持事务
+xa：是否支持XA事务（分布式事务）
+savepoints：是否支持保存savepoints之间的内容
+
+2. InnoDB存储引擎
+
+Mysql版本>=5.5 默认的存储引擎，MySQL推荐使用的存储引擎。支持事务，行级锁定，外键约束。事务安全型存储引擎。更加注重数据的完整性和安全性。innodb擅长事务、数据的完整性及高并发处理，不擅长快速插入（插入前要排序，消耗时间）和检索
+
+
+创建数据库表后生成如下文件：
++	db.opt存放了数据库的配置信息，比如数据库的字符集还有编码格式
++	XX.frm是表结构文件，仅存储了表的结构、元数据(meta)，包括表结构定义信息等；表引擎都会有一个frm文件。
++	XX.ibd是表索引文件，包括了单独一个表的数据及索引内容。
+
+
+
+共享表空间
+	+	Innodb的所有数据保存在一个单独的表空间里面，而这个表空间可以由很多个文件组成，一个表可以跨多个文件存在，所以其大小限制不再是文件大小的限制，而是其自身的限制。其表空间的最大限制为64TB，也就是说，Innodb的单表限制基本上也在64TB左右。
+	+	优点：表空间可以分成多个文件存放到各个磁盘，所以表也就可以分成多个文件存放在磁盘上，表的大小不受磁盘大小的限制
+	+	缺点：所有的数据和索引存放到一个文件，虽然可以把一个大文件分成多个小文件，但是多个表及索引在表空间中混合存储，当数据量非常大的时候，表做了大量删除操作后表空间中将会有大量的空隙，特别是对于统计分析，对于经常删除操作的这类应用最不适合用共享表空间；共享表空间分配后不能回缩：当出现临时建索引或是创建一个临时表的操作表空间扩大后，就是删除相关的表也没办法回缩那部分空间了。
+独立表空间
+	+	独立表空间是把每个表的数据和表文件放在一起，每表对应一个 idb文件
+	+	优点：每个表都有自已独立的表空间，每个表的数据和索引都会存在自已的表空间中，可以实现单表在不同的数据库中移动。
+	+	缺点：单表增加过大，当单表占用空间过大时，存储空间不足，只能从操作系统层面思考解决方法
+
+InnoDB采用按表空间（tablespace)的方式进行存储数据, 默认配置情况下会有一个初始大小为10MB， 名字为ibdata1的文件， 该文件就是默认的表空间文件（tablespce file），用户可以通过参数innodb_data_file_path对其进行设置，可以有多个数据文件，如果没有设置innodb_file_per_table的话， 那些Innodb存储类型的表的数据都放在这个共享表空间中，而系统变量innodb_file_per_table=1的话，那么InnoDB存储引擎类型的表就会产生一个独立表空间，独立表空间的命名规则为：表名.idb. 这些单独的表空间文件仅存储该表的数据、索引和插入缓冲BITMAP等信息，其它信息还是存放在共享表空间中。
+
+
+查看是否开启独立表空间：
+```
+show variables like 'innodb_file_per_table'
+innodb_file_per_table	ON  
+	OFF 代表mysql是共享表空间，也就是所有库的数据都存放在一个ibdate1文件中
+	ON 表示mysql是独立表空间
+
+```
+
+开启：
+```
+在my.conf文件中[mysqld] 顶点下添加innodb_file_per_table=1
+
+或者通过命令：set global innodb_file_per_table=1;
+	innodb_file_per_table=1 为使用独占表空间
+	innodb_file_per_table=0 为使用共享表空间
+	innodb_data_home_dir = "C:\mysql\data\"
+
+show variables like 'innodb_data_home_dir' --数据库文件所存放的目录
+show variables like 'innodb_log_group_home_dir' --日志存放目录
+show variables like 'innodb_data_file_path' --指定innodb 共享 表空间文件
+	innodb_data_file_path	ibdata1:12M:autoextend（存储到 ibdata1 初始大小为12M 自动扩容）
+```
+
+> 注：InnoDB不创建目录，所以在启动服务器之前请确认”所配置的路径目录”的确存在。这对你配置的任何日志文件目录来说也是真实的。使用Unix或DOS的mkdir命令来创建任何必需的目录。通过把innodb_data_home_dir的值原原本本地部署到数据文件名，并在需要的地方添加斜杠或反斜杠，InnoDB为每个数据文件形成目录路径
+
+3. MyISAM 存储引擎
+MySQL<= 5.5 MySQL默认的存储引擎；擅长与处理，高速读与写。
+特点：
++	数据和索引分别存储于不同的文件中。
++	数据的存储顺序为插入顺序（没有经过排序、插入速度快，空间占用量小）
++	功能
+	+	全文索引支持
+	+	数据的压缩存储（myisamPack）
+	+	并发性
+		+	仅仅支持表级锁定，不支持高并发。
+		+	支持并发插入。写操作中的插入操作，不会阻塞读操作（其他操作）
+
+Innodb 和 MyISAM 比较：
+
++	Innodb ：数据完整性，并发性处理，擅长更新，删除。
++	myisam：高速查询及插入。擅长插入和查询。
+
+其他存储引擎：
+
++	Archive：存档型，仅提供插入和查询操作。非常高效阻塞的插入和查询。
++	Memory：内存型，数据存储于内存中，存储引擎。缓存型存储引擎。
++	插件式存储引擎：用C和C++开发的存储引擎。
+
+
+4. 数据库锁
+
+当客户端操作表（记录）时，为了保证操作的隔离性（多个客户端操作不能互相影响），通过加锁来处理。
+
+### 字段类型选择
+
+类型取值如下：
+
+|类型|大小|范围（有符号）|范围（无符号）|用途|
+|:--|:--|:--|:--|:--|
+|数值类型<br/>|||||
+|TINYINT|1 byte|(-128，127)|(0，255)|小整数值|
+|SMALLINT|2 bytes|(-32 768，32 767)|(0，65 535)|大整数值|
+|MEDIUMINT|3 bytes|(-8 388 608，8 388 607)|(0，16 777 215)|大整数值|
+|INT或INTEGER|4 bytes|(-2 147 483 648，2 147 483 647)|(0，4 294 967 295)|大整数值|
+|BIGINT|8 bytes|(-9,223,372,036,854,775,808，9 223 372 036 854 775 807)|(0，18 446 744 073 709 551 615)|极大整数值|
+|FLOAT|4 bytes|(-3.402 823 466 E+38，-1.175 494 351 E-38)，0，(1.175 494 351 E-38，3.402 823 466 351 E+38)|0，(1.175 494 351 E-38，3.402 823 466 E+38)|单精度|
+|||||浮点数值|
+|DOUBLE|8 bytes|(-1.797 693 134 862 315 7 E+308，-2.225 073 858 507 201 4 E-308)，0，(2.225 073 858 507 201 4 E-308，1.797 693 134 862 315 7 E+308)|0，(2.225 073 858 507 201 4 E-308，1.797 693 134 862 315 7 E+308)|双精度|
+|||||浮点数值|
+|DECIMAL|对DECIMAL(M,D) ，如果M>D，为M+2否则为D+2|依赖于M和D的值|依赖于M和D的值|小数值|
+|日期和时间类型<br/>|||||
+|DATE|3|1000-01-01/9999-12-31|YYYY-MM-DD|日期值|
+|TIME|3|'-838:59:59'/'838:59:59'|HH:MM:SS|时间值或持续时间|
+|YEAR|1|1901/2155|YYYY|年份值|
+|DATETIME|8|1000-01-01 00:00:00/9999-12-31 23:59:59|YYYY-MM-DD HH:MM:SS|混合日期和时间值|
+|TIMESTAMP|4|1970-01-01 00:00:00/2038|YYYYMMDD HHMMSS|混合日期和时间值，时间戳|
+|||结束时间是第 2147483647 秒，北京时间 2038-1-19 11:14:07，格林尼治时间 2038年1月19日 凌晨 03:14:07|||
+|字符串类型<br/>|||||
+|CHAR|0-255 bytes|||定长字符串|
+|VARCHAR|0-65535 bytes|||变长字符串|
+|TINYBLOB|0-255 bytes|||不超过 255 个字符的二进制字符串|
+|TINYTEXT|0-255 bytes|||短文本字符串|
+|BLOB|0-65 535 bytes|||二进制形式的长文本数据|
+|TEXT|0-65 535 bytes|||长文本数据|
+|MEDIUMBLOB|0-16 777 215 bytes|||二进制形式的中等长度文本数据|
+|MEDIUMTEXT|0-16 777 215 bytes|||中等长度文本数据|
+|LONGBLOB|0-4 294 967 295 bytes|||二进制形式的极大文本数据|
+|LONGTEXT|0-4 294 967 295 bytes|||极大文本数据|
+
+
+选择优化的数据类型原则：
++	更小的通常更好
++	简单数据类型需要更少的CPU周期（用MySQL内建的类型(date, time, datetime)来存储时间和日期、使用整型存储IP地址）
++	指定列为NOT NULL（可为NULL的列使得索引、索引统计和值比较都更复杂）
+
+分类：
++	整数类型
+	+	TINYINT、SMALLINT、MEDIUMINT、INT、BIGINT分别使用8,16,24,32,64位存储空间。它们可以存储的值得范围从-2(N-1)到2(N-1)-1，如果是UNSIGNED，表示不允许负值，那正数的上限提高一倍
++	浮点类型
+	+	FLOAT、DOUBLE、DECIMAL（高精度） 分别使用4字节、8字节、可变个字节存储
++	字符串类型
+	+	VARCHAR比CHAR更节省空间，VARCHAR会使用1或2个额外的字节记录字符串的长度。如果使用UTF8字符集，应该选择VARCHAR类型。CHAR适合存储很短的字符串，或者所有值都接近同一个长度。比如MD5加密后的值。对于经常变更的数据，CHAR比VARCHAR更好，因为CHAR类型不易产生碎片
++	日期和时间类型
+	+	DATETIME使用8个字节的存储空间，TIMESTAMP使用4个字节，一般情况下尽量选择TIMESTAMP类型
+
+TIMESTAMP 特点：
++	当更新一条数据的时候，设置此类型根据当前系统更新可自动更新时间
++	如果插入一条NULL，也会自动插入当前系统时间
++	创建时，自动设置默认值
++	会根据当前时区来存储和查询时间，存储时对当前时区进行转换，查询时再转换为当前的时区
+
+### 范式与逆范式
+
+为了建立冗余较小、结构合理的数据库，设计数据库时必须遵循一定的规则。在关系型数据库中这种规则就称为范式。范式是符合某一种设计要求的总结。要想设计一个结构合理的关系型数据库，必须满足一定的范式。逆范式是指打破范式，通过增加冗余或重复的数据来提高数据库的性能。
+
+
+三大范式：
++	第一范式1NF，原子性；段值都是不可分解
++	第二范式2NF，消除部分依赖；表中的每列都和主键相关
++	第三范式3NF，消除传递依赖；表中非主键列不依赖于其它非主键列
++	优点
+	+	范式可以避免数据冗余，减少数据库的空间，减轻维护数据完整性的麻烦。
++	缺点
+	+	所用的范式越高，对数据操作的性能越低。所以我们在利用范式设计表的时候，要根据具体的需求再去权衡是否使用更高范式去设计表。
+
+# 二、功能优化
+
+功能优化包含索引，缓存，分区分表等部分。
+
+### 索引
+
+
+在关系数据库中，索引是一种单独的、物理的对数据库表中一列或多列的值进行排序的一种存储结构，它是某个表中一列或若干列值的集合和相应的指向表中物理标识这些值的数据页的逻辑指针清单。索引的关键字一定是排序的。索引本质上是表字段的有序子集，类似于一个目录，通过它可以快速定位数据。
+
+1. 分类
+
++	种类
+	+	聚集索引(clustered index)：子顶点存储行记录，有且只有一个聚焦索引。存在主键，则主键是聚焦索引；否则第一个not NULL unique列是聚集索引；否则，InnoDB会创建一个隐藏的row-id作为聚集索引。
+	+	普通索引(secondary index)
++	类型
+	+	主键索引,primary key：要求关键字不能重复，也不能为NULL。同时增加主键约束
+	+	唯一索引,unique index：要求关键字不能重复。同时增加唯一约束
+	+	普通索引(secondary index)
+	+	普通索引,index：对关键字没有要求
+	+	全文索引,fulltext key：关键字的来源不是所有字段的数据，而是从字段中提取的特别关键词。该类型的索引特殊在：关键字的创建上。是为了解决 like&lsquo;%keyword%&rsquo;这类查询的匹配问题。（mysql的全文索引几乎不用，因为它不支持中文，应该使用`sphinx全文索引`）。
+
+
+	+	复合索引：如果一个索引通过在多个字段上提取的关键字，称之为复合索引
+
+```
+-- 主键索引
+ALTER TABLE student ADD PRIMARY KEY  (id);
+-- 普通索引
+ALTER TABLE student ADD INDEX index_stu (`name`);
+-- 删除普通索引
+ALTER TABLE student drop INDEX index_stu;
+-- 唯一索引
+ALTER TABLE student  ADD UNIQUE idx_uq_name (`name`)
+-- 全文索引
+ALTER TABLE student ADD FULLTEXT idx_ft_name (`name`)
+-- 复合索引
+ALTER TABLE student ADD INDEX idx_fh ( `name`,school_id)
+```
+
+2. 最左匹配原则
+
+最左匹配原则都是针对联合索引来说的，构建一颗 B+ 树只能根据一个值来构建，因此数据库依据联合索引最左的字段来构建 B+ 树。在 InnoDB 中联合索引只有先确定了前一个（左侧的值）后，才能确定下一个值。如果有范围查询的话，那么联合索引中使用范围查询的字段后的索引在该条 SQL 中都不会起作用。
+
+例如：
+```
+-- 定义 a b c 的联合索引
+-- a. 生效的例子
+-- eg1
+select * from t where a=1 and b=1 and c=1;
+
+-- eg2
+select * from t where a=1 and c=1 and b=1;
+==经过优化器转换==> 
+select * from t where a=1 and b=1 and c=1;
+
+-- eg3
+select * from t where a=1 and b=1 and c>1;
+
+
+-- b. 未生效的例子
+-- eg1
+select * from t where a=1 and b>1 and c=1;（只有ab用上索引）
+
+-- eg2
+select * from t where a=1 and c=1;（只有a用上索引）
+
+```
+
+> 注：mysql的执行计划和查询的实际执行过程并不完全吻合，所以参数的查询也会经过优化。
+
+
+3. 使用OR
+必须要保证 OR 两端的条件都存在可以用的索引，该查询才可以使用索引。
+
+
+4. 索引覆盖
+索引拥有的关键字内容，覆盖了查询所需要的全部数据。此时，就不需要在数据区获取数据，仅仅在索引区即可。覆盖就是直接在索引区获取内容，而不需要在数据区获取。explain的输出结果Extra字段为Using index时，能够触发索引覆盖。即查询字段都为索引字段，通过索引直接就可以获取数据，而不需要再查询表。
+
+使用场景：
++	全表count查询优化
++	列查询回表优化（建立联合索引（name+sex），`select id,name,sex ... where name='shenjian'`）
++	分页查询
+
+### 缓存
+
+MySQL 缓存机制就是缓存sql 文本及缓存结果，用KV形式保存再服务器内存中，如果运行相同的sql,服务器直接从缓存中去获取结果，不需要在再去解析、优化、执行sql。如果表修改了（如insert,update,delete,truncate,alter table,drop table或者是drop database 等命令），那么该表的所有索引都不会生效，查询缓存值得相关条目将被清空。对于更新频繁的表，查询缓存并不合适；对于不变的数据以及查询sql大都相似的表，查询缓存会提高很大性能。
+
+1. 命中条件
+
+缓存存在于一个hash表中，通过查询SQL，查询数据库，客户端协议等作为key,在判断命中前，mysql不会解析SQL，而是使用SQL去查询缓存，SQL上的任何字符的不同，如空格、注释，都会导致缓存不命中。如果查询有不确定的数据like now(),current_date()，那么查询完成后结果者不会被缓存，包含不确定的数的是不会放置到缓存中。
+
+2. 工作流程
+
++	服务器接收SQL，如果涉及表的库有启动缓存，根据SQL及其他条件查找缓存表；
++	如果找到了缓存，则直接返回缓存；
++	如果没有找到缓存，则执行SQL查询，包括原来的SQL解析，优化等；
++	执行完SQL查询结果以后，将SQL查询结果缓存入缓存表。
+
+3. 缓存失败
+
+当某个表正在写入数据，则这个表的缓存（命中缓存，缓存写入等）将会处于失效状态，在Innodb中，如果某个事务修改了这张表，则这个表的缓存在事务提交前都会处于失效状态，在这个事务提交前，这个表的相关查询都无法被缓存。
+
+
+4. 缓存参数配置
+
++	query_cache_type: 是否打开缓存
+	+	OFF: 关闭
+	+	ON: 总是打开
+	+	DEMAND: 只有明确写了SQL_CACHE的查询才会吸入缓存
++	query_cache_size: 缓存使用的总内存空间大小,单位是字节,这个值必须是1024的整数倍,否则MySQL实际分配可能跟这个数值不同(感觉这个应该跟文件系统的blcok大小有关)
++	query_cache_min_res_unit: 分配内存块时的最小单位大小
++	query_cache_limit: MySQL能够缓存的最大结果,如果超出,则增加 Qcache_not_cached的值,并删除查询结果
++	query_cache_wlock_invalidate: 如果某个数据表被锁住,是否仍然从缓存中返回数据,默认是OFF,表示仍然可以返回
+
+> 注：这里的缓存仅当数据表的记录改变时，缓存才会被删除，而不是依靠过期时间的。如果存在不想使用缓存的SQL执行，则可以使用 SQL_NO_CACHE语法
+
+
+### 分区分表
+
+日常开发中经常会遇到大表的情况，所谓的大表是指存储了百万级乃至千万级条记录的表。这样的表过于庞大，导致数据库在查询和插入的时候耗时太长，性能低下，如果涉及联合查询的情况，性能会更加糟糕。分表和表分区的目的就是减少数据库的负担，提高数据库的效率，通常点来讲就是提高表的增删改查效率。
+
+
+
+
+1. 分区
+
+分区，partition，分区是将数据分段划分在多个位置存放，可以是同一块磁盘也可以在不同的机器。分区后，表面上还是一张表，但数据散列到多个位置了。app读写的时候操作的还是大表名字，db自动去组织分区的数据。
+
+MySQL提供4种分区算法：
++	取余
+	+	Key
+	+	hash 
++	条件
+	+	List
+	+	range
+
+实例如下：
+```
+-- 查看是否支持分区
+show VARIABLES like 'have_partitioning'
+
+-- 取余：Key
+CREATE TABLE partition_1 (
+	id  int PRIMARY key AUTO_INCREMENT,
+	title VARCHAR(255)
+)
+partition by key(id) PARTITIONS 3;
+
+分区会生成以下三个文件：
+	partition_1#p#p0.ibd
+	partition_1#p#p1.ibd
+	partition_1#p#p2.ibd
+分区与存储引擎无关，是MySQL逻辑层完成的。
+
+
+-- 取余：hash;，按照某个表达式的值进行取余
+CREATE TABLE partition_2 (
+	id int UNSIGNED  AUTO_INCREMENT,
+	birthday date,
+	pname VARCHAR(255),
+	PRIMARY KEY 	(id, birthday)
+)
+partition by hash(month(birthday)) PARTITIONS 12;
+
+-- 条件：List
+CREATE TABLE partition_4 (
+	id int UNSIGNED  AUTO_INCREMENT,
+	birthday date,
+	pname VARCHAR(255),
+	PRIMARY KEY 	(id, birthday)
+)
+partition by list(month(birthday)) (
+	partition spring VALUES IN(3, 4, 5),
+	partition summer VALUES IN(6, 7, 8),
+	partition autumn VALUES IN(9, 10, 11),
+	partition winter VALUES IN(12, 1, 2)
+);
+
+
+-- 条件：range
+
+CREATE TABLE partition_5 (
+	id int UNSIGNED  AUTO_INCREMENT,
+	birthday date,
+	pname VARCHAR(255),
+	PRIMARY KEY 	(id, birthday)
+)
+partition by range(year(birthday)) (
+	partition p_90 VALUES LESS THAN (2000),
+	partition p_00 VALUES LESS THAN (2010),
+	partition P_10 VALUES LESS THAN (2020),
+	partition p_20 VALUES LESS THAN MAXVALUE
+);
+
+```
+
+1.2. 其它语法
+
+```
+-- 取余
+-- 增加分区数量
+Alter TABLE TABLE_NAME add partition partitions N
+-- 减少分区数量
+Alter TABLE TABLE_NAME COALESCE partition N
+
+-- 条件
+-- 添加分区
+Alter TABLE TABLE_NAME add partition (
+partition P_10 VALUES LESS THAN (2020)
+)
+-- 删除
+Alter TABLE TABLE_NAME drop partition P_10
+
+删除条件算法的分区，会导致分区数据丢失。添加分区不会。
+
+
+```
+
+2. 分表
+分表是将一个大表按照一定的规则分解成多张具有独立存储空间的实体表，我们可以称为子表，每个表都对应三个文件，MYD数据文件，.MYI索引文件，.frm表结构文件。这些子表可以分布在同一块磁盘上，也可以在不同的机器上。app读写的时候根据事先定义好的规则得到对应的子表名，然后去操作它。分表技术是比较麻烦的，需要手动去创建子表，app服务端读写时候需要计算子表名。采用merge好一些，但也要创建子表和配置子表间的union关系。（需要手动分表）
+
++	水平分表：通过结构相同的N个表存储数据，MySQL提供了一个可以将多个结构相同的myisam表合并到一起的存储引擎mrg_myisam。
++	垂直分表：一张表中存在多个字段。这些字段可以分为常用字段和非常用字段，为了提高查表速度，我们可以把这两类字段分开来存储。主要目的，减少每条记录的长度
+
+
+
+> [MySQL如何判别InnoDB表是独立表空间还是共享表空间](https://www.cnblogs.com/kerrycode/p/9515200.html)
+[mysql 缓存机制](https://blog.csdn.net/qzqanzc/article/details/80418125)
+
+# 三、架构优化
+
+架构优化包括主从复制、读写分离、负载均衡。
+
+### 主从复制
+
+
+主–从复制
+主–主复制
+半同步复制
+
+1. 主从复制原理
+
+Mysql 中有一种日志叫做 bin 日志（二进制日志）。这个日志会记录下所有修改了数据库的SQL 语句（insert,update,delete,create/alter/drop table, grant 等等）。主从复制的原理其实就是把主服务器上的 bin 日志复制到从服务器上执行一遍，这样数据就同步了。
+
+![主从复制流程图](/image/mysql/mysql-master-slave.png)
+
++	线程
+	+	主顶点
+		+	Dump Thread：为每个 Slave 的 I/O Thread 启动一个 dump 线程，用于向从顶点发送二进制事件
+	+	从顶点
+		+	I/O Thread：从 Master 顶点请求二进制日志事件，并保存于Relay log（中继日志）中
+		+	Sql Thread：从中继日志中读取日志事件并在本地完成重放
+
+2. 复制过程
+
++	主顶点必须启用二进制日志，记录任何修改了数据库数据的事件。
++	从顶点开启一个线程（I/O Thread)把自己扮演成 mysql 的客户端，通过 mysql 协议，请求主顶点的二进制日志文件中的事件
++	主顶点启动一个线程（dump Thread），检查自己二进制日志中的事件，跟对方请求的位置对比，如果不带请求位置参数，则主顶点就会从第一个日志文件中的第一个事件一个一个发送给从顶点。
++	从顶点接收到主顶点发送过来的数据把它放置到中继日志（Relay log）文件中。并记录该次请求到主顶点的具体哪一个二进制日志文件内部的哪一个位置（主顶点中的二进制文件会有多个，在后面详细讲解）。
++	从顶点启动另外一个线程（sql Thread ），把 Relay log 中的事件读取出来，并在本地再执行一次。
+
+级联复制：从顶点作为其他顶点的主顶点时，需要开启二进制日志文件的；如果只是作为从顶点，则不需要创建二进制文件。
+
+3. 特点
+
++	异步复制：主顶点不需要把写的数据在本地操作完成同时发送给从服务器并等待从服务器反馈写入完成，再响应用户。主顶点只需要把写入操作在本地完成，就响应用户。但是，从顶点中的数据有可能会落后主顶点，
++	主从数据不一致。
+
+4. 主从复制配置过程
++	主顶点
+	+	启用二进制日志。
+	+	为当前顶点设置一个全局唯一的 server_id（相同会导致冲突）
+	+	创建有复制权限的用户账号 REPLIACTION SLAVE ,REPLIATION CLIENT。
++	从顶点
+	+	启动中继日志。
+	+	为当前顶点设置一个全局唯一的server_id
+	+	使用有复制权限的用户账号连接至主顶点，并启动复制线程。
+
+
+配置主从复制(my.ini文件)：
+```
+	# 开启big-log日志
+	log-bin = mysql-bin
+	# 服务器全局唯一ID
+	server-id = 1
+	# 独立表空间
+	innodb-file-per-table = ON
+	# 禁用dns解析,避免网络DNS解析服务引发访问MYSQL的错误
+	skip_name_resolve=ON
+```
+
+
+```
+-- 查看二进制日志是否开启
+show global variables like '%log%';
+
+-- 查看主顶点二进制日志列表
+SHOW MASTER LOGS;
+
+-- 创建有复制权限的用户
+GRANT REPLIACTION SLAVE, REOPLIATION CLIENT ON *.* TO 'repluser@' IDENTIFIED BY 'repluser'
+
+-- 刷新
+
+```
+
+
+-----------------------
+mysql error 2002 
+
+locate
+这个命令的原理是，先为文件系统创建索引数据库，mlocate只是搜索索引，所以速度快
+```
+-- 更新索引
+-- sudo updatedb  只有root权限才能执行，他会扫描整个系统，为整个系统创建索引，数据库在/var/lib/mlocate/mlocate.db
+-- 有一定耗时
+sudo updatedb
+locate mysql
+```
+
+
++	高性能SQL：SQL优化、explain
++	架构：主从复制，读写分离，负载均衡。
+
+
+主服务器搭建在window上，修改my.ini文件
+
+```
+mysql -V
+sudo yum install mysql-server
+
+
+yum.pid已被锁定
+```
+# 将该文件删除
+rm -f /var/run/yum.pid 
+```
+
+
+1. 卸载centos7的默认数据库mariadb
+```
+rpm -qa|grep mariadb --查看
+	mariadb-server-5.5.65-1.el7.x86_64
+	mariadb-libs-5.5.65-1.el7.x86_64
+	mariadb-5.5.65-1.el7.x86_64
+sudo rpm -e --nodeps mariadb-libs-5.5.65-1.el7.x86_64
+
+
+```
+
+2. Linux添加mysql包
+
+[mysql 下载地址](https://dev.mysql.com/downloads/mysql/)
+
+通过Window下载传输：
+```
+	-- WINDOW 文件发送到Linux
+	PuTTY>pscp I:/mysql-8.0.17-1.el7.x86_64.rpm-bundle.tar cen@192.168.223.129:/usr/local
+
+	-- Linux通过rpm安装mysql
+
+	sudo mv mysql-community-server-8.0.23-1.el7.x86_64.rpm  mysql
+	cd mysql
+```
+
+通过centos7 Axel 下载：
+
+```
+	-- 安装 Axel
+	sudo wget http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/a/axel-2.4-9.el7.x86_64.rpm
+	sudo rpm -i axel-2.4-9.el7.x86_64.rpm
+
+	-- Axel太多重定向
+	sudo yum install -y gcc openssl-devel
+	sudo wget https://github.com/axel-download-accelerator/axel/releases/download/v2.17.5/axel-2.17.5.tar.gz
+	tar -zxvf axel-2.17.5.tar.gz
+	cd axel-2.17.5
+	./configure && make && sudo make install
+	sudo cp axel /usr/bin
+
+	-- -n 使用线程数
+	-- -o 输出的目标文件
+	sudo axel -n 10 -o mysql8017.tar https://cdn.mysql.com/archives/mysql-8.0/mysql-8.0.17-1.el7.x86_64.rpm-bundle.tar
+	sudo tar -xvf mysql-8.0.17-1.el7.x86_64.rpm-bundle.tar
+```
+
+
+
+
+3. 按序安装：
+
+
+```
+sudo rpm -ivh mysql-community-common-8.0.18-1.el7.x86_64.rpm
+sudo rpm -ivh mysql-community-libs-8.0.18-1.el7.x86_64.rpm
+sudo rpm -ivh mysql-community-client-8.0.18-1.el7.x86_64.rpm
+sudo rpm -ivh mysql-community-server-8.0.18-1.el7.x86_64.rpm
+```
+
+4. 初始化
+
+```
+-- 初始化数据库
+mysqld --initialize --console
+
+-- 目录授权（cen 是当前用户名）
+chown -R cen:cen /var/lib/mysql/
+
+-- 启动msyql服务
+systemctl start mysqld
+	要求验证密码，忘记使用 passwd+账户 重置
+-- 停止命令
+service mysqld stop
+
+-- 查看msyql服务的状态
+service mysqld status
+
+-- 查看mysql数据库初始密码
+cat /var/log/mysqld.log
+	A temporary password....
+
+-- 用临时密码登录数据库
+mysql -uroot -p
+
+-- mysql8 安全机制
+set global validate_password.policy=0
+set global validate_password.length=4
+quit
+mysql_secure_installation
+
+mysql -uroot -p
+ALTER USER "root"@"localhost" IDENTIFIED BY "123456";
+
+```
+
+---------------------------------------------------------------
+
+
+
+如果输入一个小数。那么java编译器默认认为他是一个double，那么 `float f = 45.0` 就相当于 float a = double b; 在末尾加一个f表示你输入的是float类型就可以了。
+
+
+---------------------------------------------------------------
+在Class文件格式与执行引擎这部分里，用户的程序能直接参与的内容并不太多，Class文件以何种格式存储，类型何时加载、如何连接，以及虚拟机如何执行字节码指令等都是由虚拟机直接控制的行为，用户程序无法对其进行改变。能通过程序进行操作的，主要是字节码生成与类加载器这两部分的功能，但仅仅在如何处理这两点上，就已经出现了许多值得欣赏和借鉴的思路，这些思路后来成为许多常用功能和程序实现的基础。
+
+Web服务器面临的问题：
++	部署在同一个服务器上的两个Web应用程序所使用的Java类库可以实现相互隔离
++	部署在同一个服务器上的两个Web应用程序所使用的Java类库可以互相共享
++	服务器需要尽可能地保证自身的安全不受部署的Web应用程序影响
++	支持JSP应用的Web服务器，十有八九都需要支持HotSwap功能
+
+在Tomcat目录结构中，可以设置3组目录（/common/*、/server/*和/shared/*，但默认不一定是开放的，可能只有/lib/*目录存在）用于存放Java类库，另外还应该加上Web应用程序自身的“/WEBINF/*”目录，一共4组：
++	放置在/common目录中，类库可被Tomcat和所有的Web应用程序协同使用
++	放置在/server目录中，类库可被Tomcat使用，对所有的Web应用程序都不可见
++	放置在/shared目录中，类库可被所有的Web应用程序协同使用，但对Tomcat自己不可见
++	放置在/WebApp/WEB-INF目录中，类库仅仅可以被该Web应用程序使用，对Tomcat和其他Web应用程序都不可见
+
+为了支持这套目录结构，并对目录里面的类库进行加载和隔离，Tomcat自定义了多个类加载器，这些类加载器按照经典的双亲委派模型来实现：
+
+![Tomcat自定义类加载器](/image/jdk/tomcat-cl.png)
+
+从委派关系中可以看出，Common类加载器能加载的类都可以被Catalina类加载器和Shared类加载器使用，而Catalina类加载器和Shared类加载器自己能加载的类则与对方相互隔离。WebApp类加载器可以使用Shared类加载器加载到的类，但各个WebApp类加载器实例之间相互隔离。而JasperLoader的加载范围仅仅是这个JSP文件所编译出来的那一个Class文件，它存在的目的就是为了被丢弃：当服务器检测到JSP文件被修改时，会替换掉目前的JasperLoader的实例，并通过再建立一个新的JSP类加载器来实现JSP文件的HotSwap功能。
+
+上例中的类加载结构在Tomcat 6以前是它默认的类加载器结构，在Tomcat 6及之后的版本简化了默认的目录结构，只有指定了tomcat/conf/catalina.properties配置文件的server.loader和share.loader项后才会真正建立Catalina类加载器和Shared类加载器的实例，否则会用到这两个类加载器的地方都会用Common类加载器的实例代替，而默认的配置文件中并没有设置这两个loader项
+
+
+OSGi
+
+1. 什么是OSGi
+OSGi[1]（Open Service Gateway Initiative）是OSGi联盟（OSGi Alliance）制订的一个基于Java语言的动态模块化规范（在JDK 9引入的JPMS是静态的模块系统）。
+
+OSGi中的每个模块（称为Bundle）与普通的Java类库区别并不太大，两者一般都以JAR格式进行封装[2]，并且内部存储的都是Java的Package和Class。但是一个Bundle可以声明它所依赖的Package（通过Import-Package描述），也可以声明它允许导出发布的Package（通过Export-Package描述）。在OSGi里面，Bundle之间的依赖关系从传统的上层模块依赖底层模块转变为平级模块之间的依赖，而且类库的可见性能得到非常精确的控制，一个模块里只有被Export过的Package才可能被外界访问，其他的Package和Class将会被隐藏起来。
+
+2. OSGi的Bundle类加载器
+
+OSGi的Bundle类加载器之间只有规则，没有固定的委派关系。例如，某个Bundle声明了一个它依赖的Package，如果有其他Bundle声明了发布这个Package后，那么所有对这个Package的类加载动作都会委派给发布它的Bundle类加载器去完成。不涉及某个具体的Package时，各个Bundle加载器都是平级的关系，只有具体使用到某个Package和Class的时候，才会根据Package导入导出定义来构造Bundle间的委派和依赖。
+
+3. 死锁问题
+
+OSG复杂的动态类加载机制虽然带来了肉眼可见的性能提升。但是在高并发的情况下，复杂的网状关系如果存在循环依赖那么最终会导致死锁。以前，用户可以启用osgi.classloader.singleThreadLoads参数来按单线程串行化的方式强制进行类加载动作。在JDK 7时才终于出现了JDK层面的解决方案，类加载器架构进行了一次专门的升级，在ClassLoader中增加了`registerAsParallelCapable`方法对可并行的类加载进行注册声明，把锁的级别从ClassLoader对象本身，降低为要加载的类名这个级别，目的是从底层避免以上这类死锁出现的可能。
+
+4. 总结
+
+总体来说，OSGi描绘了一个很美好的模块化开发的目标，而且定义了实现这个目标所需的各种服务，同时也有成熟框架对其提供实现支持。对于单个虚拟机下的应用，从开发初期就建立在OSGi上是一个很不错的选择，这样便于约束依赖。但并非所有的应用都适合采用OSGi作为基础架构，OSGi在提供强大功能的同时，也引入了额外而且非常高的复杂度，带来了额外的风险。
+
+-------------------------------------------------------------------------
+
+
+
+
+-------------------------------------------------------------------------
+
+UML中关系
+1. 依赖（Dependency）：A类中存在方法形参为B类
+
+实体之间一个“使用”关系暗示一个实体的规范发生变化后，可能影响依赖于它的其他实例（图D）。更具体地说，它可转换为对不在实例作用域内的一个类或对象的任何类型的引用。其中包括一个局部变量，对通过方法调用而获得的一个对象的引用（如下例所示），或者对一个类的静态方法的引用（同时不存在那个类的一个实例）
+
+2. 关联（Association）：A类有成员变量是B类
+
+实体之间的一个结构化关系表明对象是相互连接的。UML箭头是可选的，它用于指定导航能力。如果没有箭头，暗示是一种双向的导航能力。在Java中，关联（图E）转换为一个实例作用域的变量，就像图E的“Java”区域所展示的代码那样。可为一个关联附加其他修饰符。
+
++	合成/组合（Composition）：A类的成员变量是B类，且必定存在
+	+	合成（图G）是聚合的一种特殊形式，UML箭头暗示“局部”在“整体”内部的生存期职责。合成也是非共享的。所以，虽然局部不一定要随整体的销毁而被销毁，但整体要么负责保持局部的存活状态，要么负责将其销毁。局部不可与其他整体共享。但是，整体可将所有权转交给另一个对象，后者随即将承担生存期职责。
++	聚合（Aggregation）：A类通过存在数组之类的结构存放B类
+	+	聚合（图F）是关联的一种形式，UML箭头代表两个类之间的整体/局部关系。聚合暗示着整体在概念上处于比局部更高的一个级别，而关联暗示两个类在概念上位于相同的级别。聚合也转换成Java中的一个实例作用域变量。
++	合成与聚合的区别：聚合即A中可能有B对象，B对象不是A的一部分；合成即A中一定有B对象，并且生成A对象的同时一定生成B对象。
+
+3. 泛化（Generalization）：A类继承于B类
+
+泛化（图H）表示一个更泛化的元素和一个更具体的元素之间的关系。泛化是用于对继承进行建模的UML元素。
+
+4. 实现（Realization）：A类实现了B接口
+
+面向对象中表示接口的实现。
+
+
+
+-----------------------------------------------------------------------------------------------------
+# Javac编译器
+
+“编译期”可能是指一个前端编译器（叫“编译器的前端”更准确一些）把*.java文件转变成*.class文件的过程；也可能是指Java虚拟机的即时编译器（常称JIT编译器，Just In Time Compiler）运行期把字节码转变成本地机器码的过程；还可能是指使用静态的提前编译器（常称AOT编译器，Ahead Of Time Compiler）直接把程序编译成与目标机器指令集相关的二进制代码的过程。
+
++	前端编译器：JDK的Javac、Eclipse JDT中的增量式编译器（ECJ）
++	即时编译器：HotSpot虚拟机的C1、C2编译器，Graal编译器
++	提前编译器：JDK的Jaotc、GNU Compiler for the Java（GCJ）、Excelsior JET
+
+这里，先暂时将“编译期”仅限于第一类编译过程，即前端编译器。相当多新生的Java语法特性，都是靠编译器的“语法糖”来实现，而不是依赖字节码或者Java虚拟机的底层改进来支持。
+
+
+
+Javac编译器不像HotSpot虚拟机那样使用C++语言（包含少量C语言）实现，它本身就是一个由Java语言编写的程序。
+
+从Javac编译过程如下：
+
+1. 准备过程
+
++	初始化插入式注解处理器
+
+2. 处理过程
+
++	解析与填充符号表过程，包括：
+	+	词法、语法分析；将源代码的字符流转变为标记集合，构造出抽象语法树。
+	+	填充符号表；产生符号地址和符号信息。
++	插入式注解处理器的注解处理过程：插入式注解处理器的执行阶段
++	分析与字节码生成过程，包括：
+	+	标注检查，对语法的静态信息进行检查。
+	+	数据流及控制流分析，对程序动态运行过程进行检查。
+	+	解语法糖，将简化代码编写的语法糖还原为原有的形式。
+	+	字节码生成，将前面各个步骤所生成的信息转化成字节码。
+
+
+上述3个处理过程里，执行插入式注解时又可能会产生新的符号，如果有新的符号产生，就必须转回到之前的解析、填充符号表的过程中重新处理这些新符号。
+
+![javac处理过程](/image/jdk/jvm-javac.png)
+
+### 解析与填充符号表
+
+1. 词法、语法分析
+
+词法分析是将源代码的字符流转变为标记（Token）集合的过程，单个字符是程序编写时的最小元素，但标记才是编译时的最小元素（关键字、变量名、字面量、运算符都可以作为标记，例如“int a=b+2”会被解析为6个标记）。在Javac的源码中，词法分析过程由`com.sun.tools.javac.parser.Scanner`类来实现。
+
+语法分析是根据标记序列构造抽象语法树的过程，抽象语法树（Abstract Syntax Tree，AST）是一种用来描述程序代码语法结构的树形表示方式，抽象语法树的每一个顶点都代表着程序代码中的一个语法结构（Syntax Construct），例如包、类型、修饰符、运算符、接口、返回值甚至连代码注释等都 可以是一种特定的语法结构。在Javac的源码中，语法分析过程由`com.sun.tools.javac.parser.Parser`类实现，这个阶段产出的抽象语法树是以`com.sun.tools.javac.tree.JCTree`类表示的。
+
+经过词法和语法分析生成语法树以后，编译器就不会再对源码字符流进行操作了，后续的操作都建立在抽象语法树之上。
+
+
+2. 填充符号表
+
+符号表（Symbol Table）是由一组符号地址和符号信息构成的数据结构，读者可以把它类比想象成哈希表中键值对的存储形式（实际上符号表不一定是哈希表实现，可以是有序符号表、树状符号表、栈结构符号表等各种形式）。
+
+符号表中所登记的信息在编译的不同阶段都要被用到。譬如在语义分析的过程中，符号表所登记的内容将用于语义检查（如检查一个名字的使用和原先的声明是否一致）和产生中间代码，在目标代码生成阶段，当对符号名进行地址分配时，符号表是地址分配的直接依据。
+
+在Javac源代码中，填充符号表的过程由com.sun.tools.javac.comp.Enter类实现，该过程的产出物是一个待处理列表，其中包含了每一个编译单元的抽象语法树的顶级顶点，以及package-info.java（如果存在的话）的顶级顶点。
+
+
+
+-----------------------------------------------------------------------------------------------------
+
+
+一、FMI（Functional Mock-up Interface）
+
+1.  什么是FMI
+
+FMI代表“ Functional Mock-up Interface ”，是MODELISAR项目中的一项重要开发工作。FMI规范允许任何建模工具生成代表动态系统模型的C代码或二进制文件，然后可以将其无缝集成到另一个建模和仿真环境中。
+
+共同仿真规范的FMI处理带有内置求解器和仿真工具耦合的模型。规范分为执行部分和模型描述部分（XML模式）。总之，实现任何FMI规范的FMU（功能模拟单元）均由以下组成：
+
++	XML模型描述。
++	以二进制和/或源代码格式实现C函数接口。
++	资源，例如输入数据。
++	模型的图像和文档。
+
+遵循此标准导出的模型都可以与其他导出的模型进行协同仿真。在协同仿真的情况下，FMU包含使用XML标准格式表示的模型以及一些二进制文件，具体取决于与FMU兼容的平台。这些二进制文件是可由主算法（MA）加载的动态库。 ），并具有MA知道的标准接口。在这种情况下，FMU被视为MA命令的从属组件。MA是一种协调多个FMU（从站）执行的软件，这种协调主要涉及不同FMU模型之间的数据交换及其调度。
+
+
+2. FMI标准接口
+
++	模型描述文件 （XML）；
++	仿真程序代码（DLL）；
++	其他文件（图片、文档等）
+
+3. FMI规范介绍-设计思想
+
++	Model Exchange（模型交换）
++	Co-Simulation（联合仿真）
+
+
+4. FMI导出文件（FMU）
+
++	不包含求解器，只包括输入/输出接口以及与模型相关的信息；
++	FMU可以包含大量的变量；
++	FMU可用于嵌入式系统（只需很小的开销）；
++	多个FMU可以便捷高效的连在一起求解（各组件可以相互依赖，互相“协作”）
+
+通过遵循统一的FMI规范，输出统一的FMU文件格式，不同的仿真软件可以联合仿真
++	[Simulink协同仿真](https://www.mathworks.com/help/hdlverifier/simulink-cosimulation.html)
++	[daccosim源码](https://bitbucket.org/simulage/daccosim/src/master/)
+
+# 二、daccosim
+
+DACCOSIM NG是一个用于开发和运行由JavaFMI（fmu-wrapper和fmu-builder）支持的协同仿真用例的环境，JavaFMI是使用FMI标准的“协同仿真”部分实现互操作性的工具套件。DACCOSIM NG允许设计和执行协同仿真，从而提供了开发协同仿真图的机制。
+
+### 协同仿真图（co-simulation graphs）
+
+协同仿真图由顶点和连接顶点的箭头组成。一旦定义了顶点，就可以建立箭头来定义如何在它们之间交换变量。在协同仿真图中，可以包含不同类型的顶点：
+
+
+
+1. FMU
+这种顶点代表了FMU，它保存文件路径，用作输入和输出的变量以及变量和参数的初始值。
+
+
+2. External inputs/outputs（外部输入/输出）
+
+这类顶点允许提供固定值作为其他顶点的输入（外部输入）或者存储由输出提供的值（外部输出）。这两种顶点都可以具有多个变量，如外部输入将拥有几个可用于其他顶点的输出。
+
+
+一旦定义了协同仿真图，就可以执行以下步骤：
++	加载：该过程首先打开定义了协同仿真的文件并将图形加载到内存中，打开该文件并对其进行处理后，还将加载所使用的每个FMU
++	协同初始化：在执行了协同初始化过程后，将用户选择用于导出的变量初始值写入输出文件中，以便随后进行分析
++	协同执行：在达到模拟停止时间之前，将根据需要多次调用doStep方法
++	导出结果：到达停止时间后，通过终止所有FMU并关闭导出文件来完成仿真
+
+协同仿真的困难之一是：为所有组件设置一致的系统范围内的初始值。Daccosim协同初始化算法由基于FMU连接变量构建的全局依赖有向图开始，它使用用户建立的连接来查找源FMU的输出和宿主FMU的输入之间的外部依存关系。
+
+
+关键思想是有向无环图（DAG）的拓扑排序会给出必须初始化的变量顺序，这导致研究如何将通用有向图转换为DAG。 找到的解决方案是建立与循环依赖关系相对应的强连接组件（SCC）图，将每个SCC收缩到单个顶点中的结果图是DAG。我们使用Tarjan的SCC算法（Tarjan，1972） 在许多Modelica工具中）以标识依赖关系图中的每个SCC（以线性时间运行）。 
+
+遵循在收缩的SCC图上按拓扑排序获得的顺序： 
+
++	对于未收缩的顶点，只需传播其值
++	对于收缩的顶点（它们对应于循环依赖关系），我们使用迭代算法（称为JNRA（基于雅各布的牛顿-拉夫森算法））解决了初始化问题，该算法受传统牛顿-拉夫森算法的启发，经常被用于电力潮流计算。
+
+3. 运算符（Operator）
+
+共有四个运算符：加法器，乘法器，偏移量和增益。 这些运算符允许使用其他顶点的输出进行计算，从而在要使用的输出中提供结果。 
++	加法器和乘法器有两个或多个输入和一个输出
++	偏移量只有一个固定值和一个输入之和
++	增益定义为一个固定值，该值将乘以给定的输入
+
+所有这些顶点都可以使用实数，整数和布尔值。
+
+
+### 文件结构
+
+
+
+Daccosim文件结构如下：
+
+![Daccosim文件结构](/image/co-simulation/Daccosim-NG-Modelica-f4.jpg)
++	simx：这是一个存档文件（zip），其中包含名为fmu的文件夹，以及在协同仿真图中使用的fmu文件以及sim，dng和dsg文件（sim，dng和dsg文件包含不同格式的协同仿真图的表示）
+	+	sim 文件中包含要在编辑器中显示的可视化图形信息
+	+	dng 中包含以声明性语言显示的图形
+	+	dsg 中包含以json格式定义的序列化图形（协同仿真图的一种表示）
+	+	fmu 文件夹：包含相关的多个FMU文件
++	dngx：此存档与simx具有相同的结构和内容，但不存在sim和dsg文件，只有dng文件
+	+	dngx允许创建一个可运行文件，使用声明性语言定义了图形。
+
+1. fmu 文件
+
+这是一种ZIP压缩包，包括了模型的资源和文档，通过XML描述了资源的结构和作用。当使用daccosim加载simx时，会解析包含的每个FMU，将它转换为FMU顶点。当软件加载fum文件时，会将之渲染为fmu顶点。
+
+![Daccosim文件结构](/image/co-simulation/Daccosim-NG-Modelica-f4.jpg)
+
+每次在doStep方法中调用FMU顶点时，它们通常需要消耗大量的系统资源。 因此，执行引擎还准备在分布式环境中运行，从而可以执行大规模的协同仿真方案。
+归功于抽象机制的使用，执行引擎无需知道每个FMU的实际执行位置。引擎每次与FMU交互时，都会使用抽象接口。如下图所示，一共有三种实现：
+
+![Daccosim文件结构](/image/co-simulation/Daccosim-NG-Modelica-	1.jpg)
+
+Daccosim-NG-Modelica-f5.jpg
++	FMULocal：使用文件系统中的FMU文件
++	FMUStub：使用与Java消息服务（JMS）的连接来与正在远程执行的FMU进行交互，源码中实现了FMUJMS接口，用于实现服务
++	FMUSoul：FMU在远程计算机中的表示
+
+在上图中，示例展示了如何在运行分布式仿真的机器之间通信。在此示例中，有三台计算机。 在第一个实例中，Daccosim内核的一个实例负责协调分布式执行。 此实例的执行引擎使用FMU接口与要协调的三个FMU进行通信。 其中，两个正在远程执行，一个在本地执行。 但是，由于引擎仅取决于接口，因此类似于执行位置等详细信息对其执行过程来说并不重要。
+每当引擎发出命令时，FMUStub都会与FMUSoul通信以执行命令，将答案提供给引擎。尽管未显示，但通信是通过JMS进行的。 JMS的使用为设计不同的分发体系结构提供了灵活性，以支持大规模的协同仿真。
+
+
+2. dng文件（声明式语言）
+
+Daccosim NG中实现的声明性语言允许用户在文本编辑器上定义一个协同仿真图或通过程序自动生成它。为此，已经设计了一种领域特定的语言来简单地定义一个协同仿真图。该语言非常简单并且易于理解。其目的是创建无法在GUI中建模的非常宽的图，其中有数百个相互连接的顶点交换成千上万的变量。此功能允许预处理工具开发兼容的模型，以便在DaccosimNG中执行。
+
+声明式语言实例如下，
+```
+// 2021-05-08T03:33:24.918Z
+// Generated with Daccosim NG %%VERSION%%
+
+// 格式：FMU ID 文件相对路径 staitc？
+FMU equation1 "fmu/equation1win3264.fmu"
+// 格式：Output/Input FMU-ID 变量ID 变量类型 变量可变性
+Output equation1 x2 Real continuous
+Input equation1 x1 Real continuous
+
+FMU equation2 "fmu/equation2win3264.fmu"
+Output equation2 x1 Real continuous
+Input equation2 x2 Real continuous
+
+// 描述要连接的输入、输出
+Connection equation1.x2 equation2.x2
+Connection equation2.x1 equation1.x1
+
+Export ; . 2.0E-4
+Log equation1.x1 equation1.x2 equation2.x1 equation2.x2
+NewtonRaphsonInitializer 20 1.0E-5
+// 步长方法
+ConstantStepper 1.0
+// 仿真起始和结束时间
+Simulation 0.0 0.0
+
+// pipeline 管道配置：管道配置可以合并到dng文件中。在这种情况下，语法由＆和@之类的链接器组成。 ＆链接器表示＆两侧的FMU在同一阶段并行执行。 @链接器指示两侧的FMU在不同阶段执行
+Pipeline equation1&equation2
+```
+
+这个例子来自于`equationsPair.simx`，该文件实际是压缩文件，解压后就可打开后缀为".dng"的文件。
+
+3. dsg 文件（DaccosimGraph）
+
+dsg 中包含以json格式定义的序列化图形（协同仿真图的一种表示）
+
+相关示例如下，来自于`equationsPair.simx`
+
+```
+	{
+		"settings": {
+			"coInitialization": {
+				"method": "NewtonRaphson",
+				"residualsTolerance": 1.0E-5,
+				"maxIterations": 20
+			},
+			"startTime": 0.0,
+			"stopTime": 0.0,
+			"pipeline": "equation1\u0026equation2",
+			"stepper": {
+				"method": "ConstantStep",
+				"order": 3,
+				"stepSize": 1.0,
+				"safetyFactor": 0.9,
+				"stepperVariables": {},
+				"transmitDerivatives": false
+			}
+		},
+		"nodes": [{
+			"CLASSNAME": "eu.simulage.daccosim.view.FMU",
+			"INSTANCE": {
+				"path": "fmu/equation1win3264.fmu",
+				"beforeInitValues": [],
+				"inInitValues": [],
+				"flowVariables": [],
+				"static_": false,
+				"id": "equation1",
+				"inputs": [{
+					"id": "x1",
+					"type": "Real",
+					"value": 0.0,
+					"variability": "continuous"
+				}],
+				"outputs": [{
+					"id": "x2",
+					"type": "Real",
+					"value": 0.0,
+					"variability": "continuous"
+				}],
+				"variables": []
+			}
+		}, {
+			"CLASSNAME": "eu.simulage.daccosim.view.FMU",
+			"INSTANCE": {
+				"path": "fmu/equation2win3264.fmu",
+				"beforeInitValues": [],
+				"inInitValues": [],
+				"flowVariables": [],
+				"static_": false,
+				"id": "equation2",
+				"inputs": [{
+					"id": "x2",
+					"type": "Real",
+					"value": 0.0,
+					"variability": "continuous"
+				}],
+				"outputs": [{
+					"id": "x1",
+					"type": "Real",
+					"value": 0.0,
+					"variability": "continuous"
+				}],
+				"variables": []
+			}
+		}],
+		"arrows": [{
+			"from": "equation1.x2",
+			"to": "equation2.x2"
+		}, {
+			"from": "equation2.x1",
+			"to": "equation1.x1"
+		}],
+		"export": {
+			"cellSeparator": ";",
+			"decimalSeparator": ".",
+			"prefix": "equationsPair",
+			"variables": ["equation1.x1", "equation1.x2", "equation2.x1", "equation2.x2"],
+			"folder": ".",
+			"interpolationInterval": 2.0E-4
+		}
+	}
+```
+
+### daccosim 实例
+
+[下载daccosim 实例](https://bitbucket.org/simulage/daccosim/downloads/) ： daccosim-use-cases-windows-20201212.zip。其中，例子“1-coinit-only/1-equationsPair”就是以下两条算式：
+
++	2*X1^X1+5*X2=42
++	X1-6*X2=4
+
+每条算式是一个顶点，通过协同合作，两个未知数由零开始递增，最终获得一个近似值。
+
+Equation1.x2取决于Equation2.x1，而Equation2.x2取决于Equation1。 二者形成一个代数环路，其中对 Equation1.x1的修改会影响Equation1.x2，而对Equation2.x2的修改会影响Equation2.x1。 协同仿真程序将计算该图（为所有变量提供一致的初始值），程序将检测到一个SCC，并且在多次迭代后，x1和x2将达到以下值（x1 = 4.56，x2 = 0.09）。
+
+
+----------------------------------------------------------------
+
+
+
+
+
+
+协同执行
+在Daccosim中，可以在执行协同仿真图时，选择如何推进时间步长。 时间步长主要有两类：
++	常量 
++	变量 
+
+
+
+7. Step
+
+恒定步进器提前的时间每次都是相同的,可能无法提供良好的计算/精度比：为步长选择较小的值会导致大量的计算步骤，而较大的值可能无法捕获模拟变量中的某些变化。
+
+根据FMU的功能，Daccosim NG还可以实施几种可变的步进策略。在模拟第i步后，每个FMU都会检查其输出，并估计它们与精确值的距离。 Daccosim-NG实现了两种算法：
++	基于Euler方法的算法
++	基于Adams Bashforth方法的算法。
+
+它们的原理是：将导数的值存储在连续的通信点上，以便下一次迭代时推断出一个估值；如果发现该数在接受范围之内，则引擎将建议以更大的步长执行下一步。否则，将取消最后一步，并以较小的步长值重做。自从FMI 2.0版引入FMU状态的概念以来，便可以进行回滚，从而允许在执行模拟步骤之前对FMU状态进行序列化，并在必要时恢复保存的状态。该开源软件提供了一个GUI，以方便设计，开发和执行协同仿真图。
+
+
+
+
+8. Matryoshka
+
+Matryoshka
+该功能（Galtier等人，2017）允许将协同仿真图存储到FMU中，以用于Dymola等其他协同仿真环境或Daccosim NG本身（Evora等，a）。其中，FMU是由FMI规范提倡的一种仿真文件格式。当由其他工具打开时，存储在FMU中的协同仿真图被视为单个FMU。 每当主算法出于任何目的使用此FMU时，Matryoshka FMU都会将命令分派给相应的内部FMU。
+
+例如，如果主设备通过doStep方法向 Matryoshka-FMU 发出模拟进阶命令，则此FMU将对包含的所有FMU执行doStep，并将按照共同仿真图中的说明在FMU之间交换值。同时，可以在另一个协同仿真图中嵌入一个Matryoshka FMU，然后将此图导出到具有多层FMUsembedded的Ma-tryoshka FMU中。
+
+
+支持将FMU导出是由好处的：
+
++	FMU可以导入到任何FMI兼容的仿真工具中，该工具也可以处理Daccosim NG无法直接交互的非FMI组件。
++	利用Daccosim NG高效的多线程步长控制解决方案，有助于在传统的单线程模拟工具中模拟更快的大型模型。
++	借助Daccosim NG广义协初始化算法，可以在Matryoshka中处理复杂图形的初始化。复杂的仿真图可以直接重用，而无需重写任何内容，并且没有泄露工业和知识产权的风险。
++	可以对协同仿真过程进行微调：通常，当求解器仅对整个模型使用一个精度目标时，Daccosim NG允许用户为每个FMU的每个输出和内部变量定义不同的公差值
+
+
+
+“Fmu”对象实例的属性为：
++	Label：在协同仿真图中命名FMU。该字段是可编辑的，将用于标识结果文件中的内部变量
++	“...”按钮：重新加载相同的FMU，这在更新FMU或加载另一个要附加到当前FMU块的FMU时很有用
++	static（静态）：此复选框允许以静态模式执行FMU。此模式为此FMU提供了特定的行为，包括在整个模拟执行过程中将FMU保持在初始化模式。也就是说，其他FMU可能会以STEPPER模式更新它的时间，而该FMU将一直保持其初始化模式，即允许在特殊场景下使用纯静态编译模型，而系统的其余部分会随着时间的推移而变化。
++	FMU初始化列表的变量表，该表由四个名为 ‘Type’, ‘Mode’,‘Variable name’and ‘Init value’的列组成。
+	+	Type：是当前变量的类型（实型，布尔型，整数，字符串）
+	+	Mode：定义当前变量的初始化模式（“ Before”或“ In Init”）
+		+	“Before”：被赋予在进入初始化模式之前，即文件存在以下变量配置：
+			+	variability = "fixed/tunable" 和 causality = "parameter"
+			+	variability = "fixed/tunable" 和 causality = "calculated parameter/local" 以及 initial = "approx"
+			+	variability = "discrete/continuous" 和 causality = "local" 以及 initial = "exact/approx"
+		+	“In Init”：只能在初始化阶段初始化的变量
+			+	causality = "input"
+	+	Variable：当前变量的名称
+	+	Init value：当前变量的默认值（FMU的modelDescription.xml文件中可用）
+
+> 还要注意，输入到输出的传播是按照每个FMU在其modelDescription.xml文件中定义的配置执行的。当FMU不公开内部依赖关系时，将假定每个外部输出都依赖于FMU的所有外部输入（这些默认依赖项不能由用户修改）。
+
+
+
+----------------------------------------------------------------
+
+
+
+org.javafmi.framework.FmiContainer.Variability
+
+
+Variable表示变量 包含id、type、value、variability属性，存在Input、Output两个子类。variability属性约定了变量的变化情况（枚举类Variability）
+	/**
+	 * @Author zws
+	 * @Description （源码解读） 变量可变性枚举类
+	 * @Date 14:04 2021/5/11
+	 * @Param
+	 * @return
+	 **/
+    public static enum Variability {
+		// 恒定 变量的值永远不变
+        constant, 
+		// 固定 变量的值在初始化之后不变
+        fixed, 
+		//可调 变量与外部变量之间的关系是恒定的，变量值的变化取决于外部值以及变量关系的变化
+        tunable, 
+		
+        // discrete：离散 
+		// 模型交互：变量的值在外部事件和内部事件之间是恒定的（=在FMU中隐式定义的时间，状态，步进事件）
+		// 协同仿真：值的变化取决于变量关系的变化
+		discrete, 
+		
+		// continuous：只有类型为“ Real”的变量可以是连续的  
+		// 模型交互：值的变化没有限制
+		// 协同仿真：该变量来自微分
+        continuous;
+
+        private Variability() {
+        }
+    }
+
+> [官方的建模规范下载](http://www.modeler.org.cn/standard/FMI.asp)
+
+
+SimxFile.save
+
+变量存在
+
+
+```
+/**
+ * @Author zws-源码
+ * @Description 用于simx 文件的载入与保存
+ * @Date 10:21 2021/5/11
+ **/
+public class SimxFile {
+	...
+	/**
+	 * @Author zws
+	 * @Description （源码解读）保存SIMX文件
+	 * @Date 13:59 2021/5/11
+	 **/
+	@SuppressWarnings({"ConstantConditions", "ResultOfMethodCallIgnored"})
+	void save() {
+		try {
+//			1. 获取界面包含的fmu，转换为list
+			List<String> fmuFiles = vertexesOf().stream().filter(v -> v instanceof FmuSpec).map(v -> ((FmuSpec) v).fileName()).collect(toList());
+			
+//			2. 检测fmu是否真实存在
+			stream(fmuFolder().listFiles()).filter(f -> !fmuFiles.contains(f.getName())).forEach(File::delete);
+			
+//			3. 用于将mx图转换为dsg(daccosim graph)对象
+			Graph graph = MxGraphToDsg.toDaccosimGraph(getEditor());
+//			3.1 保存可视化信息为sim文件（）
+			writeFile(simFile.toPath(), simFileOf(getEditor().graphComponent.getGraph()));
+//			3.2 图对象转换为dng文件（声明性语言）
+			writeFile(dngFile.toPath(), exportDng(graph));
+//			3.3 图对象转换为dsg文件（json、序列化）
+			writeFile(dsgFile.toPath(), graph.serialize());
+			
+//			4. 将临时文件压缩到simx文件
+			moveFile(new Zipper().zipDirectory(tempFolder, this.simxFile.getName()), this.simxFile);
+		} catch (Throwable e) {
+			showErrorDialog(null, "There was a problem saving the file. Is it already opened by other application?");
+			e.printStackTrace();
+		}
+	}
+	...
+}
+```
+
+
+Debug 了文件保存，阅读了部分源码，保存格式为simx。相关步骤如下：
+
+1. 获取界面包含的fmu，转换为list；检测fmu是否实际存在于临时文件夹中
+2. mxgraph->graph(前端为mxgraph对象，保存时后台会把它解析为 Graph实体)
+3. simx实际格式为ZIP格式，包含了 sim、dng、dsg 三种文件
++	sim 可视化信息（xml）
++	dng 使用声明性语言描述了图结构，包含了注释+数据（node、arrow、setting）
++	dsg 将图实体序列化后保存为json格式的文件
+4. 将临时文件复制到simx文件中
+
+保存功能修改思考：
+1. 前端数据转换为实体（修改字段），实体转换为文件。
++	前端存在修改，那么就更新到服务器，否则由前端处理。
++	通用文件是共用的，如果修改需要设置版本号。
+2.  需要上传功能
+3.	运行不需要触发保存功能（？），修改一段时间后定时保存（？）
+
+GraphNode是图顶点抽象类，定义了一些通用的属性和方法。FMU顶点是基于FMU文件的顶点，包含属性InitValues（beforeInitValues|inInitValues）、static（静态模式）、flowVariables（？）。
+
+
+```
+/**
+ * @Author zws
+ * @Description （源码解读） 定义了 顶点-FMU
+ * @Date 13:22 2021/5/11
+ **/
+public class FMU extends GraphNode {
+//	FMU文件路径
+	private String path;
+//	Before 类型的初始化变量
+	private List<InitialValue> beforeInitValues = new ArrayList<>();
+//	In Init 类型的初始化变量
+	private List<InitialValue> inInitValues = new ArrayList<>();
+//	流变量
+	private List<String> flowVariables = new ArrayList<>();
+//	静态模式-FMU全程保持初始化状态
+	private boolean static_;
+	
+}
+```
+
+FMU顶点有以下几个属性：
++	InitValues（初始值）：定义当前变量的初始化模式（“ Before”或“ In Init”）
+	+	“Before”：被赋予在进入初始化模式之前，即FMU中modelDescription.xml文件存在以下变量配置：
+		+	variability = "fixed/tunable" 和 causality = "parameter"
+		+	variability = "fixed/tunable" 和 causality = "calculated parameter/local" 以及 initial = "approx"
+		+	variability = "discrete/continuous" 和 causality = "local" 以及 initial = "exact/approx"
+	+	“In Init”：只能在初始化阶段初始化的变量，FMU中modelDescription.xml文件存在以下变量配置：
+		+	causality = "input"
++	static（静态模式）：模式为此FMU提供了特定的行为，包括在整个模拟执行过程中将FMU保持在初始化模式。也就是说，其他FMU可能会以STEPPER模式更新它的时间，而该FMU将一直保持其初始化模式。
++	flowVariables（流变量）：该接口指定FMU输出哪些流，存在那些流输入FMU。流变量可以设定为一个输入多个输出的多重连接。与通常的Modelica规范相比，所有连接的输出值都乘以-1，然后求和，然后再设置为输入（流量变量正在输入模型）
+
+
+idea查看方法被哪里使用
+•方法一:快捷键Alt + F7
+•方法二:选中方法名右键,点击"Find Usages"
+
+-------------------------------------------------------------------------------
+
+# FMI
+
+1. 为什么需要FMI
+
+仿真软件面临的难题：
++	模型是多来源且异构的
++	工具之间的接口不统一，难以实现多工具的联合仿真
++	封装模型传递过程中无法有效利用已确定的仿真参数和架构信息或数据，需要二次设置参数和重新拖拽连接模型
++	数据交互的通信协议和接口不统一
++	代表非实时、软实时和硬实时系统之间的软硬件工具的联合仿真通信方法有待完善，简化应用配置工作，降低应用门槛
+
+仿真工作可以分为系统级以及部件级，系统级相当于制造汽车，而部件级表示制造汽车过程中涉及的架构、零件等设计流程。在这个研发过程中，会使用到不同供应商提供的软件。这些软件接口不一，模型不一致，很难进行协同研发。在这种情况下，FMI应运而生。
+
+> FMI标准的诞生来自于欧盟Modelisar项目，最初由Daimler AG发起、组织和领导，有28个欧洲伙伴参与，这包括工具供应商、工业用户和科研机构。Modelisar项目于2008年启动，第一期项目到2011年结束，第一期项目共投入经费超过3千万欧元，制定了FMI1.0标准。2012年，FMI2.0标准的制定纳入到Modelica协会管理下（Modelica协会是Modelica语义制定和维护的非营利组织），并在2014年初推出了FMI2.0的成熟标准。
+
+2.   FMI的主要设计思想
+
+FMI为针对功能和性能模型重用的接口标准，通过FMI标准导出的文件是一个压缩包，文件的扩展名为“.fmu”，故称依据FMI标准导出的用于模型重用的文件为FMU文件，即Functional Mock-up Unit。
+
+
+FMU的压缩包文件里包含了：
++	描述模型接口信息和数据的“.xml”文件（modelDescription.xml）
++	实现模型动态行为功能的文件(C代码或二进制文件)
++	其他用户希望包含在FMU中的文件和数据
+
+FMI规范：
++	模型重用
+	+	模型交换（不包含求解模型方程的求解器）
+	+	联合仿真（依据Co-Simulation方法导出，包含求解器）
++	模型导出加密（知识产权保护）
+
+2.1 Model Exchange（模型交换）
+
+此方法导出的FMU文件不包含求解器，其只包括输入/输出接口和描述物理动态行为的微分代数方程、时间、状态和离散事件等信息。FMU的求解使用导入它的工具的求解器，并与其他模型一起求解，由于使用一个求解器，提高了求解的效率和精度，此方法特别适合大规模模型集成的应用情况，同时其求解占用的系统开销很小，也适合嵌入式系统的应用。FMI标准的专家推荐模型集成和重用优选Model Exchange方法。
+
+2.2  Co-Simulation方法
+
+Co-Simulation即为联合仿真方法，此方法并不是FMI标准首创，而是在FMI标准的Co-Simulation方法制定之前既已存在。它基于传统的联合仿真方法，并进行了优化和丰富：
++	支持主/从架构
++	考虑不同能力的仿真工具
++	支持简单和复杂的耦合算法：
+	+	迭代和直接反馈算法
+	+	固定和变化的通信步长
++	允许(高阶)连续输入的插值
++	支持本地和分布式联合仿真方案
+
+按照使用场景，分为以下三种模式：
++	代码导出方式的Co-Simulation（不依赖工具，可独立运行）
++	工具耦合方式的Co-Simulation（依赖指定软件，同一平台多线程）
++	分布式方式的Co-Simulation（依赖指定软件，分布于不同平台中）
+
+FMI标准虽然提供了模型交换和联合仿真的功能，但是还无法描述结构相对复杂的模型。
+
+3. 文件结构
+
+3.1 modelDescription.xml
+
+信息描述文件采用XML格式，其中包含模型的所有变量信息，下表列出了变量信息的属性及其意义。
+
+|属性名|描述信息|
+|:--|:--|
+|name|变量的名字。在一个FMU中，变量名字是一个变量的唯一标识，即在同一个FMU中不允许出现两个名字一样的变量。|
+|valueReference|	<br/>一个变量的操作编号，用于FMU操作函数中对变量的操作。在一个FMU中，其值对于任何一种数据类型(下表中的declaredType)数据是唯一的，即数据类型和 valueReference可以在FMU操作函数中唯一标识一个变量。|
+|description| 一个可选的信息用于描述变量的作用或其它。<br/>|
+|variability|定义该变量值的可改变性。可以取以下值：<br/><br/>constant:变量的值是不可改变的；<br/>parameter:被看作是模型的参数，变量的值在初始化(初始化函数见下文)之后就不能再修改了；<br/>discrete:变量值仅在初始化和触发事件时可以被更改；<br/>continues:任何时间都可以修改变量值，但只有当变量的类型为Real时才可用。|
+|causality|定义变量与外界交互时出现的形态，当FMU需要与其它模型相关联时才能发挥作用，其可取值如下（默认状态下，其值为internal。）：<br/><br/>input:表明变量可以从外界获得输入值，用于FMU自身的求解，默认状态下，其初始值为下表中”start”的值；<br/>output:为其它FMU提供输入结果，使本FMU的计算结果可以影响到其它模型；<br/>internal:FMU的内部变量，在初始化工作结束后提供数据值，不能用于模型间的连接操作，在初始化之前，其值为”start”的值；<br/>none:不影响模型运算的变量，用于标记一些环境相关的值，用的不多。<br/>|
+|alias|可选属性。定义变量是否为一个别名变量，其可取值如下（默认值为noAlias）：<br/><br/>noAlias:表明变量不是一个别名变量；<br/>alias:表明变量是一个别名变量，真实值可以通过其进行读写操作；<br/>negatedAlias:是一个别名变量，但其值和真实值的符号总是相反。|
+|declaredType|变量的类型，FMI1.0  标准提供的变量类型为 Real、Integer、Boolean、String和Enumeration五种，针对各自类型，FMI提供对应的读写函数<br/>|
+|start|变量的初始值，如果一个变量的causality=”input”，则其必须拥有start属性。|
+|fixed|用来定义”start”属性的含义，如果fixed=true, start属性值将会被直接初始化到变量的值，否则，会经过迭代计算获得，默认值为true。<br/>|
+
+3.2 DLL
+
+执行库文件，以动态链接库的形式(.dll)存在，其中包含FMU求解所需要的所有函数接口，默认采用C语言格式编写，可以提供源码或二进制形式的文件，能够被其它不同平台所调用
+
+3.3 其它文件
+
+模型其它相关信息，如图标、文档等，该部分不参与模型的运行，作为辅助信息提供给模型使用者。
+
+
+# SSP
+
+SSP（SystemStructure and Parameterization）是一种与工具无关的格式，用于描述、打包和交换系统的结构及其参数化。该标准由一组基于XML格式的文件组成，这些XML使用信号流和参数化的方法描述了一个组件模型网络。该标准的XML描述文件是工具中立的，主要用于不同工具之间被仿真系统的信息交换。
+
+"*.SPP"压缩包格式：
++	`*.fmu`：Functional Mock-up Unit
++	`*.ssm`：SystemStructure Parameter Mapping
++	`*.ssv`：SystemStructure Parameter Values
++	`*.ssd`：SystemStructure Definition
++	`*.ssb`：SystemStructure Signal Dictionaries
+
+SSP标准的主要目的是：
+
++	为组件网络（特别是FMUs）的连接结构定义标准化格式。
++	定义一种标准化的方法来存储和应用这些组件的参数。
++	所开发的标准/APIs在开发过程的所有阶段都可用（架构定义、集成、仿真、MiL、SiL、HiL中的测试）。
++	视作FMI2.0标准的拓展，与FMI在功能上有效互补
+
+# DCP
+
+DCP（DistributedCo-Simulation Protocol），即分布式联合仿真协议。它是一种应用层通信协议，旨在将模型或实时系统集成到仿真环境中。它支持使用底层传输协议(如UDP、TCP或CAN)交换与仿真相关的配置信息和数据。同时，DCP支持集成来自不同供应商的工具和实时系统。DCP旨在提高基于工作流仿真的效率，并减少系统集成中的调试工作量。
+
+# 总结
+
+FMI、SSP、DCP犹如系统仿真技术在复杂系统模型集成和仿真应用时的利器：FMI提供了统一的接口实现模型交换（ME）和联合仿真（CO）两种工作模式；SSP有效补充了基于FMI标准进行模型重用时的参数和架构信息与数据；DCP规范了通信，将FMI应用范围推广到实时应用领域，且实现了V流程下MiL、SiL、HiL模型的连续传递重用，实现了非实时、软实时和硬实时系统的通信联合仿真。
+
+Export.folder
+	DsgImporter.importExport
+		DsgImporter.execute
+			DsgImporter.importFrom
+				model.Graph.from
+					view.Graph.commit
+						FmuExporter.writeInitFile
+							 FmuExporter.export()
+								FmuExporter.exportFmu
+									FmuExportationDisplay.execute
+										EditorUtils.
+										
+我们在这里提出并实施Matryoshka FMU的概念，
+
+
+1. 了解FMI、SSP、DCP
+2. 整理core包类图
+3. Debug导出功能
+
+Matryoshka FMU的概念：与FMI 2.0标准兼容的FMU。它封装了DACCOSIM（我们的分布式并行并行主体系结构）及其控制的FMU。 Matryoshka 自动调整其内部时间步长，以确保在由外部FMU兼容模拟器控制下所需的精度。使用的Java FMI工具和DACCOSIM中间件构建，应用于现实生活中的分布式能源系统场景。对于在Dymola中的仿真Modelica系统，在保持性能仿真准确性并增强其集成能力的同时，可将计算性能提高250％。
+
+ 
+---------------------------------------------------------------------------------------------------
+
+
+[Experimenting with Matryoshka Co-Simulation: Building Parallel and Hierarchical FMUs](https://www.researchgate.net/publication/317015220_Experimenting_with_Matryoshka_Co-Simulation_Building_Parallel_and_Hierarchical_FMUs)
+
+
+Matryoshka FMU 的目标是将 DACCOSIM 协同仿真封装到FMU中，
+
+daccosim的组成：
++	简单易用的GUI界面
++	并行和分布式的执行架构
+
+daccosim的局限性：
++	仅支持符合FMI 2.0的协同仿真标准的FMU
++	不能集成到可导入FMU的特定领域工具中
+
+
+为了突破这个局限性，可以使用以下两个方式：
++	为DACCOSIM设计特定的控制API以满足这些需求
++	将其全部封装到Matryoshka FMU中（可以满足其中的更多要求）
+	+	FMU可以导入到任何FMI兼容的仿真工具或平台中。这开辟了新的使用场景，因为其中一些工具可能会很好地处理DACCOSIM无法直接交互的非FMI组件
+	+	DACCOSIM的优势多线程、步长控制等解决方案可帮助传统的单线程仿真工具更快地仿真更大的模型。对于很少有并行求解器的域，这特别有意义
+	+	在Matryoshka中，借助DACCOSIM 通用的协同初始化算法，可以完成复杂图形的初始化
+	+	复杂的仿真图可以直接重用，无需重写也可以保护知识产权
+	+	可以对协同仿真过程进行微调：当求解器通常仅对整个模型使用一个精度目标时，DACCOSIM允许用户为每个FMU的每个输出和内部变量定义不同的公差值
+
+JavaFMI工具包：致力于生成和执行FMU
+
+JavaFMI是一个软件项目，该工具包允许根据FMI-CS（FMI CO-Simulation） 1.0和2.0标准向Java导入和从Java导出功能模型单元（FMU）。该项目由SIANI3大学研究所开发，许可证为LGPL。该项目的主要贡献者是EDF Lab，EIFER和Cen-traleSupélec。该项目由两个主要工具组成：包装器和构建器
+
+FMI包装器（FMI  Wrapper）允许将FMU导入到支持主算法的Java应用程序。它提供两种类型的接口：
+模拟（简化接口）接口：提供了对FMU的非常简化的访问，用户无需了解FMI标准，因为它提供了相关方法（init、doStep、terminate,、read、write variable、getSimulationTime,、is-Terminated 以及reset）
+访问（完整接口）接口：提供完整接口，需要了解FMI标准，可以进行更细粒度的调整
+
+FMI Builder
+ 
+FMI构建器允许基于Java应用程序或可以由简单Java代码控制的任何程序创建FMU。也就是说，任何Java模拟都可以导出到FMU。该工具提供了一种自动化解决方案来创建FMU，该FMU涵盖了动态库的开发、模型描述文件的生成以及所需资源的打包。
+
+构建器提供了将Java仿真转换为FMU的框架，需要扩展 FmiSimulation 类，其中至少应实现以下方法：
++	define方法：返回一个模型，包含了要在 modelDescription.xml文件中呈现的信息
++	init方法：在FMU的实例化过程中调用它，该方法需要注册所有输入和输出变量以及对应的getter和/或setter方法，以便框架以后可以在初始化和仿真阶段获取并设置FMU变量
++	doStep方法：它根据给定的步长推进仿真
++	reset方法：它将模拟重置为其初始状态
++	terminate方法：如果需要的话，应填写终止码
+
+一旦实现了这些方法，FmiSimulation类将打包到JAR（Java ARchive）文件中，并由构建器进行处理，以便创建FMU。生成器将创建一个FMU文件，其中包含：
+
++	binaries 文件夹：dll 以及 so
++	modelDescription.xml文件
+	+	resources文件夹：
+	+	JAR文件（在daccosim中是Matryoshka.jar）
+	+	其他FMU资源（由用户定义）
+

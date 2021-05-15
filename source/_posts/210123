@@ -1,0 +1,236 @@
+
+3. 模块系统
+在模块系统中，文件与模块是一一对应的，一个文件就是一个模块，可以相互调用。可以通过 import/require 使用一个模块系统。
+
+3.1 模块系统中的局部注册
+
+```
+import ComponentA from './ComponentA'
+import ComponentC from './ComponentC'
+
+export default {
+  components: {
+    ComponentA,
+    ComponentC
+  },
+  // ...
+}
+```
+
+3.2 基础组件的自动化全局注册
+
+一个组件（例如按钮、输入框）在大多数页面都使用得到，但每一个页面都需要声明一次，这样就很麻烦。如果使用了 webpack (或在内部使用了 webpack 的 Vue CLI 3+)，那么就可以使用 require.context 只全局注册这些非常通用的基础组件。
+
+相关示例代码：
+```
+import Vue from 'vue'
+import upperFirst from 'lodash/upperFirst'
+import camelCase from 'lodash/camelCase'
+
+const requireComponent = require.context(
+  // 其组件目录的相对路径
+  './components',
+  // 是否查询其子目录
+  false,
+  // 匹配基础组件文件名的正则表达式
+  /Base[A-Z]\w+\.(vue|js)$/
+)
+
+requireComponent.keys().forEach(fileName => {
+  // 获取组件配置
+  const componentConfig = requireComponent(fileName)
+
+  // 获取组件的 PascalCase 命名
+  const componentName = upperFirst(
+    camelCase(
+      // 获取和目录深度无关的文件名
+      fileName
+        .split('/')
+        .pop()
+        .replace(/\.\w+$/, '')
+    )
+  )
+
+  // 全局注册组件
+  Vue.component(
+    componentName,
+    // 如果这个组件选项是通过 `export default` 导出的，
+    // 那么就会优先使用 `.default`，
+    // 否则回退到使用模块的根。
+    componentConfig.default || componentConfig
+  )
+})
+```
+
+# 二、Prop 的使用
+
+1. 父子级组件的使用
+
+在 Vue 中，父子组件的关系可以总结为 props down, events up。父组件通过 props 向下传递数据给子组件，子组件通过 events 给父组件发送消息。高效的父子级解耦，可以大大提高组件的可重用性。
+
+*type的类型*
+
+
+type 可以是下列原生构造函数中的一个：
++	String
++	Number
++	Boolean
++	Array
++	Object
++	Date
++	Function
++	Symbol
+
+
+实例如下：
+```
+//props 类型定义
+props: {
+// 属性名：type
+  title: String,
+  likes: Number,
+  isPublished: Boolean,
+  commentIds: Array,
+  author: Object,
+  callback: Function,
+  contactsPromise: Promise // or any other constructor
+
+}
+```
+
+
+
+传入的数据类型默认是字符串，如果是其它类型，需要进行声明
+```
+<!-- 用一个变量进行动态赋值。-->
+<blog-post v-bind:is-published="post.isPublished"></blog-post>
+```
+
+2. 单向数据流
+
+所有的 prop 都使得其父子 prop 之间形成了一个单向下行绑定：父级 prop 的更新会向下流动到子组件中，但是反过来则不行。这样会防止从子组件意外改变父级组件的状态，从而导致你的应用的数据流向难以理解。
+
+
+2.1 非 Prop 的 Attribute
+
+一个非 prop 的 attribute 是指传向一个组件，但是该组件并没有相应 prop 定义的 attribute。
+
+因为显式定义的 prop 适用于向一个子组件传入信息，然而组件库的作者并不总能预见组件会被用于怎样的场景。这也是为什么组件可以接受任意的 attribute，而这些 attribute 会被添加到这个组件的根元素上。
+
++	替换/合并已有的 Attribute,包括`class` 和 `style` attribute
++	禁用 Attribute 继承.`在组件的选项中设置 inheritAttrs: false`
+
+
+2.2 解耦的正确写法
+
+```
+// 子组件
+var childNode = {
+	template: '<div>childNode</div>',
+}
+// 父组件
+var parentNode = {
+	template: '
+	<div class='parent'>
+		<child></child>
+		<child></child>
+	</div>
+	',
+	components:{
+		'child':childNode
+	}
+}
+
+// 根实例
+var app = new Vue({
+	el:'#app',
+	components:{
+		'parent':parentNode
+	}
+})
+
+<div id = 'app'>
+	<parent></parent>
+</div>
+
+```
+
+3. Prop 验证
+
+当组件是提供给别人使用，或者需要大批量重复使用时，建议对Prop进行定义，用于规范组件的使用。
+```
+Vue.component('my-component', {
+  props: {
+    // 基础的类型检查 (`null` 和 `undefined` 会通过任何类型验证)
+    propA: Number,
+    // 多个可能的类型
+    propB: [String, Number],
+    // 必填的字符串
+    propC: {
+      type: String,
+      required: true
+    },
+    // 带有默认值的数字
+    propD: {
+      type: Number,
+      default: 100
+    },
+    // 带有默认值的对象
+    propE: {
+      type: Object,
+      // 对象或数组默认值必须从一个工厂函数获取
+      default: function () {
+        return { message: 'hello' }
+      }
+    },
+    // 自定义验证函数
+    propF: {
+      validator: function (value) {
+        // 这个值必须匹配下列字符串中的一个
+        return ['success', 'warning', 'danger'].indexOf(value) !== -1
+      }
+    }
+  }
+})
+```
+
+
+# 三、自定义事件
+
+1. 命名规范
+不同于组件和 prop，事件名不存在任何自动化的大小写转换。而是触发的事件名需要完全匹配监听这个事件所用的名称。
+
+v-on 事件监听器在 DOM 模板中会被自动转换为全小写 (因为 HTML 是大小写不敏感的)，所以 v-on:myEvent 将会变成 v-on:myevent——导致 myEvent 不可能被监听到。
+
+> 推荐 使用 kebab-case 格式的事件名。
+
+2. 自定义组件的 v-model（2.2.0+ 新增）
+一个组件上的 v-model 默认会利用名为 value 的 prop 和名为 input 的事件，但是像单选框、复选框等类型的输入控件可能会将 value attribute 用于不同的目的。model 选项可以用来避免这样的冲突：
+
+```
+Vue.component('base-checkbox', {
+  model: {
+    prop: 'checked',
+    event: 'change'
+  },
+  props: {
+    checked: Boolean
+  },
+  template: `
+    <input
+      type="checkbox"
+      v-bind:checked="checked"
+      v-on:change="$emit('change', $event.target.checked)"
+    >
+  `
+})
+
+// 当该组件使用’v-model‘时，值会被checked获取，且改变时会触发'change'事件
+<base-checkbox v-model="lovingVue"></base-checkbox>
+
+```
+
+
+
+
+> [Vue组件选项props](https://www.cnblogs.com/xiaohuochai/p/7388866.html)
