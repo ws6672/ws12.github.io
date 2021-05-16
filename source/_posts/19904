@@ -1,0 +1,111 @@
+<div id="body_wrap" class="body_bg">
+		<div class="main_wrap">
+			<%@ include file="/WEB-INF/jsp/common/include_body_header.jsp"%>
+			<div id="content_wrap" class="content_wrap">
+				<div id="content" class="content clearfix">
+					<div id="page">
+						<div id="operateArea">
+							<form class="form-inline" role="form" id="form1">
+							    	 <div class="form-group">
+							    	 	  <div class="input-group">
+							    	 	  	<div class="input-group-addon">选择日期：</div>
+							    	 	  	<input type="text"  class="form-control input-sm"  id="rq" onFocus="WdatePicker({dateFmt:'yyyy-MM',onpicked:function(){change();}})" value="${date}">
+							    	 	  </div>
+							    	 </div>
+					        </form>
+						</div>
+						<div id="tabbarBox" style="width: 100%; height: 97%;margin-top:5px; position: relative;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+oracle ID自增长 使用序列
+create sequence autoID increment by 1 start with 1 maxvalue 999999 cycle; 
+
+create table t_sz_tkyth (
+  tid number primary key,
+  pdate varchar2(20),
+  area varchar2(20),
+  qwdqfgl number(15,4),
+  qwmbfgl number(15,4),
+  zxdqfgl number(15,4),
+  zxmbfgl number(15,4),
+  work_type varchar2(30)
+);
+
+
+insert into t_sz_tkyth values(1, '2019-9','全网',0.1,0.1,0.1,0.1,'刀闸遥控');
+insert into t_sz_tkyth values(2, '2019-9','全网',0.1,0.1,0.1,0.1,'110kV保护远方操作');
+insert into t_sz_tkyth values(3, '2019-9','全网',0.1,0.1,0.1,0.1,'馈线重合闸遥控');
+insert into t_sz_tkyth values(4, '2019-9','全网',0.1,0.1,0.1,0.1,'保信建设');
+insert into t_sz_tkyth values(5, '2019-9','全网',0.1,0.1,0.1,0.1,'录波组网');
+
+insert into t_sz_tkyth values(6, '2019-9','变电管理一所',0.1,0.1,0.1,0.1,'刀闸遥控');
+insert into t_sz_tkyth values(7, '2019-9','变电管理一所',0.1,0.1,0.1,0.1,'110kV保护远方操作');
+insert into t_sz_tkyth values(8, '2019-9','变电管理一所',0.1,0.1,0.1,0.1,'馈线重合闸遥控');
+insert into t_sz_tkyth values(9, '2019-9','变电管理一所',0.1,0.1,0.1,0.1,'保信建设');
+insert into t_sz_tkyth values(10, '2019-9','变电管理一所',0.1,0.1,0.1,0.1,'录波组网');
+
+insert into t_sz_tkyth values(11, '2019-9','变电管理二所',0.1,0.1,0.1,0.1,'刀闸遥控');
+insert into t_sz_tkyth values(12, '2019-9','变电管理二所',0.1,0.1,0.1,0.1,'110kV保护远方操作');
+insert into t_sz_tkyth values(13, '2019-9','变电管理二所',0.1,0.1,0.1,0.1,'馈线重合闸遥控');
+insert into t_sz_tkyth values(14, '2019-9','变电管理二所',0.1,0.1,0.1,0.1,'保信建设');
+insert into t_sz_tkyth values(15, '2019-9','变电管理二所',0.1,0.1,0.1,0.1,'录波组网');
+
+概念：RDBMS到图
+概念：NoSQL到Graph
+
+
+维护
+ex一匹
+
+# 一、neo4j导入数据
+### 1.导入CSV文件
+neo4j支持 导入【.csv】后缀的文件，可以允许我们指定文件路径。
+
+##### 1.1Cypher命令【LOAD CSV】
+此命令是一个很好的起点，可处理中小型数据集（最多1000万条记录）。
+
+该命令的特点如下：
++ 支持从URI加载/摄取CSV数据
++ 直接将输入数据映射到复杂的图形/域结构中
++ 处理数据转换
++ 支持复杂的计算
++ 创建或合并实体，关系和结构
+
+*通过ftp协议引用本地文件*
+Neo4j安全性具有默认设置，只能从Neo4j导入目录中读取本地文件，该目录根据您的操作系统而不同。在window中需要导入文件，需要将文件放置在目录【\neo4j-community-3.5.8\import】下。
+
+```
+LOAD CSV FROM "file:///data.csv"  #import目录下
+LOAD CSV FROM "file:///northwind/customers.csv"  #在【import/northwind/】目录下
+```
+
+neo4j-admin 批量导入工具：命令行工具，可用于直接加载大型数据集。
+Kettle 导入工具：映射并执行数据处理流程的步骤，适用于非常大的数据集，特别是如果开发人员已经熟悉使用此工具。
+
+### 2.导入 API 文件
+有许多现成的数据接口，通过命令【apoc.load.json】我们可以从基于JSON的REST API检索数据并将其导入Neo4j
+
+
+为了练习neo4j,打算通过为地图数据来构建图模型。
+图的数据来源：https://gadm.org/，数据是gadm格式的。
+
+GADM的文件格式
+所述“geopackage” 格式是一个非常良好的一般空间数据文件格式（矢量数据）。它基于SpatiaLite格式，可以使用 GDAL / OGR软件读取。下载中国的地图数据，解压。使用软件【GDAL】打开【gadm36_CHN.gpkg】
+
+2.下载GDAL【https://gdal.org/】
+
+
+java使用Neo4j
+
+1.maven引入
+<!-- https://mvnrepository.com/artifact/org.neo4j/neo4j -->
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j</artifactId>
+    <version>3.5.9</version>
+</dependency>

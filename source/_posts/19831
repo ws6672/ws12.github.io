@@ -1,0 +1,52 @@
+
+
+用Cypher描述三个有交集的朋友：
+	(emil)<-[:KNOWS]-(jim)-[:KNOWS]->(Mike)-[:KNOWS]->(emil)
+	
+图数据库旨在将数据之间的关系视为与数据本身同等重要，旨在保存数据与数据关系。
+
+默认登录名为'neo4j'，密码为'neo4j'
+
+
+法规搜索
+搜索字段 关键字 正文
+搜索展示：标题 时间 路径
+
+法规
+标题 副标题 时间 正文 关键词 
+
+推荐关键词
+最新关键词 按关键词分组 分组后按组排序
+
+每月的
+按时间排序，查最新十个
+
+Search search = new Search();
+search.addOrder(new Order("createdate",false));
+
+ extends BaseDaoImpl implements UapRoleDao 
+if(StringUtils.isNotEmpty(cnname)){
+	search.addRestriction(new Restriction("objalias", "%"++"%",Restriction.LIKE));
+	search.addRestriction(new Restriction("roleid", role.getRoleid()));
+	findBySearch(UapRoleAppauth.class, search)
+}
+
+oracle数据什么时候需要commit
+DML语言，比如update，delete，insert等修改表中数据的需要commit;
+DDL语言，比如create，drop等改变表结构的，就不需要写commit（因为内部隐藏了commit）;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

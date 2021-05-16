@@ -1,0 +1,119 @@
+oracle to_date
+
+1. 日期和字符转换函数用法（to_date,to_char）
+
+select to_date('2004-05-07 13:23:44','yyyy-mm-dd hh24:mi:ss') 
+
+select to_char(sysdate,'yyyy-mm-dd hh24:mi:ss') as nowTime from dual;   //日期转化为字符串  
+select to_char(sysdate,'yyyy') as nowYear   from dual;   //获取时间的年  
+select to_char(sysdate,'mm')    as nowMonth from dual;   //获取时间的月  
+select to_char(sysdate,'dd')    as nowDay    from dual;   //获取时间的日  
+select to_char(sysdate,'hh24') as nowHour   from dual;   //获取时间的时  
+select to_char(sysdate,'mi')    as nowMinute from dual;   //获取时间的分  
+select to_char(sysdate,'ss')    as nowSecond from dual;   //获取时间的秒
+
+
+select * from tmda_bas_plant t where t.planttype='煤机' and  t.activedate<=to_date('2019','yyyy')  
+这时候函数默认填充，查询的是比【2019/1/1】小或相等的日期
+
+
+substr
+	select * from T_DD_TDDL_MONTH t where t.type ='发受电量' and substr(t.pdate,0,4) = '2019'
+
+
+统调负荷
+    //统调最高负荷
+    @RequestMapping(params="method=getMaxLoad")
+	
+ select * from  t_fs_load_sys_month  a  where a.p_max_value = (select max(b.p_max_value) from t_fs_load_sys_month  b  where b.gridname='深圳' and b.app_type='real'   and a.type=b.type and a.gridname=b.gridname) 
+  for update
+  
+  
+SzDdnbDwzyzbController
+	getTdfsdl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 1. 容器生命周期管理
+
++	run
++	start/stop/restart
++	kill
++	rm
++	pause/unpause
++	create
++	exec
+
+*run*
++	docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+	
+
+*构建*
+
+
++	`docker build [OPTIONS] PATH | URL |`
+	+	```
+		OPTIONS
+			--build-arg=[] :设置镜像创建时的变量；
+			--cpu-shares :设置 cpu 使用权重；
+			--cpu-period :限制 CPU CFS周期；
+			--cpu-quota :限制 CPU CFS配额；
+			--cpuset-cpus :指定使用的CPU id；
+			--cpuset-mems :指定使用的内存 id；
+			--disable-content-trust :忽略校验，默认开启；
+			-f :指定要使用的Dockerfile路径；
+			--force-rm :设置镜像过程中删除中间容器；
+			--isolation :使用容器隔离技术；
+			--label=[] :设置镜像使用的元数据；
+			-m :设置内存最大值；
+			--memory-swap :设置Swap的最大值为内存+swap，"-1"表示不限swap；
+			--no-cache :创建镜像的过程不使用缓存；
+			--pull :尝试去更新镜像的新版本；
+			--quiet, -q :安静模式，成功后只输出镜像 ID；
+			--rm :设置镜像成功后删除中间容器；
+			--shm-size :设置/dev/shm的大小，默认值是64M；
+			--ulimit :Ulimit配置。
+			--tag, -t: 镜像的名字及标签，通常 name:tag 或者 name 格式；可以在一次构建中为一个镜像设置多个标签。
+			--network: 默认 default。在构建期间设置RUN指令的网络模式```
+
+
+
+
+
+
+
+
+
+
+
+##### 2.2 创建镜像遇到的问题
+```
+"docker build" requires exactly 1 argument(s).
+build 命令最后需要加Dockerfile路径，官方的路径是【.】,表示当前路径下
+
+unable to prepare context: unable to evaluate symlinks in Dockerfile path: lstat /usr/local/neo4j/neo4j-community-3.5.9/Dockerfile: no such file or directory
+找不到目录【Dockerfile】，如果建立的目录不是这个，可以加【-f /Dockerfiler】了来指定要使用的Dockerfile路径
+```
+
