@@ -1,0 +1,593 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>redis（六） 进阶命令 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">redis（六） 进阶命令</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">redis（六） 进阶命令</h1><div class="post-meta"><a href="/2020/10/11/redis-6/#comments" class="comment-count"></a><p><span class="date">Oct 11, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h3 id="一、数据库命令（database）"><a href="#一、数据库命令（database）" class="headerlink" title="一、数据库命令（database）"></a>一、数据库命令（database）</h3><p><strong><em>EXISTS</em></strong></p>
+<ol>
+<li><code>EXISTS key</code></li>
+<li>检查给定 key 是否存在。</li>
+<li>返回值：若 key 存在，返回 1 ，否则返回 0 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; set i 1</span><br><span class="line">&gt; exists i</span><br><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>TYPE</em></strong></p>
+<ol>
+<li><code>TYPE key</code></li>
+<li>返回 key 所储存的值的类型</li>
+<li>返回值：</li>
+</ol>
+<ul>
+<li>none (key不存在)</li>
+<li>string (字符串)</li>
+<li>list (列表)</li>
+<li>set (集合)</li>
+<li>zset (有序集)</li>
+<li>hash (哈希表)</li>
+<li>stream （流）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; set name petter</span><br><span class="line">OK</span><br><span class="line">&gt; type name</span><br><span class="line">&quot;string&quot;</span><br><span class="line">&gt; type tt</span><br><span class="line">&quot;none&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>RENAME</em></strong></p>
+<ol>
+<li><code>RENAME key newkey</code></li>
+<li>将 key 改名为 newkey；当 key 和 newkey 相同，或者 key 不存在时，返回一个错误。当 newkey 已经存在时， RENAME 命令将覆盖旧值。</li>
+<li>返回值：改名成功时提示 OK ，失败时候返回一个错误。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; get y</span><br><span class="line">(nil)</span><br><span class="line">&gt; set t 100</span><br><span class="line">OK</span><br><span class="line">&gt; rename t y</span><br><span class="line">OK</span><br><span class="line">&gt; get y</span><br><span class="line">&quot;100&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>RENAMENX</em></strong></p>
+<ol>
+<li><code>RENAMENX key newkey</code></li>
+<li>当且仅当 newkey 不存在时，将 key 改名为 newkey。当 key 不存在时，返回一个错误</li>
+<li>返回值：修改成功时，返回 1 ； 如果 newkey 已经存在，返回 0 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; set i 100</span><br><span class="line">OK</span><br><span class="line">&gt; set j 200</span><br><span class="line">OK</span><br><span class="line">&gt; renamenx i j</span><br><span class="line">(integer) 0 # 新值j存在，</span><br><span class="line">&gt; renamenx i k</span><br><span class="line">(integer) 1 # 不存在，修改成功返回1</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>MOVE</em></strong></p>
+<ol>
+<li><code>MOVE key db</code></li>
+<li>将当前数据库的 key 移动到给定的数据库 db 当中。如果当前数据库(源数据库)和给定数据库(目标数据库)有相同名字的给定 key ，或者 key 不存在于当前数据库，那么 MOVE 没有任何效果。</li>
+<li>返回值：移动成功返回 1 ，失败则返回 0 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set i 1</span><br><span class="line">move i 1 # 把i移动到数据库1</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>DEL</em></strong></p>
+<ol>
+<li><code>DEL key [key …]</code></li>
+<li>删除给定的一个或多个 key 。不存在的 key 会被忽略。</li>
+<li>返回值：被删除 key 的数量。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; set i 100</span><br><span class="line">OK</span><br><span class="line">&gt; set j 200</span><br><span class="line">OK</span><br><span class="line">&gt; del i j</span><br><span class="line">(integer) 2</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>RANDOMKEY</em></strong></p>
+<ol>
+<li><code>RANDOMKEY</code></li>
+<li>从当前数据库中随机返回(不删除)一个 key</li>
+<li>返回值：当数据库不为空时，返回一个 key 。 当数据库为空时，返回 nil</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set j 100</span><br><span class="line">set i 100</span><br><span class="line">RANDOMKEY</span><br><span class="line">i</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>DBSIZE</em></strong></p>
+<ol>
+<li><code>DBSIZE</code></li>
+<li>返回当前数据库的 key 的数量。</li>
+<li>返回值：当前数据库的 key 的数量。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; DBSIZE</span><br><span class="line">(integer) 5</span><br><span class="line"></span><br><span class="line">redis&gt; SET new_key &quot;hello_moto&quot;     # 增加一个 key 试试</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; DBSIZE</span><br><span class="line">(integer) 6</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>KEYS</em></strong></p>
+<ol>
+<li><code>KEYS pattern</code></li>
+<li>查找所有符合给定模式 pattern 的 key，例如：</li>
+</ol>
+<ul>
+<li><code>KEYS * 匹配数据库中所有 key</code></li>
+<li><code>KEYS h?llo 匹配 hello ， hallo 和 hxllo 等</code></li>
+<li><code>KEYS h*llo 匹配 hllo 和 heeeeello 等</code></li>
+<li><code>KEYS h[ae]llo 匹配 hello 和 hallo ，但不匹配 hillo</code></li>
+</ul>
+<ol start="3">
+<li>返回值：符合给定模式的 key 列表。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; keys *</span><br><span class="line">1) &quot;k&quot;</span><br><span class="line">2) &quot;j&quot;</span><br><span class="line">3) &quot;name&quot;</span><br><span class="line">4) &quot;y&quot;</span><br><span class="line">5) &quot;i&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>SCAN</em></strong></p>
+<ol>
+<li><code>SCAN cursor [MATCH pattern] [COUNT count]</code></li>
+<li>SCAN 命令及其相关的 SSCAN 命令、 HSCAN 命令和 ZSCAN 命令都用于增量地迭代（incrementally iterate）一集元素（a collection of elements）：</li>
+</ol>
+<ul>
+<li>SCAN 命令用于迭代当前数据库中的数据库键。</li>
+<li>SSCAN 命令用于迭代集合键中的元素。</li>
+<li>HSCAN 命令用于迭代哈希键中的键值对。</li>
+<li>ZSCAN 命令用于迭代有序集合中的元素（包括元素成员和元素分值）。</li>
+</ul>
+<ol start="3">
+<li>返回值：<br>SCAN 命令、 SSCAN 命令、 HSCAN 命令和 ZSCAN 命令都返回一个包含两个元素的 multi-bulk 回复： 回复的第一个元素是字符串表示的无符号 64 位整数（游标）， 回复的第二个元素是另一个 multi-bulk 回复， 这个 multi-bulk 回复包含了本次被迭代的元素。</li>
+</ol>
+<p><strong><em>SORT</em></strong></p>
+<ol>
+<li><code>SORT key [BY pattern] [LIMIT offset count] [GET pattern [GET pattern …]] [ASC | DESC] [ALPHA] [STORE destination]</code></li>
+<li>返回或保存给定列表、集合、有序集合 key 中经过排序的元素。排序默认以数字作为对象，值被解释为双精度浮点数，然后进行比较。</li>
+</ol>
+<ul>
+<li><code>[BY pattern]</code>：通过其它键的值进行排序</li>
+<li><code>[LIMIT offset count]</code>：使用 LIMIT 修饰符限制返回结果</li>
+<li><code>[GET pattern [GET pattern …]]</code>：使用 GET 选项， 可以根据排序的结果来取出相应的键值。</li>
+<li><code>[ASC | DESC]</code>：逆序、正序</li>
+<li><code>[ALPHA]</code>：使用 ALPHA 修饰符对字符串进行排序</li>
+<li><code>[STORE destination]</code>：通过给 STORE 选项指定一个 key 参数，可以将排序结果保存到给定的键上。</li>
+</ul>
+<ol start="3">
+<li>返回值：没有使用 STORE 参数，返回列表形式的排序结果。 使用 STORE 参数，返回排序结果的元素数量。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">sadd ms1 1 55 6 77 3 22</span><br><span class="line"></span><br><span class="line"># 1. [ASC | DESC]</span><br><span class="line"># 排序(默认为 asc，从小到大)</span><br><span class="line">SORT ms1</span><br><span class="line"># desc（从大到小）</span><br><span class="line">SORT ms1 desc</span><br><span class="line"></span><br><span class="line"># 2. [LIMIT offset count]</span><br><span class="line"># 从第一个开始，输出5个</span><br><span class="line">sort ms1 limit 1 5</span><br><span class="line"></span><br><span class="line"># 3. [BY pattern]</span><br><span class="line"># 通过其它键的值进行排序</span><br><span class="line">set uid_1 1</span><br><span class="line">set uid_55 2</span><br><span class="line">set uid_6 3</span><br><span class="line">set uid_77 4</span><br><span class="line">set uid_3 5</span><br><span class="line">set uid_22 6</span><br><span class="line"></span><br><span class="line">sort ms1 by uid_*</span><br><span class="line">1</span><br><span class="line">55</span><br><span class="line">6</span><br><span class="line">77</span><br><span class="line">322</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 4. [GET pattern [GET pattern …]]</span><br><span class="line"># 输出排序后关联键的值</span><br><span class="line">sort ms1 get uid_*</span><br><span class="line">1</span><br><span class="line">5</span><br><span class="line">3</span><br><span class="line">6</span><br><span class="line">2</span><br><span class="line">4</span><br><span class="line"></span><br><span class="line"># 5. [ALPHA]</span><br><span class="line"></span><br><span class="line">lpush myList aa ddf cce bbf</span><br><span class="line">sort myList alpha</span><br><span class="line"></span><br><span class="line">	aa</span><br><span class="line">	bbf</span><br><span class="line">	cce</span><br><span class="line">	ddf</span><br><span class="line"></span><br><span class="line"># 6. [STORE destination]</span><br><span class="line"># 排序ms1，存放在ml中</span><br><span class="line">sort ms1 store ml</span><br><span class="line">lrange ml 0 10</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>FLUSHDB</em></strong></p>
+<ol>
+<li><code>FLUSHDB</code></li>
+<li>清空当前数据库中的所有 key。</li>
+<li>返回值：总是返回 OK</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dbsize</span><br><span class="line">19</span><br><span class="line">flushdb</span><br><span class="line">OK</span><br><span class="line">dbsize</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>FLUSHALL</em></strong></p>
+<ol>
+<li><code>FLUSHALL</code></li>
+<li>清空整个 Redis 服务器的数据(删除所有数据库的所有 key ).此命令从不失败。</li>
+<li>返回值：总是返回 OK</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; DBSIZE            # 0 号数据库的 key 数量</span><br><span class="line">(integer) 9</span><br><span class="line"></span><br><span class="line">redis&gt; SELECT 1          # 切换到 1 号数据库</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis[1]&gt; DBSIZE         # 1 号数据库的 key 数量</span><br><span class="line">(integer) 6</span><br><span class="line"></span><br><span class="line">redis[1]&gt; flushall       # 清空所有数据库的所有 key</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis[1]&gt; DBSIZE         # 不但 1 号数据库被清空了</span><br><span class="line">(integer) 0</span><br><span class="line"></span><br><span class="line">redis[1]&gt; SELECT 0       # 0 号数据库(以及其他所有数据库)也一样</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; DBSIZE</span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>SELECT</em></strong></p>
+<ol>
+<li><code>SELECT index</code></li>
+<li>切换到指定的数据库，数据库索引号 index 用数字值指定，以 0 作为起始索引值。默认使用 0 号数据库。</li>
+<li>返回值：返回OK</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">select 0</span><br><span class="line">&quot;OK&quot;</span><br><span class="line">select 99</span><br><span class="line">&quot;DB index is out of range&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>SWAPDB</em></strong></p>
+<ol>
+<li><code>SWAPDB db1 db2</code></li>
+<li>对换指定的两个数据库， 使得两个数据库的数据立即互换。</li>
+<li>返回值：OK</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 对换数据库 0 和数据库 1</span><br><span class="line">redis&gt; SWAPDB 0 1</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<h3 id="二、自动过期"><a href="#二、自动过期" class="headerlink" title="二、自动过期"></a>二、自动过期</h3><ul>
+<li>EXPIRE</li>
+<li>EXPIREAT</li>
+<li>TTL</li>
+<li>PERSIST</li>
+<li>PEXPIRE</li>
+<li>PEXPIREAT</li>
+<li>PTTL</li>
+</ul>
+<p><strong><em>EXPIRE</em></strong></p>
+<ol>
+<li><code>EXPIRE key seconds</code></li>
+<li>为给定 key 设置生存时间，当 key 过期时(生存时间为 0 )，它会被自动删除。</li>
+</ol>
+<ul>
+<li>生存时间可以通过使用 DEL 命令来删除整个 key 来移除，或者被 SET 和 GETSET 命令覆写(overwrite)，这意味着，如果一个命令只是修改(alter)一个带生存时间的 key 的值而不是用一个新的 key 值来代替(replace)它的话，那么生存时间不会被改变</li>
+<li>可以对一个已经带有生存时间的 key 执行 EXPIRE 命令，新指定的生存时间会取代旧的生存时间。</li>
+</ul>
+<ol start="3">
+<li>返回值：设置成功返回 1 。 当 key 不存在或者不能为 key 设置生存时间时(比如在低于 2.1.3 版本的 Redis 中你尝试更新 key 的生存时间)，返回 0 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set i 1</span><br><span class="line">expire i 30 # 生存周期，两秒</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>EXPIREAT</em></strong></p>
+<ol>
+<li><code>EXPIREAT key timestamp</code></li>
+<li>EXPIREAT 的作用和 EXPIRE 类似，都用于为 key 设置生存时间。不同在于 EXPIREAT 命令接受的时间参数是 UNIX 时间戳(unix timestamp)。</li>
+<li>返回值：如果生存时间设置成功，返回 1 ； 当 key 不存在或没办法设置生存时间，返回 0 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SET cache www.google.com</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; EXPIREAT cache 1355292000     # 这个 key 将在 2012.12.12 过期</span><br><span class="line">(integer) 1</span><br><span class="line"></span><br><span class="line">redis&gt; TTL cache</span><br><span class="line">(integer) 45081860</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>TTL</em></strong></p>
+<ol>
+<li><code>TTL key</code></li>
+<li>以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)</li>
+<li>返回值：整数</li>
+</ol>
+<ul>
+<li>当 key 不存在时，返回-2</li>
+<li>当 key 存在但没有设置剩余生存时间时，返回-1</li>
+<li>否则，以秒为单位，返回 key 的剩余生存时间。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">set i 2</span><br><span class="line">	OK</span><br><span class="line">expire i 60</span><br><span class="line">	1</span><br><span class="line">ttl i</span><br><span class="line">	55</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>PERSIST</em></strong></p>
+<ol>
+<li><code>PERSIST key</code></li>
+<li>移除给定 key 的生存时间，将这个 key 从“易失的”(带生存时间 key )转换成“持久的”(一个不带生存时间、永不过期的 key )。</li>
+<li>返回值：当生存时间移除成功时，返回 1 . 如果 key 不存在或 key 没有设置生存时间，返回 0 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SET mykey &quot;Hello&quot;</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; EXPIRE mykey 10  # 为 key 设置生存时间</span><br><span class="line">(integer) 1</span><br><span class="line"></span><br><span class="line">redis&gt; TTL mykey</span><br><span class="line">(integer) 10</span><br><span class="line"></span><br><span class="line">redis&gt; PERSIST mykey    # 移除 key 的生存时间</span><br><span class="line">(integer) 1</span><br><span class="line"></span><br><span class="line">redis&gt; TTL mykey</span><br><span class="line">(integer) -1</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>PEXPIRE</em></strong></p>
+<ol>
+<li><code>PEXPIRE key milliseconds</code></li>
+<li>这个命令和 EXPIRE 命令的作用类似，但是它以毫秒为单位设置 key 的生存时间，而不像 EXPIRE 命令那样，以秒为单位。</li>
+<li>返回值：设置成功，返回 1 key 不存在或设置失败，返回 0</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SET mykey &quot;Hello&quot;</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; PEXPIRE mykey 1500</span><br><span class="line">(integer) 1</span><br><span class="line"></span><br><span class="line">redis&gt; TTL mykey    # TTL 的返回值以秒为单位</span><br><span class="line">(integer) 2</span><br><span class="line"></span><br><span class="line">redis&gt; PTTL mykey   # PTTL 可以给出准确的毫秒数</span><br><span class="line">(integer) 1499</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>PEXPIREAT</em></strong></p>
+<ol>
+<li><code>PEXPIREAT key milliseconds-timestamp</code></li>
+<li>这个命令和 expireat 命令类似，但它以毫秒为单位设置 key 的过期 unix 时间戳，而不是像 expireat 那样，以秒为单位。</li>
+<li>返回值：如果生存时间设置成功，返回 1 。 当 key 不存在或没办法设置生存时间时，返回0</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SET mykey &quot;Hello&quot;</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; PEXPIREAT mykey 1555555555005</span><br><span class="line">(integer) 1</span><br><span class="line"></span><br><span class="line">redis&gt; TTL mykey           # TTL 返回秒</span><br><span class="line">(integer) 223157079</span><br><span class="line"></span><br><span class="line">redis&gt; PTTL mykey          # PTTL 返回毫秒</span><br><span class="line">(integer) 223157079318</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>PTTL</em></strong></p>
+<ol>
+<li><code>PTTL key</code></li>
+<li>这个命令类似于 TTL 命令，但它以毫秒为单位返回 key 的剩余生存时间，而不是像 TTL 命令那样，以秒为单位。</li>
+<li>返回值</li>
+</ol>
+<ul>
+<li>当 key 不存在时，返回 -2 。</li>
+<li>当 key 存在但没有设置剩余生存时间时，返回 -1 。</li>
+<li>否则，以毫秒为单位，返回 key 的剩余生存时间。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"># 不存在的 key</span><br><span class="line"></span><br><span class="line">redis&gt; FLUSHDB</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; PTTL key</span><br><span class="line">(integer) -2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># key 存在，但没有设置剩余生存时间</span><br><span class="line"></span><br><span class="line">redis&gt; SET key value</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; PTTL key</span><br><span class="line">(integer) -1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 有剩余生存时间的 key</span><br><span class="line"></span><br><span class="line">redis&gt; PEXPIRE key 10086</span><br><span class="line">(integer) 1</span><br><span class="line"></span><br><span class="line">redis&gt; PTTL key</span><br><span class="line">(integer) 6179</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、事务"><a href="#三、事务" class="headerlink" title="三、事务"></a>三、事务</h3><ul>
+<li>MULTI</li>
+<li>EXEC</li>
+<li>DISCARD</li>
+<li>WATCH</li>
+<li>UNWATCH</li>
+</ul>
+<p><strong><em>MULTI</em></strong></p>
+<ol>
+<li><code>MULTI</code></li>
+<li>标记一个事务块的开始。事务块内的多条命令会按照先后顺序被放进一个队列当中，最后由 EXEC 命令原子性(atomic)地执行。</li>
+<li>返回值：总是返回 OK 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; MULTI            # 标记事务开始</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; INCR user_id     # 多条命令按顺序入队</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; INCR user_id</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; INCR user_id</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; PING</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; EXEC             # 执行</span><br><span class="line">1) (integer) 1</span><br><span class="line">2) (integer) 2</span><br><span class="line">3) (integer) 3</span><br><span class="line">4) PONG</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>EXEC</em></strong></p>
+<ol>
+<li><code>EXEC</code></li>
+<li>执行所有事务块内的命令。</li>
+</ol>
+<ul>
+<li>假如某个(或某些) key 正处于 WATCH 命令的监视之下，且事务块中有和这个(或这些) key 相关的命令，那么 EXEC 命令只在这个(或这些) key 没有被其他命令所改动的情况下执行并生效，否则该事务被打断(abort)。可以避免多客户端导致的冲突</li>
+</ul>
+<ol start="3">
+<li>返回值：事务块内所有命令的返回值，按命令执行的先后顺序排列。当操作被打断时，返回空值 nil 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"># 监视 key ，且事务成功执行</span><br><span class="line"></span><br><span class="line">redis&gt; WATCH lock lock_times</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; MULTI</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; SET lock &quot;huangz&quot;</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; INCR lock_times</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; EXEC</span><br><span class="line">1) OK</span><br><span class="line">2) (integer) 1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 监视 key ，且事务被打断</span><br><span class="line"></span><br><span class="line">redis&gt; WATCH lock lock_times</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; MULTI</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; SET lock &quot;joe&quot;        # 就在这时，另一个客户端修改了 lock_times 的值</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; INCR lock_times</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; EXEC                  # 因为 lock_times 被修改， joe 的事务执行失败</span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>DISCARD</em></strong></p>
+<ol>
+<li><code>DISCARD</code></li>
+<li>取消事务，放弃执行事务块内的所有命令。如果正在使用 WATCH 命令监视某个(或某些) key，那么取消所有监视，等同于执行命令 UNWATCH 。</li>
+<li>返回值：总是返回 OK 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; MULTI</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; PING</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; SET greeting &quot;hello&quot;</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line">redis&gt; DISCARD</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>WATCH</em></strong></p>
+<ol>
+<li><code>WATCH key [key …]</code></li>
+<li>监视一个(或多个) key ，如果在事务执行之前这个(或这些) key 被其他命令所改动，那么事务将被打断。</li>
+<li>返回值：总是返回 OK 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; WATCH lock lock_times</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>UNWATCH</em></strong></p>
+<ol>
+<li><code>UNWATCH</code></li>
+<li>取消 WATCH 命令对所有 key 的监视。如果在执行 WATCH 命令之后， EXEC 命令或 DISCARD 命令先被执行了的话，那么就不需要再执行 UNWATCH 了。</li>
+<li>返回值：总是 OK</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; WATCH lock lock_times</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; UNWATCH</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、持久化"><a href="#四、持久化" class="headerlink" title="四、持久化"></a>四、持久化</h3><ul>
+<li>SAVE</li>
+<li>BGSAVE</li>
+<li>BGREWRITEAOF</li>
+<li>LASTSAVE</li>
+</ul>
+<p><strong><em>SAVE（RDB）</em></strong></p>
+<ol>
+<li><code>SAVE</code></li>
+<li>SAVE 命令执行一个同步保存操作，将当前 Redis 实例的所有数据快照(snapshot)以 RDB 文件的形式保存到硬盘。</li>
+<li>返回值：保存成功时返回 OK 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SAVE</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>BGSAVE</em></strong></p>
+<ol>
+<li><code>BGSAVE</code></li>
+<li>在后台异步(Asynchronously)保存当前数据库的数据到磁盘。</li>
+</ol>
+<ul>
+<li>BGSAVE 命令执行之后立即返回 OK ，然后 Redis fork 出一个新子进程，原来的 Redis 进程(父进程)继续处理客户端请求，而子进程则负责将数据保存到磁盘，然后退出。</li>
+<li>客户端可以通过 LASTSAVE 命令查看相关信息，判断 BGSAVE 命令是否执行成功。</li>
+</ul>
+<ol start="3">
+<li>返回值：反馈信息。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; BGSAVE</span><br><span class="line">Background saving started</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>LASTSAVE</em></strong></p>
+<ol>
+<li><code>LASTSAVE</code></li>
+<li>返回最近一次 Redis 成功将数据保存到磁盘上的时间，以 UNIX 时间戳格式表示。</li>
+<li>返回值：一个 UNIX 时间戳。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; LASTSAVE</span><br><span class="line">(integer) 1602391934</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>BGREWRITEAOF</em></strong></p>
+<ol>
+<li><code>BGREWRITEAOF</code></li>
+<li>执行一个 AOF文件 重写操作。重写会创建一个当前 AOF 文件的体积优化版本。即使 BGREWRITEAOF 执行失败，也不会有任何数据丢失，因为旧的 AOF 文件在 BGREWRITEAOF 成功之前不会被修改。重写操作只会在没有其他持久化工作在后台执行时被触发，也就是说：</li>
+</ol>
+<ul>
+<li>如果 Redis 的子进程正在执行快照的保存工作，那么 AOF 重写的操作会被预定(scheduled)，等到保存工作完成之后再执行 AOF 重写</li>
+<li>如果已经有别的 AOF 文件重写在执行，那么 BGREWRITEAOF 返回一个错误，并且这个新的 BGREWRITEAOF 请求也不会被预定到下次执行。</li>
+<li>从 Redis 2.4 开始， AOF 重写由 Redis 自行触发， BGREWRITEAOF 仅仅用于手动触发重写操作。</li>
+</ul>
+<ol start="3">
+<li>返回值：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; BGREWRITEAOF</span><br><span class="line">Background append only file rewriting started</span><br></pre></td></tr></table></figure>
+
+<h3 id="五、发布与订阅"><a href="#五、发布与订阅" class="headerlink" title="五、发布与订阅"></a>五、发布与订阅</h3><ul>
+<li>PUBLISH</li>
+<li>SUBSCRIBE</li>
+<li>PSUBSCRIBE</li>
+<li>UNSUBSCRIBE</li>
+<li>PUNSUBSCRIBE</li>
+<li>PUBSUB</li>
+</ul>
+<p><strong><em>PUBLISH</em></strong></p>
+<ol>
+<li><code>PUBLISH channel message</code></li>
+<li>将信息 message 发送到指定的频道 channel 。时间复杂度为 O(N+M)，其中 N 是频道 channel 的订阅者数量，而 M 则是使用模式订阅(subscribed patterns)的客户端的数量。</li>
+<li>返回值：接收到信息 message 的订阅者数量。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">publish mychannel &quot;haha&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>SUBSCRIBE</em></strong></p>
+<ol>
+<li><code>SUBSCRIBE channel [channel …]</code></li>
+<li>订阅给定的一个或多个频道的信息。</li>
+<li>返回值：接收到的信息</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; subscribe msg chat_room</span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) &quot;subscribe&quot;       # 返回值的类型：显示订阅成功</span><br><span class="line">2) &quot;msg&quot;             # 订阅的频道名字</span><br><span class="line">3) (integer) 1       # 目前已订阅的频道数量</span><br><span class="line"></span><br><span class="line">1) &quot;subscribe&quot;</span><br><span class="line">2) &quot;chat_room&quot;</span><br><span class="line">3) (integer) 2</span><br><span class="line"></span><br><span class="line">1) &quot;message&quot;         # 返回值的类型：信息</span><br><span class="line">2) &quot;msg&quot;             # 来源(从那个频道发送过来)</span><br><span class="line">3) &quot;hello moto&quot;      # 信息内容</span><br><span class="line"></span><br><span class="line">1) &quot;message&quot;</span><br><span class="line">2) &quot;chat_room&quot;</span><br><span class="line">3) &quot;testing...haha&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>订阅和发布的不能是同一个客户端</p>
+</blockquote>
+<p><strong><em>PSUBSCRIBE</em></strong></p>
+<ol>
+<li><code>PSUBSCRIBE pattern [pattern …]</code></li>
+<li>订阅一个或多个符合给定模式的频道。</li>
+</ol>
+<ul>
+<li><code>每个模式以 * 作为匹配符，比如 it* 匹配所有以 it 开头的频道( it.news 、 it.blog 、 it.tweets 等等)， news.* 匹配所有以 news. 开头的频道( news.it 、 news.global.today 等等)，诸如此类。</code></li>
+</ul>
+<ol start="3">
+<li>返回值：接收到的信息</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; psubscribe news.* tweet.*</span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) &quot;psubscribe&quot;                  # 返回值的类型：显示订阅成功</span><br><span class="line">2) &quot;news.*&quot;                      # 订阅的模式</span><br><span class="line">3) (integer) 1                   # 目前已订阅的模式的数量</span><br><span class="line"></span><br><span class="line">1) &quot;psubscribe&quot;</span><br><span class="line">2) &quot;tweet.*&quot;</span><br><span class="line">3) (integer) 2</span><br><span class="line"></span><br><span class="line">1) &quot;pmessage&quot;                    # 返回值的类型：信息</span><br><span class="line">2) &quot;news.*&quot;                      # 信息匹配的模式</span><br><span class="line">3) &quot;news.it&quot;                     # 信息本身的目标频道</span><br><span class="line">4) &quot;Google buy Motorola&quot;         # 信息的内容</span><br><span class="line"></span><br><span class="line">1) &quot;pmessage&quot;</span><br><span class="line">2) &quot;tweet.*&quot;</span><br><span class="line">3) &quot;tweet.huangz&quot;</span><br><span class="line">4) &quot;hello&quot;</span><br><span class="line"></span><br><span class="line">1) &quot;pmessage&quot;</span><br><span class="line">2) &quot;tweet.*&quot;</span><br><span class="line">3) &quot;tweet.joe&quot;</span><br><span class="line">4) &quot;@huangz morning&quot;</span><br><span class="line"></span><br><span class="line">1) &quot;pmessage&quot;</span><br><span class="line">2) &quot;news.*&quot;</span><br><span class="line">3) &quot;news.life&quot;</span><br><span class="line">4) &quot;An apple a day, keep doctors away&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>UNSUBSCRIBE</em></strong></p>
+<ol>
+<li><code>UNSUBSCRIBE [channel [channel …]]</code></li>
+<li>指示客户端退订给定的频道。一个无参数的 UNSUBSCRIBE 调用被执行，那么客户端使用 SUBSCRIBE 命令订阅的所有频道都会被退订</li>
+<li>返回值：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unsubscribe</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>PUNSUBSCRIBE</em></strong></p>
+<ol>
+<li><code>PUNSUBSCRIBE [pattern [pattern …]]</code></li>
+<li>指示客户端退订所有给定模式。</li>
+<li>返回值：这个命令在不同的客户端中有不同的表现。</li>
+</ol>
+<p><strong><em>PUBSUB</em></strong></p>
+<ol>
+<li><code>PUBSUB &lt;subcommand&gt; [argument [argument …]]</code></li>
+<li>PUBSUB 是一个查看订阅与发布系统状态的内省命令.例如：</li>
+</ol>
+<ul>
+<li><code>PUBSUB CHANNELS [pattern]</code>：列出当前的活跃频道。活跃频道指的是那些至少有一个订阅者的频道， 订阅模式的客户端不计算在内。pattern 参数是可选</li>
+<li><code>PUBSUB NUMSUB [channel-1 … channel-N]</code>：返回给定频道的订阅者数量， 订阅模式的客户端不计算在内</li>
+<li><code>PUBSUB NUMPAT</code>：返回订阅模式的数量。</li>
+</ul>
+<ol start="3">
+<li>返回值：这个命令在不同的客户端中有不同的表现</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 获取频道数量</span><br><span class="line">PUBSUB CHANNELS</span><br><span class="line"># 返回给定频道的订阅者数量， 订阅模式的客户端不计算在内</span><br><span class="line">pubsub numsub channels </span><br><span class="line"></span><br><span class="line"># </span><br><span class="line">PUBSUB NUMPAT</span><br></pre></td></tr></table></figure>
+
+<h3 id="六、复制"><a href="#六、复制" class="headerlink" title="六、复制"></a>六、复制</h3><ul>
+<li>SLAVEOF</li>
+<li>ROLE</li>
+</ul>
+<p><strong><em>SLAVEOF</em></strong></p>
+<ol>
+<li><code>SLAVEOF host port</code></li>
+<li>SLAVEOF 命令用于在 Redis 运行时动态地修改复制(replication)功能的行为。</li>
+</ol>
+<ul>
+<li>通过执行 SLAVEOF host port 命令，可以将当前服务器转变为指定服务器的从属服务器(slave server)。</li>
+<li>如果当前服务器已经是某个主服务器(master server)的从属服务器，那么执行 SLAVEOF host port 将使当前服务器停止对旧主服务器的同步，丢弃旧数据集，转而开始对新主服务器进行同步。</li>
+<li>另外，对一个从属服务器执行命令 SLAVEOF NO ONE 将使得这个从属服务器关闭复制功能，并从从属服务器转变回主服务器，原来同步所得的数据集不会被丢弃。</li>
+<li>利用“SLAVEOF NO ONE 不会丢弃同步所得数据集”这个特性，可以在主服务器失败的时候，将从属服务器用作新的主服务器，从而实现无间断运行。</li>
+</ul>
+<ol start="3">
+<li>返回值：总是返回 OK 。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SLAVEOF 127.0.0.1 6379</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; SLAVEOF NO ONE</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>ROLE</em></strong></p>
+<ol>
+<li><code>ROLE</code></li>
+<li>返回实例在复制中担任的角色， 这个角色可以是 master 、 slave 或者 sentinel 。 除了角色之外， 命令还会返回与该角色相关的其他信息， 其中：</li>
+</ol>
+<ul>
+<li>主服务器将返回属下从服务器的 IP 地址和端口。</li>
+<li>从服务器将返回自己正在复制的主服务器的 IP 地址、端口、连接状态以及复制偏移量。</li>
+<li>Sentinel 将返回自己正在监视的主服务器列表。</li>
+</ul>
+<ol start="3">
+<li>返回值：ROLE 命令将返回一个数组。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">#  主服务器</span><br><span class="line">1) &quot;master&quot;</span><br><span class="line">2) (integer) 3129659</span><br><span class="line">3) 1) 1) &quot;127.0.0.1&quot;</span><br><span class="line">      2) &quot;9001&quot;</span><br><span class="line">      3) &quot;3129242&quot;</span><br><span class="line">   2) 1) &quot;127.0.0.1&quot;</span><br><span class="line">      2) &quot;9002&quot;</span><br><span class="line">      3) &quot;3129543&quot;</span><br><span class="line">	  </span><br><span class="line">#  从服务器</span><br><span class="line">1) &quot;slave&quot;</span><br><span class="line">2) &quot;127.0.0.1&quot;</span><br><span class="line">3) (integer) 9000</span><br><span class="line">4) &quot;connected&quot;</span><br><span class="line">5) (integer) 3167038</span><br><span class="line"></span><br><span class="line">#  Sentinel</span><br><span class="line">1) &quot;sentinel&quot;</span><br><span class="line">2) 1) &quot;resque-master&quot;</span><br><span class="line">   2) &quot;html-fragments-master&quot;</span><br><span class="line">   3) &quot;stats-master&quot;</span><br><span class="line">   4) &quot;metadata-master&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>哨兵（Sentinel）模式：哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，哨兵是一个独立的进程，作为进程，它会独立运行。其原理是哨兵通过发送命令，等待Redis服务器响应，从而监控运行的多个Redis实例。</p>
+</blockquote>
+<h3 id="七、其它"><a href="#七、其它" class="headerlink" title="七、其它"></a>七、其它</h3><p><strong><em>客户端与服务器命令</em></strong></p>
+<ul>
+<li>AUTH<ul>
+<li>AUTH password 密码验证</li>
+</ul>
+</li>
+<li>QUIT<ul>
+<li>请求服务器关闭与当前客户端的连接。</li>
+</ul>
+</li>
+<li>INFO<ul>
+<li>查看服务器配置</li>
+</ul>
+</li>
+<li>SHUTDOWN<ul>
+<li>关闭服务器</li>
+</ul>
+</li>
+<li>TIME<ul>
+<li>返回当前服务器时间</li>
+</ul>
+</li>
+<li>CLIENT_GETNAME/CLIENT_SETNAME<ul>
+<li>返回 CLIENT SETNAME 命令为连接设置的名字。</li>
+<li><code>client setname tt</code></li>
+<li><code>client getname</code></li>
+</ul>
+</li>
+<li>CLIENT_KILL<ul>
+<li>关闭地址为 ip:port 的客户端。</li>
+<li><code>CLIENT KILL ip:port</code></li>
+</ul>
+</li>
+<li>CLIENT_LIST<ul>
+<li>以人类可读的格式，返回所有连接到服务器的客户端信息和统计数据。</li>
+<li><code>CLIENT LIST</code></li>
+</ul>
+</li>
+</ul>
+<p><strong><em>配置选项命令</em></strong></p>
+<ul>
+<li>CONFIG_SET：<code>CONFIG SET parameter value</code><ul>
+<li>返回值：当设置成功时返回 OK ，否则返回一个错误。</li>
+</ul>
+</li>
+<li>CONFIG_GET：<code>CONFIG GET parameter</code><ul>
+<li>返回值：给定配置参数的值。</li>
+</ul>
+</li>
+<li>CONFIG_RESETSTAT：<code>CONFIG RESETSTAT</code><ul>
+<li>重置 INFO 命令中的某些统计数据<ul>
+<li>Keyspace hits (键空间命中次数)</li>
+<li>Keyspace misses (键空间不命中次数)</li>
+<li>Number of commands processed (执行命令的次数)</li>
+<li>Number of connections received (连接服务器的次数)</li>
+<li>Number of expired keys (过期key的数量)</li>
+<li>Number of rejected connections (被拒绝的连接数量)</li>
+<li>Latest fork(2) time(最后执行 fork(2) 的时间)</li>
+<li>The aof_delayed_fsync counter(aof_delayed_fsync 计数器的值)</li>
+</ul>
+</li>
+<li>返回值：总是返回 OK 。</li>
+</ul>
+</li>
+<li>CONFIG_REWRITE：<code>CONFIG REWRITE</code><ul>
+<li>原子性重写：对 redis.conf 文件的重写是原子性的， 并且是一致的： 如果重写出错或重写期间服务器崩溃， 那么重写失败， 原有 redis.conf 文件不会被修改。 如果重写成功， 那么 redis.conf 文件为重写后的新文件。</li>
+<li>返回值：一个状态值：如果配置重写成功则返回 OK ，失败则返回一个错误</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>调试</em></strong></p>
+<ul>
+<li>PING</li>
+<li>ECHO：<code>ECHO message</code><ul>
+<li>打印一个特定的信息 message ，测试时使用。</li>
+</ul>
+</li>
+<li>OBJECT：<code>OBJECT subcommand [arguments [arguments]]</code></li>
+<li>SLOWLOG：<code>SLOWLOG subcommand [argument]</code><ul>
+<li>Slow log 是 Redis 用来记录查询执行时间的日志系统。</li>
+</ul>
+</li>
+<li>MONITOR：<code>MONITOR</code><ul>
+<li>实时打印出 Redis 服务器接收到的命令，调试用</li>
+</ul>
+</li>
+<li>DEBUG_OBJECT：<code>DEBUG OBJECT key</code><ul>
+<li>DEBUG OBJECT 是一个调试命令，它不应被客户端所使用。查看 OBJECT 命令获取更多信息。</li>
+</ul>
+</li>
+<li>DEBUG_SEGFAULT：<code>DEBUG SEGFAULT</code><ul>
+<li>执行一个不合法的内存访问从而让 Redis 崩溃，仅在开发时用于 BUG 模拟。</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>内部命令</em></strong></p>
+<ul>
+<li>MIGRATE：<code>MIGRATE host port key destination-db timeout [COPY] [REPLACE]</code><ul>
+<li>将 key 原子性地从当前实例传送到目标实例的指定数据库上，一旦传送成功， key 保证会出现在目标实例上，而当前实例上的 key 会被删除。</li>
+</ul>
+</li>
+<li>DUMP：<code>DUMP key</code><ul>
+<li>序列化给定 key ，并返回被序列化的值，使用 RESTORE 命令可以将这个值反序列化为 Redis 键</li>
+</ul>
+</li>
+<li>RESTORE：<code>RESTORE key ttl serialized-value [REPLACE]</code><ul>
+<li>反序列化给定的序列化值</li>
+</ul>
+</li>
+<li>SYNC<ul>
+<li>用于复制功能(replication)的内部命令。</li>
+</ul>
+</li>
+<li>PSYNC：<code>PSYNC master_run_id offset</code><ul>
+<li>用于复制功能(replication)的内部命令。</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>Lua 脚本</em></strong></p>
+<ul>
+<li>EVAL：<code>EVAL script numkeys key [key …] arg [arg …]</code><ul>
+<li>使用 EVAL 命令对 Lua 脚本进行求值</li>
+</ul>
+</li>
+<li>EVALSHA：<code>EVALSHA sha1 numkeys key [key …] arg [arg …]</code><ul>
+<li>根据给定的 sha1 校验码，对缓存在服务器中的脚本进行求值</li>
+</ul>
+</li>
+<li>SCRIPT_LOAD：<code>SCRIPT LOAD script</code><ul>
+<li>加载脚本</li>
+</ul>
+</li>
+<li>SCRIPT_EXISTS：<code>SCRIPT EXISTS sha1 [sha1 …]</code><ul>
+<li>给定一个或多个脚本的 SHA1 校验和，返回一个包含 0 和 1 的列表，表示校验和所指定的脚本是否已经被保存在缓存当中。</li>
+</ul>
+</li>
+<li>SCRIPT FLUSH<ul>
+<li>清除所有 Lua 脚本缓存。</li>
+</ul>
+</li>
+<li>SCRIPT KILL<ul>
+<li>杀死当前正在运行的 Lua 脚本</li>
+</ul>
+</li>
+</ul>
+<h3 id="八、相关文档"><a href="#八、相关文档" class="headerlink" title="八、相关文档"></a>八、相关文档</h3><blockquote>
+<p><a href="http://redisdoc.com/" target="_blank" rel="noopener">Redis 命令参考</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/10/11/redis-6/">http://zws6672.top/2020/10/11/redis-6/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/Redis/">Redis</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/10/12/redis-update-0/" class="pre">Redis更新了什么（零）总览</a><a href="/2020/10/11/springboot-redis/" class="next">springboot（六）Redis</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、数据库命令（database）"><span class="toc-text">一、数据库命令（database）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、自动过期"><span class="toc-text">二、自动过期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、事务"><span class="toc-text">三、事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、持久化"><span class="toc-text">四、持久化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、发布与订阅"><span class="toc-text">五、发布与订阅</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#六、复制"><span class="toc-text">六、复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#七、其它"><span class="toc-text">七、其它</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#八、相关文档"><span class="toc-text">八、相关文档</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

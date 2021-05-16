@@ -1,0 +1,475 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>ES6（三）正则、函数与数组 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">ES6（三）正则、函数与数组</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">ES6（三）正则、函数与数组</h1><div class="post-meta"><a href="/2019/11/09/es6-3/#comments" class="comment-count"></a><p><span class="date">Nov 09, 2019</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>这一系列文章是<a href="http://www.ruanyifeng.com/home.html" target="_blank" rel="noopener">阮一峰</a>大大的【ECMAScript 6 】学习笔记。</p>
+<p>目录</p>
+<ul>
+<li><a href="/2019/11/03/es6-1/">ES6（一）基础入门</a></li>
+<li><a href="/2019/11/08/es6-2/">ES6（二）字符串与数值</a></li>
+<li><a href="/2019/11/09/es6-3/">ES6（三）正则、函数与数组</a></li>
+</ul>
+<h1 id="一、正则的拓展"><a href="#一、正则的拓展" class="headerlink" title="一、正则的拓展"></a>一、正则的拓展</h1><p>正则表达式在对字符串动态匹配、格式校验是很有用的，也是JS中比较常用的。</p>
+<h3 id="1-RegExp-构造函数-ES5"><a href="#1-RegExp-构造函数-ES5" class="headerlink" title="1. RegExp 构造函数[ES5]"></a>1. RegExp 构造函数[ES5]</h3><p>在 ES5 中，RegExp构造函数的参数有两种情况。</p>
+<ul>
+<li><p>参数是字符串，这时第二个参数表示正则表达式的修饰符（flag）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var regex = new RegExp(&apos;xyz&apos;, &apos;i&apos;);</span><br><span class="line">// 等价于</span><br><span class="line">// var regex = /xyz/i;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>第一个参数是正则表达式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var regex = new RegExp(/xyz/i);</span><br><span class="line">// 等价于</span><br><span class="line">var regex = /xyz/i;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="修饰符"><a href="#修饰符" class="headerlink" title="修饰符"></a>修饰符</h5><table>
+<thead>
+<tr>
+<th align="left">修饰符</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">i</td>
+<td align="left">执行对【大小写不敏感】的匹配。</td>
+</tr>
+<tr>
+<td align="left">g</td>
+<td align="left">执行【全局】匹配（查找所有匹配而非在找到第一个匹配后停止）。</td>
+</tr>
+<tr>
+<td align="left">m</td>
+<td align="left">执行【多行匹配】。</td>
+</tr>
+</tbody></table>
+<h5 id="方括号"><a href="#方括号" class="headerlink" title="方括号"></a>方括号</h5><p>方括号用于查询某个范围的字符：</p>
+<table>
+<thead>
+<tr>
+<th align="left">表达式</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">[abc]</td>
+<td align="left">查找方括号之间的任何字符。</td>
+</tr>
+<tr>
+<td align="left">[^abc]</td>
+<td align="left">查找任何不在方括号之间的字符。</td>
+</tr>
+<tr>
+<td align="left">[0-9]</td>
+<td align="left">查找任何从 0 至 9 的数字。</td>
+</tr>
+<tr>
+<td align="left">[a-z]</td>
+<td align="left">查找任何从小写 a 到小写 z 的字符。</td>
+</tr>
+<tr>
+<td align="left">[A-Z]</td>
+<td align="left">查找任何从大写 A 到大写 Z 的字符。</td>
+</tr>
+<tr>
+<td align="left">[A-z]</td>
+<td align="left">查找任何从大写 A 到小写 z 的字符。</td>
+</tr>
+<tr>
+<td align="left">[adgk]</td>
+<td align="left">查找给定集合内的任何字符。</td>
+</tr>
+<tr>
+<td align="left">[^adgk]</td>
+<td align="left">查找给定集合外的任何字符。</td>
+</tr>
+<tr>
+<td align="left">(red|blue|green)</td>
+<td align="left">查找任何指定的选项。</td>
+</tr>
+</tbody></table>
+<h5 id="元字符"><a href="#元字符" class="headerlink" title="元字符"></a>元字符</h5><p>元字符用于匹配特殊字符：</p>
+<table>
+<thead>
+<tr>
+<th align="left">元字符</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">.</td>
+<td align="left">查找单个字符，除了换行和行结束符。</td>
+</tr>
+<tr>
+<td align="left">\w</td>
+<td align="left">查找单词字符。</td>
+</tr>
+<tr>
+<td align="left">\W</td>
+<td align="left">查找非单词字符。</td>
+</tr>
+<tr>
+<td align="left">\d</td>
+<td align="left">查找数字。</td>
+</tr>
+<tr>
+<td align="left">\D</td>
+<td align="left">查找非数字字符。</td>
+</tr>
+<tr>
+<td align="left">\s</td>
+<td align="left">查找空白字符。</td>
+</tr>
+<tr>
+<td align="left">\S</td>
+<td align="left">查找非空白字符。</td>
+</tr>
+<tr>
+<td align="left">\b</td>
+<td align="left">匹配单词边界。</td>
+</tr>
+<tr>
+<td align="left">\B</td>
+<td align="left">匹配非单词边界。</td>
+</tr>
+<tr>
+<td align="left">\0</td>
+<td align="left">查找 NUL 字符。</td>
+</tr>
+<tr>
+<td align="left">\n</td>
+<td align="left">查找换行符。</td>
+</tr>
+<tr>
+<td align="left">\f</td>
+<td align="left">查找换页符。</td>
+</tr>
+<tr>
+<td align="left">\r</td>
+<td align="left">查找回车符。</td>
+</tr>
+<tr>
+<td align="left">\t</td>
+<td align="left">查找制表符。</td>
+</tr>
+<tr>
+<td align="left">\v</td>
+<td align="left">查找垂直制表符。</td>
+</tr>
+<tr>
+<td align="left">\xxx</td>
+<td align="left">查找以八进制数 xxx 规定的字符。</td>
+</tr>
+<tr>
+<td align="left">\xdd</td>
+<td align="left">查找以十六进制数 dd 规定的字符。</td>
+</tr>
+<tr>
+<td align="left">\uxxxx</td>
+<td align="left">查找以十六进制数 xxxx 规定的 Unicode 字符。</td>
+</tr>
+</tbody></table>
+<h5 id="量词"><a href="#量词" class="headerlink" title="量词"></a>量词</h5><table>
+<thead>
+<tr>
+<th align="left">量词</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">n+</td>
+<td align="left">匹配任何包含至少一个 n 的字符串。</td>
+</tr>
+<tr>
+<td align="left">n*</td>
+<td align="left">匹配任何包含零个或多个 n 的字符串。</td>
+</tr>
+<tr>
+<td align="left">n?</td>
+<td align="left">匹配任何包含零个或一个 n 的字符串。</td>
+</tr>
+<tr>
+<td align="left">n{X}</td>
+<td align="left">匹配包含 X 个 n 的序列的字符串。</td>
+</tr>
+<tr>
+<td align="left">n{X,Y}</td>
+<td align="left">匹配包含 X 至 Y 个 n 的序列的字符串。</td>
+</tr>
+<tr>
+<td align="left">n{X,}</td>
+<td align="left">匹配包含至少 X 个 n 的序列的字符串。</td>
+</tr>
+<tr>
+<td align="left">n$</td>
+<td align="left">匹配任何结尾为 n 的字符串。</td>
+</tr>
+<tr>
+<td align="left">^n</td>
+<td align="left">匹配任何开头为 n 的字符串。</td>
+</tr>
+<tr>
+<td align="left">?=n</td>
+<td align="left">匹配任何其后紧接指定字符串 n 的字符串。</td>
+</tr>
+<tr>
+<td align="left">?!n</td>
+<td align="left">匹配任何其后没有紧接指定字符串 n 的字符串。</td>
+</tr>
+</tbody></table>
+<h5 id="RegExp-对象属性"><a href="#RegExp-对象属性" class="headerlink" title="RegExp 对象属性"></a>RegExp 对象属性</h5><table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">描述</th>
+<th align="left">FF</th>
+<th align="left">IE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">global</td>
+<td align="left">RegExp 对象是否具有标志 g。</td>
+<td align="left">1</td>
+<td align="left">4</td>
+</tr>
+<tr>
+<td align="left">ignoreCase</td>
+<td align="left">RegExp 对象是否具有标志 i。</td>
+<td align="left">1</td>
+<td align="left">4</td>
+</tr>
+<tr>
+<td align="left">lastIndex</td>
+<td align="left">一个整数，标示开始下一次匹配的字符位置。</td>
+<td align="left">1</td>
+<td align="left">4</td>
+</tr>
+<tr>
+<td align="left">multiline</td>
+<td align="left">RegExp 对象是否具有标志 m。</td>
+<td align="left">1</td>
+<td align="left">4</td>
+</tr>
+<tr>
+<td align="left">source</td>
+<td align="left">正则表达式的源文本。</td>
+<td align="left">1</td>
+<td align="left">4</td>
+</tr>
+</tbody></table>
+<h3 id="2-RegExp-构造函数-ES6"><a href="#2-RegExp-构造函数-ES6" class="headerlink" title="2. RegExp 构造函数[ES6]"></a>2. RegExp 构造函数[ES6]</h3><p>ES6 中 RegExp构造函数第一个参数是一个正则对象，那么可以使用第二个参数指定修饰符。而且，返回的正则表达式会忽略原有的正则表达式的修饰符，只使用新指定的修饰符。</p>
+<h3 id="3-字符串的正则方法"><a href="#3-字符串的正则方法" class="headerlink" title="3. 字符串的正则方法"></a>3. 字符串的正则方法</h3><p>字符串对象共有 4 个方法，可以使用正则表达式：match()、replace()、search()和split()。</p>
+<p>ES6 将这 4 个方法，在语言内部全部调用RegExp的实例方法，从而做到所有与正则相关的方法，全都定义在RegExp对象上。</p>
+<ul>
+<li>String.prototype.match 调用 RegExp.prototype[Symbol.match]</li>
+<li>String.prototype.replace 调用 RegExp.prototype[Symbol.replace]</li>
+<li>String.prototype.search 调用 RegExp.prototype[Symbol.search]</li>
+<li>String.prototype.split 调用 RegExp.prototype[Symbol.split]</li>
+</ul>
+<h3 id="4-u-字符"><a href="#4-u-字符" class="headerlink" title="4. u 字符"></a>4. u 字符</h3><p>ES6 对正则表达式添加了u修饰符，含义为“Unicode 模式”，用来正确处理大于\uFFFF的 Unicode 字符。也就是说，会正确处理四个字节的 UTF-16 编码，对比ES5,ES6可以正确的解析四个字节的UTF-16 编码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/^\uD83D/u.test(&apos;\uD83D\uDC2A&apos;) // false</span><br><span class="line">/^\uD83D/.test(&apos;\uD83D\uDC2A&apos;) // true</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-y-修饰符"><a href="#5-y-修饰符" class="headerlink" title="5. y 修饰符"></a>5. y 修饰符</h3><p>除了u修饰符，ES6 还为正则表达式添加了y修饰符，叫做“粘连”（sticky）修饰符。</p>
+<p>y修饰符的作用与g修饰符类似，也是全局匹配，后一次匹配都从上一次匹配成功的下一个位置开始。不同之处在于，g修饰符只要剩余位置中存在匹配就可，而y修饰符确保匹配必须从剩余的第一个位置开始，这也就是“粘连”的涵义。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">var s = &apos;aaa_aa_a&apos;;</span><br><span class="line">var r1 = /a+/g;</span><br><span class="line">var r2 = /a+/y;</span><br><span class="line"></span><br><span class="line">r1.exec(s) // [&quot;aaa&quot;]</span><br><span class="line">r2.exec(s) // [&quot;aaa&quot;]</span><br><span class="line"></span><br><span class="line">r1.exec(s) // [&quot;aa&quot;]</span><br><span class="line">r2.exec(s) // null</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>上面代码有两个正则表达式，一个使用g修饰符，另一个使用y修饰符。这两个正则表达式各执行了两次，第一次执行的时候，两者行为相同，剩余字符串都是_aa_a。由于g修饰没有位置要求，所以第二次执行会返回结果，而y修饰符要求匹配必须从头部开始，所以返回null。</p>
+</blockquote>
+<h3 id="6-RegExp-的几个属性"><a href="#6-RegExp-的几个属性" class="headerlink" title="6. RegExp 的几个属性"></a>6. RegExp 的几个属性</h3><ul>
+<li><p>RegExp.prototype.unicode </p>
+<ul>
+<li>正则实例对象新增unicode属性，表示是否设置了u修饰符。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">const r1 = /hello/;</span><br><span class="line">const r2 = /hello/u;</span><br><span class="line"></span><br><span class="line">r1.unicode // false</span><br><span class="line">r2.unicode // true</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>RegExp.prototype.sticky ，表示是否设置了y修饰符。</p>
+</li>
+<li><p>RegExp.prototype.flags，会返回正则表达式的修饰符。</p>
+</li>
+</ul>
+<h3 id="7-s-修饰符：dotAll-模式"><a href="#7-s-修饰符：dotAll-模式" class="headerlink" title="7. s 修饰符：dotAll 模式"></a>7. s 修饰符：dotAll 模式</h3><p>正则表达式中，点（.）是一个特殊字符，代表任意的单个字符，但是有两个例外。一个是四个字节的 UTF-16 字符，这个可以用u修饰符解决；另一个是行终止符（line terminator character）。</p>
+<p>所谓行终止符，就是该字符表示一行的终结。以下四个字符属于“行终止符”。</p>
+<ul>
+<li>U+000A 换行符（\n）</li>
+<li>U+000D 回车符（\r）</li>
+<li>U+2028 行分隔符（line separator）</li>
+<li>U+2029 段分隔符（paragraph separator）</li>
+</ul>
+<h3 id="8-Unicode-属性类"><a href="#8-Unicode-属性类" class="headerlink" title="8. Unicode 属性类"></a>8. Unicode 属性类</h3><p>ES2018 引入了一种新的类的写法\p{…}和\P{…}，允许正则表达式匹配符合 Unicode 某种属性的所有字符。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">const regexGreekSymbol = /\p&#123;Script=Greek&#125;/u;</span><br><span class="line">regexGreekSymbol.test(&apos;π&apos;) // true</span><br><span class="line">// \p&#123;Script=Greek&#125;指定匹配一个希腊文字母，所以匹配π成功。</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-具名组匹配"><a href="#9-具名组匹配" class="headerlink" title="9. 具名组匹配"></a>9. 具名组匹配</h3><p>正则表达式使用圆括号进行组匹配。<br>实例：日期匹配<br><code>const RE_DATE = /(\d{4})-(\d{2})-(\d{2})/;</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 正则表达式</span><br><span class="line">const RE_DATE = /(\d&#123;4&#125;)-(\d&#123;2&#125;)-(\d&#123;2&#125;)/;</span><br><span class="line">// 匹配</span><br><span class="line">const matchObj = RE_DATE.exec(&apos;1999-12-31&apos;);</span><br><span class="line">// 提取分组</span><br><span class="line">const year = matchObj[1]; // 1999</span><br><span class="line">const month = matchObj[2]; // 12</span><br><span class="line">const day = matchObj[3]; // 31</span><br></pre></td></tr></table></figure>
+
+<p>组匹配的一个问题是，每一组的匹配含义不容易看出来，而且只能用数字序号（比如matchObj[1]）引用，要是组的顺序变了，引用的时候就必须修改序号。ES2018 引入了具名组匹配（Named Capture Groups），允许为每一个组匹配指定一个名字，既便于阅读代码，又便于引用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const RE_DATE = /(?&lt;year&gt;\d&#123;4&#125;)-(?&lt;month&gt;\d&#123;2&#125;)-(?&lt;day&gt;\d&#123;2&#125;)/;</span><br><span class="line"></span><br><span class="line">const matchObj = RE_DATE.exec(&apos;1999-12-31&apos;);</span><br><span class="line">const year = matchObj.groups.year; // 1999</span><br><span class="line">const month = matchObj.groups.month; // 12</span><br><span class="line">const day = matchObj.groups.day; // 31</span><br></pre></td></tr></table></figure>
+
+<h5 id="使用具名组匹配进行解构赋值和替换"><a href="#使用具名组匹配进行解构赋值和替换" class="headerlink" title="使用具名组匹配进行解构赋值和替换"></a>使用具名组匹配进行解构赋值和替换</h5><p>有了具名组匹配以后，可以使用解构赋值直接从匹配结果上为变量赋值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let &#123;groups: &#123;one, two&#125;&#125; = /^(?&lt;one&gt;.*):(?&lt;two&gt;.*)$/u.exec(&apos;foo:bar&apos;);</span><br><span class="line">one  // foo</span><br><span class="line">two  // bar</span><br></pre></td></tr></table></figure>
+
+<p>字符串替换时，使用$&lt;组名&gt;引用具名组。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">let re = /(?&lt;year&gt;\d&#123;4&#125;)-(?&lt;month&gt;\d&#123;2&#125;)-(?&lt;day&gt;\d&#123;2&#125;)/u;</span><br><span class="line"></span><br><span class="line">&apos;2015-01-02&apos;.replace(re, &apos;$&lt;day&gt;/$&lt;month&gt;/$&lt;year&gt;&apos;)</span><br><span class="line">// &apos;02/01/2015&apos;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码中，replace方法的第二个参数是一个字符串，而不是正则表达式。</p>
+<h5 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h5><p>如果要在正则表达式内部引用某个“具名组匹配”，可以使用\k&lt;组名&gt;的写法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">const RE_TWICE = /^(?&lt;word&gt;[a-z]+)!\k&lt;word&gt;$/;</span><br><span class="line">RE_TWICE.test(&apos;abc!abc&apos;) // true</span><br><span class="line">RE_TWICE.test(&apos;abc!ab&apos;) // false</span><br></pre></td></tr></table></figure>
+
+<h1 id="二、函数的拓展"><a href="#二、函数的拓展" class="headerlink" title="二、函数的拓展"></a>二、函数的拓展</h1><h3 id="1-函数参数的默认值"><a href="#1-函数参数的默认值" class="headerlink" title="1. 函数参数的默认值"></a>1. 函数参数的默认值</h3><ul>
+<li>ES6 中可以设置函数参数的默认值，直接用【形参名 = 值】的形式设置即可</li>
+<li>参数变量是默认声明的，所以不能用let或const再次声明；</li>
+<li>使用参数默认值时，函数不能有同名参数。</li>
+<li>参数默认值不是传值的，而是每次都重新计算默认值表达式的值。也就是说，参数默认值是惰性求值的。</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function log(x = a + 1, y = &apos;World&apos;) &#123;</span><br><span class="line">  console.log(x, y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><em>参数默认值</em></p>
+<ul>
+<li>定义了默认值的参数，应该是函数的尾参数。如果不是最后一个参数，那么这个参数无法省略，即便不需要，也必须设置成【undefinded】</li>
+<li>由于参数可以不传入，所以函数的length属性无法生效</li>
+<li>存在默认值的函数参数作用域为初始化阶段</li>
+</ul>
+<h3 id="2-与解构赋值默认值结合使用"><a href="#2-与解构赋值默认值结合使用" class="headerlink" title="2. 与解构赋值默认值结合使用"></a>2. 与解构赋值默认值结合使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function foo(&#123;x, y = 5&#125;) &#123;</span><br><span class="line">  console.log(x, y);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo(&#123;&#125;) // undefined 5</span><br><span class="line">foo(&#123;x: 1&#125;) // 1 5</span><br><span class="line">foo(&#123;x: 1, y: 2&#125;) // 1 2</span><br><span class="line">foo() // TypeError: Cannot read property &apos;x&apos; of undefined</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 默认值是空对象，但是设置了对象解构赋值的默认值</span><br><span class="line">function m1(&#123;x = 0, y = 0&#125; = &#123;&#125;) &#123;</span><br><span class="line">  return [x, y];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 是一个有具体属性的对象，但是没有设置对象解构赋值的默认值</span><br><span class="line">function m2(&#123;x, y&#125; = &#123; x: 0, y: 0 &#125;) &#123;</span><br><span class="line">  return [x, y];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-rest-参数-与-name属性"><a href="#3-rest-参数-与-name属性" class="headerlink" title="3. rest 参数 与 name属性"></a>3. rest 参数 与 name属性</h3><p>ES6 引入 rest 参数（形式为…变量名），用于获取函数的多余参数，这样就不需要使用arguments对象了。rest 参数搭配的变量是一个数组，该变量将多余的参数放入数组中。</p>
+<ul>
+<li>rest 参数之后不能再有其他参数（即只能是最后一个参数），否则会报错</li>
+<li>函数的length属性，不包括 rest 参数。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function add(...values) &#123;</span><br><span class="line">  let sum = 0;</span><br><span class="line"></span><br><span class="line">  for (var val of values) &#123;</span><br><span class="line">    sum += val;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  return sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">add(2, 5, 3) // 10</span><br></pre></td></tr></table></figure>
+
+<p>函数的name属性用于返回函数名。如果将一个匿名函数赋值给一个变量，ES5 的name属性，会返回空字符串，而 ES6 的name属性会返回实际的函数名。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function test(a = 010) &#123;</span><br><span class="line">&#125;</span><br><span class="line">console.log(test.name);</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-严格模式"><a href="#4-严格模式" class="headerlink" title="4. 严格模式"></a>4. 严格模式</h3><p>严格模式是ES5中提出的一个概念，启用严格模式只需使用’use strict’;这条语句即可，对于支持严格模式的浏览器，在声明’use strict’;语句之后的代码都将会在严格模式的限制下执行，对于不支持严格模式的浏览器，这个声明只是一个简单的字符串语句，不会产生任何影响。</p>
+<p>而在ES6中，使用了默认值、解构赋值、或者扩展运算符，不能显式的使用严格模式，即：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">function test(a = 010) &#123;</span><br><span class="line">	&apos;use strict&apos;;</span><br><span class="line">	// 这里会报错</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>严格模式包括函数参数与函数体。<br>在这个函数中，程序会先解析函数参数【a = 010 ，非严格模式下正确】，再解析函数体；而在函数体中，使用了严格模式，这时候就会发现八进制数a的赋值不符合严格模式，而这样是不提倡的。</p>
+<p>正确的写法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&apos;use strict&apos;;</span><br><span class="line">function test(a = 010) &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-箭头函数"><a href="#5-箭头函数" class="headerlink" title="5. 箭头函数"></a>5. 箭头函数</h3><p>ES6 允许使用“箭头”（=&gt;）定义函数。<br>语法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var 函数名 = (参数部分，只有一个可以去括号)=&gt; &#123;函数体，只有一句可以去大括号和return&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">var test =(a, b) =&gt;&#123;return a * b;&#125;</span><br><span class="line">// 大括号内的会被解析成代码块，如果需要返回对象需要在大括号外添加括号。</span><br><span class="line">var test2 = (a, b) =&gt; (&#123;id:a, :b&#125;);</span><br><span class="line"></span><br><span class="line">//变量解构</span><br><span class="line">var test2 = (&#123;id, age&#125;) =&gt; &#123;id + &apos; - &apos;+ age&#125;;</span><br><span class="line">test2(man); //解析过程为：&#123;man.id + &apos; - &apos;+ man.age&#125;</span><br><span class="line"></span><br><span class="line">//回调函数</span><br><span class="line">[1,2,3].map(x =&gt; x * x);</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong></p>
+<blockquote>
+<p>   this对象是定义函数所在的对象，所以箭头函数中this是固定的<br>不可以用于编写构造函数<br>不可以使用arguments对象<br>不可以使用yield命令<br>ES6中箭头函数里面根本没有自己的this，而是引用外层的this。</p>
+</blockquote>
+<h3 id="6-尾调用优化-与尾递归"><a href="#6-尾调用优化-与尾递归" class="headerlink" title="6. 尾调用优化 与尾递归"></a>6. 尾调用优化 与尾递归</h3><p>尾调用（Tail Call）是函数式编程的一个重要概念，本身非常简单，一句话就能说清楚，就是指某个函数的最后一步是调用另一个函数。尾调用不一定出现在函数尾部，只要是最后一步操作即可。</p>
+<ul>
+<li>ES6 的尾调用优化只在严格模式下开启，正常模式是无效的。</li>
+<li>ES2017 允许函数的最后一个参数有尾逗号（trailing comma）。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function f(x)&#123;</span><br><span class="line">  return g(x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>函数调用会在内存形成一个“调用记录”，又称“调用帧”（call frame），保存调用位置和内部变量等信息。如果在函数A的内部调用函数B，那么在A的调用帧上方，还会形成一个B的调用帧。等到B运行结束，将结果返回到A，B的调用帧才会消失。如果函数B内部还调用函数C，那就还有一个C的调用帧，以此类推。所有的调用帧，就形成一个“调用栈”（call stack）。只有不再用到外层函数的内部变量，内层函数的调用帧才会取代外层函数的调用帧，否则就无法进行“尾调用优化”。<br>递归非常耗费内存，因为需要同时保存成千上百个调用帧，很容易发生“栈溢出”错误（stack overflow）。但对于尾递归来说，由于只存在一个调用帧，所以永远不会发生“栈溢出”错误。</p>
+</blockquote>
+<h3 id="7-抛异常的语法优化"><a href="#7-抛异常的语法优化" class="headerlink" title="7. 抛异常的语法优化"></a>7. 抛异常的语法优化</h3><p>正常的抛异常是不允许catch没有指定对象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">try &#123;</span><br><span class="line">  // ...</span><br><span class="line">&#125; catch (err) &#123;</span><br><span class="line">  // 处理错误</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很多时候，catch代码块可能用不到这个参数。但是，为了保证语法正确，还是必须写。ES2019 做出了改变，允许catch语句省略参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">try &#123;</span><br><span class="line">  // ...</span><br><span class="line">&#125; catch &#123;</span><br><span class="line">  // ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、数组的拓展"><a href="#三、数组的拓展" class="headerlink" title="三、数组的拓展"></a>三、数组的拓展</h1><h3 id="1-扩展运算符与遍历"><a href="#1-扩展运算符与遍历" class="headerlink" title="1. 扩展运算符与遍历"></a>1. 扩展运算符与遍历</h3><p>扩展运算符（spread）是三个点（…）。它好比 rest 参数的逆运算，将一个数组转为用逗号分隔的参数序列。它基于遍历器接口，而没有遍历器接口的无法使用拓展运算符。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">const = args = [0, 1];</span><br><span class="line">function f(...arg)&#123;</span><br><span class="line">  return a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//调用</span><br><span class="line">f((...args));</span><br></pre></td></tr></table></figure>
+
+<p>扩展运算符可以替代apply方法将数组转为函数的参数。</p>
+<p><strong>扩展运算符的应用</strong></p>
+<ul>
+<li><p>复制数组，数组复制只是传递了指针，如果修改复制后的数组那么原来的数组也会被修改</p>
+<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var al = [1,2];</span><br><span class="line">var a2 = [...a1];</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>数组合并</p>
+<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var al = [1,2];</span><br><span class="line">var a2 = [3,4];</span><br><span class="line">var a3 = [...a1,...a2]; //浅拷贝</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>解构赋值结合</p>
+<ul>
+<li><code>const [first, ...rest] = [1, 2, 3, 4, 5];</code></li>
+</ul>
+</li>
+<li><p>字符串</p>
+<ul>
+<li><code>[...&#39;hello&#39;]</code>,可以转换为单个字符的数组</li>
+<li>可以正确识别Unicode 编码的字符串长度，<code>[...&#39;x\uD83D\uDE80y&#39;].length // 3</code></li>
+</ul>
+</li>
+<li><p>Iterator 接口</p>
+<ul>
+<li>任何定义了迭代器的对象都可以用拓展运算符遍历</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">let nodeList = document.querySelectorAll(&apos;div&apos;);</span><br><span class="line">let array = [...nodeList];</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-Array-from-、Array-of"><a href="#2-Array-from-、Array-of" class="headerlink" title="2. Array.from()、Array.of()"></a>2. Array.from()、Array.of()</h3><p><strong>Array.from()</strong><br>Array.from方法用于将两类对象转为真正的数组：</p>
+<ul>
+<li>类似数组的对象（array-like object），即有length属性<ul>
+<li>DOM 操作返回的 NodeList 集合</li>
+<li>arguments对象</li>
+</ul>
+</li>
+<li>可遍历（iterable）的对象（包括 ES6 新增的数据结构 Set 和 Map）。<ul>
+<li>字符串</li>
+<li>Set 结构</li>
+<li>Map</li>
+</ul>
+</li>
+</ul>
+<p>如果浏览器还没有实现这个特性，可以使用【Array.prototype.slice】替代。</p>
+<p>Array.from还可以接受第二个参数，作用类似于数组的map方法，用来对每个元素进行处理，将处理后的值放入返回的数组。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Array.from(arrayLike, x =&gt; x * x);</span><br></pre></td></tr></table></figure>
+
+<p><strong>Array.of()</strong><br>Array.of方法用于将一组值，转换为数组。Array.of基本上可以用来替代Array()或new Array()，并且不存在由于参数不同而导致的重载。它的行为非常统一。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Array() // [] 没有值，返回空数组</span><br><span class="line">Array(3) // [, , ,]</span><br><span class="line">Array(3, 11, 8) // [3, 11, 8]</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-数组实例方法"><a href="#3-数组实例方法" class="headerlink" title="3. 数组实例方法"></a>3. 数组实例方法</h3><p><strong>copyWithin()</strong><br>它会在当前数组内部，将数组中指定位置的成员复制到数组中其他位置（会覆盖原有成员），然后返回当前数组。<br>参数如下：</p>
+<ul>
+<li>target（必需）：从该位置开始替换数据。如果为负值，表示倒数。</li>
+<li>start（可选）：从该位置开始读取数据，默认为 0。如果为负值，表示从末尾开始计算。</li>
+<li>end（可选）：到该位置前停止读取数据，默认等于数组长度。如果为负值，表示从末尾开始计算。</li>
+</ul>
+<p><strong>find() 和 findIndex()</strong></p>
+<p>数组实例的find方法，用于找出第一个符合条件的数组成员。它的参数是一个回调函数，所有数组成员依次执行该回调函数，直到找出第一个返回值为true的成员，然后返回该成员。如果没有符合条件的成员，则返回undefined。</p>
+<p>数组实例的findIndex方法的用法与find方法非常类似，返回第一个符合条件的数组成员的位置，如果所有成员都不符合条件，则返回-1。</p>
+<p><strong>fill()</strong><br>fill方法使用给定值，填充一个数组。<br>参数如下：</p>
+<ul>
+<li>value ：用于填充的值</li>
+<li>start ：起始位置,可忽略</li>
+<li>end：终止位置,可忽略</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[&apos;a&apos;, &apos;b&apos;, &apos;c&apos;].fill(7)</span><br><span class="line">// [7, 7, 7]</span><br><span class="line"></span><br><span class="line">[&apos;a&apos;, &apos;b&apos;, &apos;c&apos;].fill(7, 1, 2)</span><br><span class="line">// [&apos;a&apos;, 7, &apos;c&apos;]</span><br></pre></td></tr></table></figure>
+
+<p><strong>遍历数组的三个方法</strong></p>
+<ul>
+<li>entries() 键值对的遍历</li>
+<li>keys() 键名的遍历    </li>
+<li>values() 键值的遍历</li>
+</ul>
+<p><strong>includes()</strong></p>
+<p>Array.prototype.includes方法返回一个布尔值，表示某个数组是否包含给定的值，与字符串的includes方法类似。<br><code>[1, 2, 3].includes(4)     // false</code></p>
+<p> <strong>flat()，flatMap()</strong></p>
+<p>数组的成员有时还是数组，Array.prototype.flat()用于将嵌套的数组“拉平”，变成一维的数组。该方法返回一个新数组，对原数据没有影响。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[1, 2, [3, 4]].flat()</span><br><span class="line">// [1, 2, 3, 4]</span><br></pre></td></tr></table></figure>
+
+<p>flatMap()方法对原数组的每个成员执行一个函数（相当于执行Array.prototype.map()），然后对返回值组成的数组执行flat()方法。该方法返回一个新数组，不改变原数组。只能展开一维数组，但是能对数组数据进行处理。</p>
+<h3 id="4-数组的空位"><a href="#4-数组的空位" class="headerlink" title="4. 数组的空位"></a>4. 数组的空位</h3><p>数组的空位指，数组的某一个位置没有任何值。比如，Array构造函数返回的数组都是空位。注意，空位不是undefined，一个位置的值等于undefined，依然是有值的。空位是没有任何值，in运算符可以说明这一点。</p>
+<p>ES6中各个方法对空位的处理：</p>
+<ul>
+<li>Array.from方法会将数组的空位，转为undefined;扩展运算符（…）也会将空位转为undefined。</li>
+<li>copyWithin()会连空位一起拷贝。</li>
+<li>fill()会将空位视为正常的数组位置。</li>
+<li>for…of循环也会遍历空位。</li>
+</ul>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2019/11/09/es6-3/">http://zws6672.top/2019/11/09/es6-3/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/es6/">es6</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2019/11/13/java-base-1-annonation/" class="pre">java基础（一）annonation</a><a href="/2019/11/08/tomcat-sz-1/" class="next">tomcat实战（一）linux使用多个tomcat</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、正则的拓展"><span class="toc-text">一、正则的拓展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-RegExp-构造函数-ES5"><span class="toc-text">1. RegExp 构造函数[ES5]</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#修饰符"><span class="toc-text">修饰符</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#方括号"><span class="toc-text">方括号</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#元字符"><span class="toc-text">元字符</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#量词"><span class="toc-text">量词</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#RegExp-对象属性"><span class="toc-text">RegExp 对象属性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-RegExp-构造函数-ES6"><span class="toc-text">2. RegExp 构造函数[ES6]</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-字符串的正则方法"><span class="toc-text">3. 字符串的正则方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-u-字符"><span class="toc-text">4. u 字符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-y-修饰符"><span class="toc-text">5. y 修饰符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-RegExp-的几个属性"><span class="toc-text">6. RegExp 的几个属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-s-修饰符：dotAll-模式"><span class="toc-text">7. s 修饰符：dotAll 模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-Unicode-属性类"><span class="toc-text">8. Unicode 属性类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-具名组匹配"><span class="toc-text">9. 具名组匹配</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#使用具名组匹配进行解构赋值和替换"><span class="toc-text">使用具名组匹配进行解构赋值和替换</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#引用"><span class="toc-text">引用</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#二、函数的拓展"><span class="toc-text">二、函数的拓展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-函数参数的默认值"><span class="toc-text">1. 函数参数的默认值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-与解构赋值默认值结合使用"><span class="toc-text">2. 与解构赋值默认值结合使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-rest-参数-与-name属性"><span class="toc-text">3. rest 参数 与 name属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-严格模式"><span class="toc-text">4. 严格模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-箭头函数"><span class="toc-text">5. 箭头函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-尾调用优化-与尾递归"><span class="toc-text">6. 尾调用优化 与尾递归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-抛异常的语法优化"><span class="toc-text">7. 抛异常的语法优化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、数组的拓展"><span class="toc-text">三、数组的拓展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-扩展运算符与遍历"><span class="toc-text">1. 扩展运算符与遍历</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Array-from-、Array-of"><span class="toc-text">2. Array.from()、Array.of()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-数组实例方法"><span class="toc-text">3. 数组实例方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-数组的空位"><span class="toc-text">4. 数组的空位</span></a></li></ol></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

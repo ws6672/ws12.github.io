@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>linux学习指南（一）基础篇 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">linux学习指南（一）基础篇</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">linux学习指南（一）基础篇</h1><div class="post-meta"><a href="/2019/09/05/linux-command-1/#comments" class="comment-count"></a><p><span class="date">Sep 05, 2019</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>开卷语</p>
+<blockquote>
+<p>Linux的命令繁多，但常用的却总是那几个，熟能生巧。</p>
+</blockquote>
+<h3 id="一、文件命令"><a href="#一、文件命令" class="headerlink" title="一、文件命令"></a>一、文件命令</h3><h5 id="1-文件操作"><a href="#1-文件操作" class="headerlink" title="1. 文件操作"></a>1. 文件操作</h5><ul>
+<li><p>mkdir 创建目录(不存在)  make dir</p>
+<ul>
+<li>mkdir [Options] 文件名…可以用空格分开同时创建多个文件夹</li>
+<li>Options<ul>
+<li>-m【mode、文件权限，类似用chmod做初始化】</li>
+<li>-p【需要时创建上层目录】</li>
+</ul>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir test</span><br><span class="line">touch vsftpd.sh</span><br><span class="line"># 删除文件  -f 强制删除 -r 是递归</span><br><span class="line">rm -rf dir</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>mkfile 创建文件</p>
+<ul>
+<li>mkfile [ -nv ] size[b|k|m|g] filename …</li>
+<li>-n     空文件，记录大小，写入数据前不分配磁盘块</li>
+<li>-v 详细信息</li>
+</ul>
+</li>
+<li><p>cp 拷贝文件  copy</p>
+<ul>
+<li>cp [ options ] … Source  Dest </li>
+<li>options<ul>
+<li>-b 覆盖前备份</li>
+<li>-l 快捷方式</li>
+<li>-i 覆盖提示</li>
+<li>-R 递归复制</li>
+<li>-v 细节输出</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>mv 移动文件   move</p>
+<ul>
+<li>mv [ options ] … Source … 目录</li>
+<li>options<ul>
+<li>-b    备份</li>
+<li>-f    忽略</li>
+<li>-u    相同不更新</li>
+<li>-v    详细信息输出</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>rm  删除文件 remove</p>
+<ul>
+<li>rm [options]… file…</li>
+<li>Options<ul>
+<li>-f 忽略提示</li>
+<li>-r 递归删除</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="2-文件权限修改"><a href="#2-文件权限修改" class="headerlink" title="2. 文件权限修改"></a>2. 文件权限修改</h5><p>Linux文件权限一般使用如下几个命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">chmod——改变文件或目录的权限</span><br><span class="line"></span><br><span class="line">chown——改变文件或目录的属主（所有者）</span><br><span class="line"></span><br><span class="line">chgrp——改变文件或目录所属的组</span><br><span class="line"></span><br><span class="line">umask——设置文件的缺省生成掩码</span><br></pre></td></tr></table></figure>
+
+<p><a href="/2019/09/18/linux-permission/">具体内容</a></p>
+<h5 id="3-查看文件"><a href="#3-查看文件" class="headerlink" title="3. 查看文件"></a>3. 查看文件</h5><ul>
+<li>ls 查看文件简略信息</li>
+<li>ll 查看文件详细信息</li>
+<li>pwd 显示文件路径</li>
+<li>cd 移动到目录下</li>
+<li>find 查询文件</li>
+</ul>
+<h5 id="4-文件中的文本处理"><a href="#4-文件中的文本处理" class="headerlink" title="4. 文件中的文本处理"></a>4. 文件中的文本处理</h5><p>Linux操作文本不像windows那么简单，它需要一定技巧，但要入门只需要记住以下的几个命令即可。</p>
+<p><em>4.1 文本显示</em></p>
+<ul>
+<li>cat 查看所有文本</li>
+<li>less 查询大文本，可以通过上下浏览文本</li>
+<li>tail 输出文件末的文本<ul>
+<li>tail [ options ] … [ file ]</li>
+<li>options<ul>
+<li>-f 随着文件的增长输出内容</li>
+<li>-n【K】 输出行数，K表示行数</li>
+</ul>
+</li>
+<li>eg<ul>
+<li><code>tail -fn5 hello.sh</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><em>4.2 搜索与比较</em></p>
+<ul>
+<li>grep 搜索文件中与给定模式匹配的行<ul>
+<li>grep [ options ] PATTERN [ FILE …]</li>
+<li>options<ul>
+<li>-i 忽略大小写</li>
+<li>-e 使用正则表达式</li>
+<li>-m 最多匹配行</li>
+<li>-n 输出行号</li>
+<li>-q 匹配或有错误退出</li>
+</ul>
+</li>
+<li>eg<ul>
+<li><code>grep -inm 2 he hello.sh</code></li>
+<li><code>grep -q he hello.sh</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>diff 比较文件差异<ul>
+<li>diff [ options ] FILES</li>
+<li>options<ul>
+<li>-v 输出详细信息</li>
+<li>-a 视为文本</li>
+<li>-i 忽略大小写</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="二、压缩与解压"><a href="#二、压缩与解压" class="headerlink" title="二、压缩与解压"></a>二、压缩与解压</h3><p>Linux下常见的压缩文件有tar、bzip2、zip、rar, 7z相对较少，许多开源的资源在linux中的链接大都是【tar】格式。而Linux中【7z】虽然使用较少，但压缩解压的性能尤为出色。</p>
+<ul>
+<li><a href="#tar">.tar</a>  使用tar命令压缩或解压</li>
+<li><a href="#bzip2">.bz2</a> 使用bzip2命令操作</li>
+<li><a href="#gzip">.gz</a> 使用gzip命令操作</li>
+<li><a href="#zip">.zip</a> 使用unzip命令解压</li>
+<li><a href="#rar">.rar</a> 使用unrar命令解压</li>
+</ul>
+<h5 id="tar"><a href="#tar" class="headerlink" title="tar"></a>tar</h5><ul>
+<li>语法<ul>
+<li>tar [[-]function] [options] 文件名或者目录</li>
+<li>options<ul>
+<li>-c: 建立压缩档案</li>
+<li>-x：解压</li>
+<li>-t：查看内容</li>
+<li>-r：向压缩归档文件末尾追加文件</li>
+<li>-u：更新原压缩包中的文件</li>
+<li>-z：解压tar.gz</li>
+<li>-j： 解压 tar.bz2</li>
+<li>-Z：解压tar.Z</li>
+<li>-v：显示所有过程</li>
+<li>-O：将文件解开到标准输出</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="bzip2"><a href="#bzip2" class="headerlink" title="bzip2"></a>bzip2</h5><p>该命令用于解压以及压缩【bz2】格式的文件。</p>
+<ul>
+<li>语法<ul>
+<li>bzip2 [ -cdfkqstvzVL123456789 ] [ filenames … ]</li>
+<li>bunzip2 [ -fkvsVL ] [ filenames … ]</li>
+<li>bzcat [ -s ] [ filenames … ]</li>
+<li>bzip2recover filename</li>
+<li>options<ul>
+<li>-c 压缩</li>
+<li>-d 强制解压缩</li>
+<li>-t 测试</li>
+<li>-k 在压缩或解压缩期间保留（不删除）输入文件</li>
+<li>-s 减少内存使用，速度约为正常的一半</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="gzip"><a href="#gzip" class="headerlink" title="gzip"></a>gzip</h5><p>用于解压以及压缩【gz】格式的文件。</p>
+<ul>
+<li>语法<ul>
+<li>gzip options …</li>
+<li>OPTIONS<ul>
+<li>-c 压缩</li>
+<li>-d 解缩</li>
+<li>-t 测试压缩文件完整性</li>
+<li>-v 显示详细信息</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="zip-与-rar"><a href="#zip-与-rar" class="headerlink" title="zip 与 rar"></a>zip 与 rar</h5><p>zip 命令用于压缩【zip】格式的文件；<br>rar 命令用于压缩【rar】格式的文件。<br>在Centos系统中并没有这两个命令，可以用【yum】命令进行安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">yum -y install rar unrar</span><br><span class="line"># You need to be root to perform this command. 没有权限，需要升权</span><br><span class="line"></span><br><span class="line">sudo -i</span><br><span class="line">yum -y install rar unrar</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><h5 id="查看日期"><a href="#查看日期" class="headerlink" title="查看日期"></a>查看日期</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># date</span><br><span class="line">Tue Sep  3 21:53:17 CST 2019</span><br></pre></td></tr></table></figure>
+
+<h5 id="查看控制字符"><a href="#查看控制字符" class="headerlink" title="查看控制字符"></a>查看控制字符</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># stty -a</span><br></pre></td></tr></table></figure>
+
+<h5 id="修改密码"><a href="#修改密码" class="headerlink" title="修改密码"></a>修改密码</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># passwd</span><br></pre></td></tr></table></figure>
+
+<h5 id="登陆和注销shell"><a href="#登陆和注销shell" class="headerlink" title="登陆和注销shell"></a>登陆和注销shell</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># login logout</span><br></pre></td></tr></table></figure>
+
+<h5 id="显示路径"><a href="#显示路径" class="headerlink" title="显示路径"></a>显示路径</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># pwd</span><br><span class="line">/home/ali</span><br></pre></td></tr></table></figure>
+
+<h5 id="显示或部分显示文件内容"><a href="#显示或部分显示文件内容" class="headerlink" title="显示或部分显示文件内容"></a>显示或部分显示文件内容</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">more, less, head tail:</span><br></pre></td></tr></table></figure>
+
+<h5 id="挂起"><a href="#挂起" class="headerlink" title="挂起"></a>挂起</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ctrl-z 可以将前台进程挂起(suspend), 然后可以用 bg jobid 让其到后台运行。</span><br><span class="line">job &amp; 可以直接让 job 直接在后台运行。</span><br></pre></td></tr></table></figure>
+
+<h5 id="vim常用命令"><a href="#vim常用命令" class="headerlink" title="vim常用命令"></a>vim常用命令</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">:q 退出</span><br><span class="line">:wq 保存并退出</span><br><span class="line">d 删除</span><br><span class="line">y 复制</span><br><span class="line">p 粘贴</span><br><span class="line">‘/内容’：</span><br><span class="line"></span><br><span class="line">:nu 查看当前行数</span><br><span class="line">:set nu 查看所有行数</span><br></pre></td></tr></table></figure>
+
+<h5 id="配置环境变量"><a href="#配置环境变量" class="headerlink" title="配置环境变量"></a>配置环境变量</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/profile 所有用户</span><br><span class="line"># vim ~/.bashrc 当前用户</span><br><span class="line"></span><br><span class="line">	export NEO4J_HOME=/usr/local/neo4j/neo4j-community-3.5.9</span><br><span class="line">	export PATH=$PATH:$NEO4J_HOME/bin</span><br><span class="line"></span><br><span class="line">#刷新环境变量</span><br><span class="line">source /etc/profile</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">##### cat的使用</span><br><span class="line"></span><br><span class="line">cat可以在终端输出一个文件的内容；可以将文件的内容复制到另一个文件中；可以合并文件；可以创建新的文本文件。</span><br><span class="line"></span><br><span class="line">**使用**</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">cat filename</span><br><span class="line">cat file1 file2 </span><br><span class="line">cat file1 file2 &gt; newcombinedfile</span><br><span class="line">cat &lt; file1 &gt; file2 #copy file1 to file2</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><blockquote>
+<p><a href="https://ss64.com/bash/" target="_blank" rel="noopener">ss64 ———— 操作系统命令参考网站</a><br><a href="https://mp.weixin.qq.com/s/9RbTGQ4k4s92mrSf2xJ5TQ" target="_blank" rel="noopener">Linux上，最常用的一批命令解析（10年精选）</a><br><a href="https://www.cnblogs.com/rwxwsblog/p/4505934.html" target="_blank" rel="noopener">Linux压缩和解压汇总</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2019/09/05/linux-command-1/">http://zws6672.top/2019/09/05/linux-command-1/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/linux/">linux</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2019/09/10/linux-crul/" class="pre">linux学习指南（二）crul</a><a href="/2019/09/05/linux-1-vsftpd/" class="next">在centos7中安装vsftpd</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、文件命令"><span class="toc-text">一、文件命令</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-文件操作"><span class="toc-text">1. 文件操作</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-文件权限修改"><span class="toc-text">2. 文件权限修改</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-查看文件"><span class="toc-text">3. 查看文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-文件中的文本处理"><span class="toc-text">4. 文件中的文本处理</span></a></li></ol></li></ol><li class="toc-item toc-level-3"><a class="toc-link" href="#二、压缩与解压"><span class="toc-text">二、压缩与解压</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#tar"><span class="toc-text">tar</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#bzip2"><span class="toc-text">bzip2</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#gzip"><span class="toc-text">gzip</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#zip-与-rar"><span class="toc-text">zip 与 rar</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他"><span class="toc-text">其他</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#查看日期"><span class="toc-text">查看日期</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#查看控制字符"><span class="toc-text">查看控制字符</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#修改密码"><span class="toc-text">修改密码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#登陆和注销shell"><span class="toc-text">登陆和注销shell</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#显示路径"><span class="toc-text">显示路径</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#显示或部分显示文件内容"><span class="toc-text">显示或部分显示文件内容</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#挂起"><span class="toc-text">挂起</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#vim常用命令"><span class="toc-text">vim常用命令</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#配置环境变量"><span class="toc-text">配置环境变量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文献"><span class="toc-text">参考文献</span></a></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/01/09/java-util-0/">Java集合（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/01/09/http/">Http 协议</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/01/07/ms-dsq/">面试——某电商笔试</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/12/23/mq-2/">RabbitMQ（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/12/14/regex/">正则表达式汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/11/18/mservice-transaction/">微服务中事务的安全性</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/11/17/nk-201102-201115/">nk-201102-201115</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/11/17/leetcode-201102-201115/">leetcode-201102-201115</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/11/04/java-concurrent/">Java多线程（一）ThreadLocal</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/11/03/ms-tt/">面试记录（六）某拓</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

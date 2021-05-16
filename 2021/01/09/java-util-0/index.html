@@ -1,0 +1,198 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>Java集合（一）入门 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Java集合（一）入门</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">Java集合（一）入门</h1><div class="post-meta"><a href="/2021/01/09/java-util-0/#comments" class="comment-count"></a><p><span class="date">Jan 09, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>Oracle将集合和Java集合框架（Java Collections Framework（JCF））定义为：“一个<code>代表一组对象</code>的对象（例如经典的 Vector类）。集合框架是用于表示和操作集合的统一体系结构，使集合可以独立于实现细节进行操作。”。</p>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>集合固定增长或缩小，且支持泛型，而Map中的值没有特定顺序，但是可以通过<code>key</code>进行检索。</p>
+<p>Collection 的含义可以参考：</p>
+<ul>
+<li>它的日常含义是“汇编或一组事物”，</li>
+<li>组成Java Collections Framework的接口和类的集合，</li>
+<li>可以容纳一组对象（例如数组）的数据结构（例如盒子或容器），</li>
+<li>util.Collection接口，这是两个主要JCF接口之一</li>
+<li>util.Collections，一个实用程序类，可以帮助修改或操作Java集合。</li>
+</ul>
+<p>而与数组不同，所有Collection的大小都可以动态。</p>
+<h3 id="泛型与初始化大小"><a href="#泛型与初始化大小" class="headerlink" title="泛型与初始化大小"></a>泛型与初始化大小</h3><p>在集合框架中，广泛的使用了泛型；在使用集合框架时，应当尽量对它设置近似的初始化值，知道集合的确切大小甚至是近似大小要比确定默认集合大小更好，因为如果默认集合大小如果过小，那么就会进行多次扩充。一个适合的集合大小，可以提高程序的性能。而这种细节的处理，通常是普通程序员与软件工程师之间的差距。</p>
+<p><code>Collection&lt;String&gt; myList = new ArrayList&lt;String&gt;(100);</code></p>
+<p><em>泛型定义的例子</em></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public interface MyInterface&lt;E, T&gt; &#123;</span><br><span class="line">E read();</span><br><span class="line">void process(T o1, T o2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><em>在初次操作之前不要进行初始化</em></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">void addToMap(String key, Object x) &#123;</span><br><span class="line">  getOrCreateList().put(key,x);</span><br><span class="line">&#125;</span><br><span class="line">// ConcurrentHashMap 提供给多个线程使用，需要考虑线程安全</span><br><span class="line">private Map getOrCreateMap() &#123;</span><br><span class="line">    if (map == null) &#123;</span><br><span class="line">        // Make sure we aren&apos;t outpaced by another thread</span><br><span class="line">        synchronized (this) &#123;</span><br><span class="line">            if (map == null) map = new ConcurrentHashMap();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return map;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Collections-与-Arrays-工具类"><a href="#Collections-与-Arrays-工具类" class="headerlink" title="Collections 与 Arrays 工具类"></a>Collections 与 Arrays 工具类</h3><p> <code>java.util.Collections</code>与<code>java.util.Arrays</code>都提供了多个静态方法。</p>
+<ul>
+<li><code>Collections</code>提供了便捷的方法 sort、shuffle、reverse、search、min、max，这大大增强了<code>Collections</code>接口的通用性。</li>
+<li><code>Arrays</code>也支持对数组进行排序或搜索</li>
+</ul>
+<h3 id="深克隆集合"><a href="#深克隆集合" class="headerlink" title="深克隆集合"></a>深克隆集合</h3><p>深克隆集合是Java开发人员不断努力的目标，我们一般通过重写<code>Object.clone()</code>方法实现深克隆。jdk8 引入的新功能<code>Streams</code>,可以对集合中的元素进行深克隆。因为stream创建对象时，修改生成的实例将不会影响其来源。这允许从一个来源创建多个实例。     </p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Dog dog1 = new Dog(&quot;Puppy&quot;, 4);</span><br><span class="line">Dog dog2 = new Dog(&quot;Tom&quot;, 5);</span><br><span class="line">Dog dog3 = new Dog(&quot;Hen&quot;, 3);</span><br><span class="line">Dog dog4 = new Dog(&quot;Jen&quot;, 7);</span><br><span class="line">List&lt;Dog&gt; dogs = new ArrayList&lt;&gt;();</span><br><span class="line">dogs.add(dog1);</span><br><span class="line">dogs.add(dog2);</span><br><span class="line">dogs.add(dog3);</span><br><span class="line">dogs.add(dog4);</span><br><span class="line">//clone with java 8</span><br><span class="line">List&lt;Dog&gt; clonedList = dogs.stream().map(Dog::new).collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">// 对原始集合所做的任何修改都不会影响克隆的集合</span><br></pre></td></tr></table></figure>
+
+<h3 id="集合与封装"><a href="#集合与封装" class="headerlink" title="集合与封装"></a>集合与封装</h3><p>面向对象编程的核心之一是封装：不应当允许调用者直接访问类的字段。JavaBeans 规范是作为Java强制执行封装的方法引入的，编写JavaBeans意味着您需要将类的字段设为私有，仅通过getter和setter方法公开它们。这样做是很繁琐的，但JavaBean规范在使用集合类型时还是很有用的。</p>
+<p>一个较为合适的处理集合的方式如下，这样处理就避免了将对<code>非null</code>的判定分散在代码中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public void setMyStrings(List&lt;String&gt; s) &#123;</span><br><span class="line">    if (s == null) &#123;</span><br><span class="line">        this.myStrings.clear();</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        this.myStrings = s;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即便我们将<code>null</code>传递给<code>setter</code>，它也将保留有效的引用。</p>
+<h3 id="数据排序"><a href="#数据排序" class="headerlink" title="数据排序"></a>数据排序</h3><ol>
+<li>数据存储于集合</li>
+</ol>
+<p>数据在<code>Collection</code>（ArrayList、HashSet、TreeSet）中，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">private void sortNumbersInArrayList() &#123;</span><br><span class="line">        List&lt;Integer&gt; integers = new ArrayList&lt;&gt;();</span><br><span class="line">        integers.add(5);</span><br><span class="line">        integers.add(10);</span><br><span class="line">        integers.add(0);</span><br><span class="line">        integers.add(-1);</span><br><span class="line">        System.out.println(&quot;Original list: &quot; +integers);</span><br><span class="line">        Collections.sort(integers);</span><br><span class="line">        System.out.println(&quot;Sorted list: &quot;+integers);</span><br><span class="line">        Collections.sort(integers, Collections.reverseOrder());</span><br><span class="line">        System.out.println(&quot;Reversed List: &quot; +integers);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 对于  Set，我们需要将HashSet转换为ArrayList，或者使用TreeSet对数据进行排序</span><br><span class="line">private void sortNumbersInHashSet() &#123;</span><br><span class="line">        Set&lt;Integer&gt; integers = new HashSet&lt;&gt;();</span><br><span class="line">        integers.add(5);</span><br><span class="line">        integers.add(10);</span><br><span class="line">        integers.add(0);</span><br><span class="line">        integers.add(-1);</span><br><span class="line">		</span><br><span class="line">        </span><br><span class="line">		/*</span><br><span class="line">		* System.out.println(&quot;Original set: &quot; +integers);</span><br><span class="line">		* Collections.sort(integers); This throws error since sort method accepts list not collection</span><br><span class="line">		* HashSet无法直接输出，因为是无序的</span><br><span class="line">		*/</span><br><span class="line">		</span><br><span class="line">		// 转换为ArrayList输出</span><br><span class="line">        List list = new ArrayList(integers);</span><br><span class="line">        Collections.sort(list);</span><br><span class="line">        System.out.println(&quot;Sorted set: &quot;+list);</span><br><span class="line">        Collections.sort(list, Collections.reverseOrder());</span><br><span class="line">        System.out.println(&quot;Reversed set: &quot; +list);</span><br><span class="line">		// 使用TreeSet对数据进行排序</span><br><span class="line">		Set&lt;Integer&gt; reversedIntegers = new TreeSet(Collections.reverseOrder());</span><br><span class="line">        reversedIntegers.add(5);</span><br><span class="line">        reversedIntegers.add(10);</span><br><span class="line">        reversedIntegers.add(0);</span><br><span class="line">        reversedIntegers.add(-1);</span><br><span class="line">        System.out.println(&quot;Reversed set: &quot; + reversedIntegers);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果自定义类的集合需要通过<code>Collections</code>排序，那么自定义类需要实现接口<code>Comparable</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line"> public int compareTo(Object o) &#123;</span><br><span class="line">    return (((Student) o).getName()).compareTo(this.getName());</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>数据存储于数组</li>
+</ol>
+<p>如果数据存储在数组中，需要通过<code>Arrays.sort(Object[] a )</code>进行排序；</p>
+<ol start="3">
+<li>通过比较器实现排序</li>
+</ol>
+<p>继承<em>Comparator</em>类</p>
+<ul>
+<li><code>外比较器</code>,定义在其它类中,不需要对类进行修改；方法定义：<code>int compare(T o1,T o2)</code>;</li>
+<li>使用场景：当我们想对无法修改的类的实例进行排序时；要求根据用例按不同字段进行排序。</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class DomainComparator implements Comparator&lt;Domain&gt;</span><br><span class="line">&#123;</span><br><span class="line">    public int compare(Domain domain1, Domain domain2)</span><br><span class="line">    &#123;</span><br><span class="line">        if (domain1.getStr().compareTo(domain2.getStr()) &gt; 0)</span><br><span class="line">            return 1;</span><br><span class="line">        else if (domain1.getStr().compareTo(domain2.getStr()) == 0)</span><br><span class="line">            return 0;</span><br><span class="line">        else </span><br><span class="line">            return -1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>实现<em>Comparable</em>接口</p>
+<ul>
+<li><code>内比较器</code>，需要进行自定义排序时，需要实现该接口，并且编写自然比较方法<code>compareTo</code><ul>
+<li>int compareTo (object)<ul>
+<li>返回值：大于对象，返回正数；等于对象，返回0；小于对象，返回负数。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>当我们在定义类时知道排序的顺序时，应该使用；并且在其他情况下，我们将不要求Collection / array按其他字段进行排序</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>工具类的使用</p>
+<ul>
+<li>Collections</li>
+<li>Arrays</li>
+</ul>
+<p>遍历Collection的几种方法</p>
+<ul>
+<li>steam API和foreach</li>
+<li>增强for循环</li>
+<li>c类型的for循环</li>
+<li>c类型的iterator遍历</li>
+</ul>
+<p>遍历数组的方法</p>
+<ul>
+<li>自定义排序方法</li>
+<li>通过<code>Arrays.sort</code>方法</li>
+</ul>
+<p>使用比较器</p>
+<ul>
+<li>继承<em>Comparator</em>类</li>
+<li>实现<em>Comparable</em>接口</li>
+</ul>
+<hr>
+<h1 id="二、Collection"><a href="#二、Collection" class="headerlink" title="二、Collection"></a>二、Collection</h1><p>集合框架是一个关于数据存储结构的体系，用来存储对象信息。大部分集合类位于java.util包下，支持多线程的集合类位于java.util.concurrent包下。</p>
+<h3 id="Collection-层次结构"><a href="#Collection-层次结构" class="headerlink" title="Collection 层次结构"></a>Collection 层次结构</h3><p><img src="/image/java/util/java_collection_1png.png" alt="集合框架结构图"></p>
+<p>从图中可以总结以下几点：<br>根节点是<code>Iterable</code>，表示所有的集合类都可以通过迭代器进行遍历。<br>往下是Collection 接口，提供了集合通用的操作方法，包括添加元素、删除元素、检查是否包含元素、获取元素个数<br>Collection 接口又有三个子接口：<code>Set</code> <code>List</code> <code>Queue</code> </p>
+<ul>
+<li><code>Set</code>：不包含重复元素<ul>
+<li><code>AbstractSet</code><ul>
+<li><code>HashSet</code>: 底层是哈希结构；非有序集合<ul>
+<li><code>LinkedHashSet</code>: HashSet和List的组合；底层是双向链表，可以按插入顺序遍历</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>SortedSet</code>：顾名思义，是一个有序的Set集合<ul>
+<li><code>NavigableSet</code>：提供浏览有序的Set集合，提供检索大于或小于给定Set元素的下一个元素的方法。<ul>
+<li><code>TreeSet</code>：底层是树结构；通过<code>（比较器）comparator</code>接口使元素按一定规则进行排序</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>List</code>：有序集合、可重复<ul>
+<li><code>ArrayList</code>:默认实现；底层数组，可调整列表大小；遍历、读取快；添加、删除慢</li>
+<li><code>Vector</code>：底层数组，可调整列表大小，<em>仅在需要线程安全和同步时才使用它</em>。</li>
+<li><code>Stack</code>：LIFO（后进先出）阵列.Vector的子类，也是线程安全的。</li>
+<li><code>LinkedList</code>:元素的双链表。提供从中间位置快速添加和删除的功能。还实现了<code>Deque</code> 接口.</li>
+</ul>
+</li>
+<li><code>Queue</code>：<em>先进先出</em>；队列<ul>
+<li><code>Deque</code>:双向队列接口，支持在两端插入和删除元素的线性集合<ul>
+<li><code>ArrayDeque</code>： 是 Deque的实现，使用数组进行存储</li>
+<li><code>LinkedList</code>：也是 Deque的实现</li>
+<li><code>PriorityQueue</code>:一个基于优先级的无界优先级队列。<ul>
+<li>优先级队列的元素按照其自然顺序进行排序，或者根据构造队列时提供的 Comparator 进行排序，具体取决于所使用的构造方法。</li>
+<li>该队列不允许使用 null 元素也不允许插入不可比较的对象(没有实现Comparable接口的对象)。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="集合的公共方法"><a href="#集合的公共方法" class="headerlink" title="集合的公共方法"></a>集合的公共方法</h3><ol>
+<li>Iterator 与 Iterable</li>
+</ol>
+<ul>
+<li>Iterator 是java.util包下的接口，迭代器类；</li>
+<li>Iterable 是java.lang下的接口，封装了Iterator接口，实现该接口就可以使用<code>增强for循环</code>。</li>
+</ul>
+<ol start="2">
+<li>forEach 方法与 forEachRemaining方法的区别<br>forEach()方法是Iterable接口在1.8的时候引入的一个默认方法；forEachRemaining()是Iterator接口在1.8的时候引入的一个默认方法</li>
+</ol>
+<p>对于大多数实现了Iterable接口的集合，可以多次调用forEach遍历，并将通过元素进行多次传递。<br>相反，forEachRemaining()使用迭代器Iterator的所有元素，并且第二次调用它将不会做任何事情，因为不再有下一个元素。</p>
+<p>使用场景：获得对应集合的迭代器Iterator，然后您可以开始迭代，next()直到达到某个条件，然后使用<br>forEachRemaining()操作该Iterator上的其余部分。</p>
+<ol start="3">
+<li>通过增强for循环，高速迭代</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void test() &#123;</span><br><span class="line">    Iterable&lt;String&gt; stringIterable = Arrays.asList(&quot;AA&quot;,&quot;BB&quot;,&quot;CC&quot;,&quot;DD&quot;);</span><br><span class="line">    for (String name: stringIterable) &#123;</span><br><span class="line">        System.out.println(name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>在JDK8可以通过<code>foreach()</code>和 lambda表达式进行遍历 </li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void test1() &#123;</span><br><span class="line">	Iterable stringIterable = Arrays.asList(&quot;AA&quot;,&quot;BB&quot;,&quot;CC&quot;,&quot;DD&quot;);</span><br><span class="line">	stringIterable.forEach(System.out::println);</span><br><span class="line"></span><br><span class="line">	Arrays.asList(&quot;AA&quot;,&quot;BB&quot;,&quot;CC&quot;,&quot;DD&quot;).forEach(str-&gt;&#123;</span><br><span class="line">		System.out.println(str);</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><p>通过 <code>Iterator</code>迭代</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void test() &#123;</span><br><span class="line">    Iterable stringIterable = Arrays.asList(&quot;AA&quot;,&quot;BB&quot;,&quot;CC&quot;,&quot;DD&quot;);</span><br><span class="line">    Iterator iterator = stringIterable.iterator();</span><br><span class="line">    while (iterator.hasNext()) &#123;</span><br><span class="line">        System.out.println(iterator.next());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>几个常用操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">    @Test</span><br><span class="line">    public void test2() &#123;</span><br><span class="line">        List&lt;String&gt; list = Arrays.asList(&quot;AA&quot;,&quot;BB&quot;,&quot;CC&quot;,&quot;DD&quot;);</span><br><span class="line">        Set&lt;String&gt; names = new LinkedHashSet&lt;&gt;();</span><br><span class="line">//        添加元素</span><br><span class="line">        names.add(&quot;Mary&quot;);</span><br><span class="line">        names.add(&quot;Annie&quot;);</span><br><span class="line">        names.add(null);</span><br><span class="line">//        合并集合</span><br><span class="line">        names.addAll(list);</span><br><span class="line"></span><br><span class="line">//        删除单个元素</span><br><span class="line">        if (names.remove(&quot;AA&quot;)) &#123;</span><br><span class="line">            System.out.println(&quot;remove success&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">//        删除多个元素</span><br><span class="line">        if (names.removeAll(Arrays.asList(&quot;Mary&quot;,&quot;Annie&quot;))) &#123;</span><br><span class="line">            System.out.println(&quot;remove all success&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">//        删除匹配项 需要空处理</span><br><span class="line">        names.removeIf((name -&gt; name !=null &amp;&amp; name.equals(&quot;BB&quot;) ));</span><br><span class="line">//        遍历集合</span><br><span class="line">        names.forEach(str-&gt;&#123;</span><br><span class="line">            System.out.println(str);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>保留相同的对象</p>
+</li>
+</ol>
+<p>通过<code>retainAll()</code>方法获取两个集合的交集</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">  @Test</span><br><span class="line">  public void test3() &#123;</span><br><span class="line">      Collection&lt;String&gt; names = new ArrayList&lt;&gt;();</span><br><span class="line">      names.addAll(Arrays.asList(&quot;Mary&quot;, &quot;Annie&quot;, &quot;Anna&quot;, &quot;Margaret&quot;, &quot;Helen&quot;));</span><br><span class="line">      Collection&lt;String&gt; keepEm = Arrays.asList(&quot;Elsie&quot;, &quot;Lucy&quot;, &quot;Margaret&quot;, &quot;Dorothy&quot;, &quot;Mary&quot;, &quot;Helen&quot;, &quot;Margaret&quot;);</span><br><span class="line">      names.retainAll(keepEm);</span><br><span class="line">      names.forEach(System.out::println); // prints: Mary Margaret Helen</span><br><span class="line">// 可以通过方法clear（）清空集合的所有元素</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>错误的遍历删除方法<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Collection&lt;String&gt; names = new ArrayList&lt;&gt;(); </span><br><span class="line">names.addAll(Arrays.asList(&quot;Mary&quot;, &quot;Annie&quot;, &quot;Anna&quot;, &quot;Margaret&quot;, &quot;Helen&quot;, &quot;Elsie&quot;, &quot;Lucy&quot;, &quot;Margaret&quot;, &quot;Dorothy&quot;)); </span><br><span class="line">for (String name : names) &#123; </span><br><span class="line">  if ( name.contains(&quot;t&quot;) ) </span><br><span class="line">    names.remove(name); </span><br><span class="line">&#125; // throws ConcurrentModificationException</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<blockquote>
+<p>注1：Arrays.asList（）返回的列表是不可变的列表。尝试将项目删除（或添加）到此类列表会导致  UnsupportedOperationException</p>
+</blockquote>
+<hr>
+<h1 id="三、Map-接口"><a href="#三、Map-接口" class="headerlink" title="三、Map 接口"></a>三、Map 接口</h1><p><code>Map</code> 接口与 <code>Collection</code>接口看起来并没有什么关系，<code>Map</code> 接口对两个实体进行操作：key(唯一)与value，可以通过<code>key</code>从<code>Map</code>中检索数据。但是，<code>Map</code> 与 <code>Set</code> 层次结构之间有许多相似之处，是因为<code>Set</code>接口的内部实现借助了<code>Map</code>的实现。</p>
+<h3 id="Map层次结构"><a href="#Map层次结构" class="headerlink" title="Map层次结构"></a>Map层次结构</h3><p><img src="/image/java/util/collection_0_map.png" alt></p>
+<ul>
+<li>Map<ul>
+<li>Hashtable 基于哈希表的数据结构，线程安全，无排序（由于有同步开销,性能差,使用频率较低）</li>
+<li>HashMap 基于哈希表的数据结构，线程不安全，无排序（默认实现）。</li>
+<li>LinkedHashMap 基于哈希表的数据结构，保留插入顺序</li>
+<li>SortedMap 接口；可排序的Map<ul>
+<li>NavigableMap 接口：提供浏览有序的<code>Map</code>集合<ul>
+<li>TreeMap 基于红黑树结构实现的，并通过密钥进行排序。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="五、参考文章"><a href="#五、参考文章" class="headerlink" title="五、参考文章"></a>五、参考文章</h1><blockquote>
+<p><a href="https://dzone.com/articles/java-collections?utm_source=dzone&utm_medium=article&utm_campaign=java-collections-cluster" target="_blank" rel="noopener">A Look at Java Collections</a><br><a href="https://dzone.com/articles/java-collections-part-1?utm_source=dzone&utm_medium=article&utm_campaign=java-collections-cluster" target="_blank" rel="noopener">Java Collections: The List and Collections Interfaces</a><br><a href="https://dzone.com/articles/how-to-sort-objects-in-java?utm_source=dzone&utm_medium=article&utm_campaign=java-collections-cluster" target="_blank" rel="noopener">How To Sort Objects In Java</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/01/09/java-util-0/">http://zws6672.top/2021/01/09/java-util-0/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/Collection/">Collection</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/01/10/current-1/" class="pre">java 并发（一）JMM</a><a href="/2021/01/09/http/" class="next">Http 协议</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、概述"><span class="toc-text">一、概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#泛型与初始化大小"><span class="toc-text">泛型与初始化大小</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Collections-与-Arrays-工具类"><span class="toc-text">Collections 与 Arrays 工具类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#深克隆集合"><span class="toc-text">深克隆集合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集合与封装"><span class="toc-text">集合与封装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据排序"><span class="toc-text">数据排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#二、Collection"><span class="toc-text">二、Collection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Collection-层次结构"><span class="toc-text">Collection 层次结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集合的公共方法"><span class="toc-text">集合的公共方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、Map-接口"><span class="toc-text">三、Map 接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Map层次结构"><span class="toc-text">Map层次结构</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#五、参考文章"><span class="toc-text">五、参考文章</span></a></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

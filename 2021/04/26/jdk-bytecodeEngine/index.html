@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>虚拟机字节码执行引擎 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">虚拟机字节码执行引擎</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">虚拟机字节码执行引擎</h1><div class="post-meta"><a href="/2021/04/26/jdk-bytecodeEngine/#comments" class="comment-count"></a><p><span class="date">Apr 26, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="一、运行时栈帧结构"><a href="#一、运行时栈帧结构" class="headerlink" title="一、运行时栈帧结构"></a>一、运行时栈帧结构</h1><p>代码编译的结果从本地机器码转变为字节码，是存储格式发展的一小步，却是编程语言发展的一<br>大步。</p>
+<p>执行引擎在执行字节码的时候，通常会有解释执行（通过解释器执行）和编译执行（通过即时编译器产生本地代码执行）两种选择，也可能两者兼备。</p>
+<blockquote>
+<p>有一些虚拟机（如Sun Classic VM）的内部只存在解释器，只能解释执行，另外一些虚拟机（如BEA JRockit）的内部只存在即时编译器，只能编译执行。</p>
+</blockquote>
+<p>Java虚拟机以方法作为最基本的执行单元，“栈帧”（Stack Frame）则是用于支持虚拟机进行方法调用和方法执行背后的数据结构，它也是虚拟机运行时数据区中的虚拟机栈（Virtual Machine Stack）的栈元素。每一个栈帧都包括了 局部变量表、操作数栈、动态连接、方法返回地址 和一些额外的 附加信息。</p>
+<p>而对于执行引擎来讲，在活动线程中，只有位于栈顶的方法才是在运行的，只有位于栈顶的栈帧才是生效的，其被称为“当前栈帧”（Current Stack Frame），与这个栈帧所关联的方法被称为“当前方法”（Current Method）</p>
+<ol>
+<li>局部变量表</li>
+</ol>
+<p>局部变量表（Local Variables Table）是一组变量值的存储空间，用于存放方法参数和方法内部定义的局部变量。在Java程序被编译为Class文件时，就在方法的Code属性的max_locals数据项中确定了该方法所需分配的局部变量表的最大容量。局部变量表的容量以变量槽（Variable Slot）为最小单位，每个变量槽都应该能存放一个boolean、byte、char、short、int、float、reference或returnAddress类型的数据，这8种数据类型，都可以使用32位或更小的物理内存来存储。</p>
+<ol start="2">
+<li>操作数栈</li>
+</ol>
+<p>操作数栈（Operand Stack）也常被称为操作栈，它是一个后入先出（Last In First Out，LIFO）栈。操作数栈的最大深度也在编译的时候被写入到Code属性的max_stacks数据项，操作数栈中元素的数据类型必须与字节码指令的序列严格匹配。Java虚拟机的解释执行引擎被称为“基于栈的执行引擎”，里面的“栈”就是操作数栈。</p>
+<ol start="3">
+<li>动态连接</li>
+</ol>
+<p>每个栈帧都包含一个指向运行时常量池中该栈帧所属方法的引用，持有这个引用是为了支持方法调用过程中的动态连接（Dynamic Linking）。</p>
+<ol start="4">
+<li>方法返回地址</li>
+</ol>
+<p>当一个方法开始执行后，只有两种方式退出这个方法。第一种方式是执行引擎遇到任意一个方法返回的字节码指令，这时候可能会有返回值传递给上层的方法调用者（调用当前方法的方法称为调用者或者主调方法），方法是否有返回值以及返回值的类型将根据遇到何种方法返回指令来决定，这种退出方法的方式称为“正常调用完成”（Normal Method Invocation Completion）。</p>
+<p>退出方法：</p>
+<ul>
+<li>Java虚拟机内部产生的异常</li>
+<li>代码中使用athrow字节码指令产生的异常（throw、throws）</li>
+</ul>
+<p>方法退出的过程实际上等同于把当前栈帧出栈，因此退出时可能执行的操作有：</p>
+<ul>
+<li>恢复上层方法的局部变量表和操作数栈</li>
+<li>把返回值（如果有的话）压入调用者栈帧的操作数栈中</li>
+<li>调整PC计数器的值以指向方法调用指令后面的一条指令等。=</li>
+</ul>
+<ol start="5">
+<li>附加信息</li>
+</ol>
+<p>Java虚拟机规范》允许虚拟机实现增加一些规范里没有描述的信息到栈帧之中，例如与调试、性能收集相关的信息，这部分信息完全取决于具体的虚拟机实现</p>
+<h1 id="二、方法调用"><a href="#二、方法调用" class="headerlink" title="二、方法调用"></a>二、方法调用</h1><p>方法调用并不等同于方法中的代码被执行，方法调用阶段唯一的任务就是确定被调用方法的版本（即调用哪一个方法），暂时还未涉及方法内部的具体运行过程。</p>
+<p>Class文件的编译过程中不包含传统程序语言编译的连接步骤，一切方法调用在Class文件里面存储的都只是符号引用，而不是方法在实际运行时内存布局中的入口地址（也就是之前说的直接引用）。</p>
+<ul>
+<li>解析：调用目标在程序代码写好、编译器进行编译那一刻就已经确定下来。这类方法的调用被称为解析（Resolution）。<ul>
+<li>在Java语言中符合“编译期可知，运行期不可变”这个要求的方法，主要有静态方法和私有方法两大类，前者与类型直接关联，后者在外部不可被访问。</li>
+</ul>
+</li>
+<li>分派：分派（Dispatch）调用则要复杂许多，它可能是静态的也可能是动态的，按照分派依据的宗量数可分为单分派和多分派[1]。这两类分派方式两两组合就构成了静态单分派、静态多分派、动态单分派、动态多分派4种分派组合情况。<ul>
+<li>静态分派：所有依赖静态类型来决定方法执行版本的分派动作，都称为静态分派。静态分派的最典型应用表现就是方法重载。静态分派发生在编译阶段，因此确定静态分派的动作实际上不是由虚拟机来执行</li>
+<li>动态分派：在运行期根据实际类型确定方法执行版本的分派过程称为动态分派，动态分派 的最典型应用表现就是方法重写。</li>
+<li>单分派与多分派：方法的接收者与方法的参数统称为方法的宗量，这个定义最早应该来源于著名的《Java与模式》一书。根据分派基于多少种宗量，可以将分派划分为单分派和多分派两种。</li>
+</ul>
+</li>
+<li>方法调用字节码指令<ul>
+<li>invokestatic：用于调用静态方法。</li>
+<li>invokespecial：用于调用实例构造器<init>()方法、私有方法和父类中的方法。</init></li>
+<li>invokevirtual：用于调用所有的虚方法。</li>
+<li>invokeinterface：用于调用接口方法，会在运行时再确定一个实现该接口的对象。</li>
+<li>invokedynamic：先在运行时动态解析出调用点限定符所引用的方法，然后再执行该方法。</li>
+</ul>
+</li>
+<li>虚拟机动态分派的实现：Java虚拟机实现基于执行性能的考虑，真正运行时一般不会如此频繁地去反复搜索类型元数据。面对这种情况，一种基础而且常见的优化手段是为类型在方法区中建立一个虚方法表（Virtual Method Table，也称为vtable，与此对应的，在invokeinterface执行时也会用到接口方法表——Interface Method Table，简称itable），使用虚方法表索引来代替元数据查找以提高性能。<ul>
+<li>虚方法表中存放着各个方法的实际入口地址。如果某个方法在子类中没有被重写，那子类的虚方法表中的地址入口和父类相同方法的地址入口是一致的，都指向父类的实现入口。如果子类中重写了这个方法，子类虚方法表中的地址也会被替换为指向子类实现版本的入口地址。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+</blockquote>
+<p>Java语言是一门静态多分派、动态单分派的语言。 字段永远不参与多态，哪个类的方法访问某个名字的字段时，该名字指的就是这个类能看到的那个字段。当子类声明了与父类同名的字段时，虽然在子类的内存中两个字段都会存在，但是子类的字段会遮蔽父类的同名字段。</p>
+<h1 id="三、动态类型语言"><a href="#三、动态类型语言" class="headerlink" title="三、动态类型语言"></a>三、动态类型语言</h1><p>JDK7 发布了字节码首位新成员——invokedynamic指令，用于实现动态类型语言（Dynamically Typed Language）支持，为JDK 8里可以顺利实现Lambda表达式而做的技术储备。</p>
+<p>动态类型语言的关键特征是它的类型检查的主体过程是在运行期而不是编译期进行的，满足这个特征的语言有很多，常用的包括：APL、Clojure、Erlang、Groovy、JavaScript、Lisp、Lua、PHP、Prolog、Python、Ruby、Smalltalk、Tcl，等等。那相对地，在编译期就进行类型检查过程的语言，譬如C++和Java等就是最常用的静态类型语言。。“变量无类型而变量值才有类型”这个特点也是动态类型语言的一个核心特征。</p>
+<p>动态类型方法调用的底层问题终归是应当在Java虚拟机层次上去解决才最合适。因此，在Java虚拟机层面上提供动态类型的直接支持就成为Java平台发展必须解决的问题，这便是JDK 7时JSR-292提案中invokedynamic指令以及java.lang.invoke包出现的技术背景。</p>
+<ol>
+<li>MethodHand（方法句柄）</li>
+</ol>
+<p>JDK 7时新加入的java.lang.invoke包是JSR 292的一个重要组成部分，这个包的主要目的是在之前单纯依靠符号引用来确定调用的目标方法这条路之外，提供一种新的动态确定目标方法的机制，称为“方法句柄”（Method Handle）。java7新增了一个字节码invokedynamic,可以在运行期动态决定调用的方法，区别于之前的 invokestatic(静态方法调用),invokespecial（构造方法，私有方法，父类方法），invokevirtual（实例方法），invokeinterface(接口方法)，不过在java7下javac不支持生成invokedynamic,java8中可以通过lambda来生成。</p>
+<ol start="2">
+<li>Reflection 与 MethodHandle</li>
+</ol>
+<ul>
+<li><p>Reflection 和MethodHandle机制本质上都是在模拟方法调用，但是Reflection是在模拟Java代码层次的方法调用，而MethodHandle是在模拟字节码层次的方法调用。</p>
+</li>
+<li><p>在MethodHandles.Lookup上的3个方法findStatic()、findVirtual()、findSpecial()正是为了对应于 invokestatic、invokevirtual（以及invokeinterface）和invokespecial这几条字节码指令的执行权限校验行为，而这些底层细节在使用Reflection API时是不需要关心的。</p>
+</li>
+<li><p>Reflection中的java.lang.reflect.Method对象远比MethodHandle机制中的java.lang.invoke.MethodHandle对象所包含的信息来得多。前者是方法在Java端的全面映像，包含了方法的签名、描述符以及方法属性表中各种属性的Java端表示方式，还包含执行权限等的运行期信息。而后者仅包含执行该方法的相关信息。用开发人员通俗的话来讲，Reflection是重量级，而MethodHandle是轻量级。</p>
+</li>
+<li><p>由于MethodHandle是对字节码的方法指令调用的模拟，那理论上虚拟机在这方面做的各种优化（如方法内联），在MethodHandle上也应当可以采用类似思路去支持。</p>
+</li>
+<li><p>Reflection API的设计目标是只为Java语言服务的，而MethodHandle则设计为可服务于所有Java虚拟机之上的语言，其中也包括了Java语言而已，而且Java在这里并不是主角。</p>
+</li>
+</ul>
+<ol start="3">
+<li>invokedynamic指令</li>
+</ol>
+<p>某种意义上可以说invokedynamic指令与MethodHandle机制的作用是一样的，都是为了解决原有4条“invoke*”指令方法分派规则完全固化在虚拟机之中的问题，把如何查找目标方法的决定权从虚拟机转嫁到具体用户代码之中，让用户（广义的用户，包含其他程序语言的设计者）有更高的自由度。</p>
+<p>每一处含有invokedynamic指令的位置都被称作“动态调用点（Dynamically-Computed Call Site）”，这条指令的第一个参数不再是代表方法符号引用的CONSTANT_Methodref_info常量，而是变为 JDK7 时新加入的CONSTANT_InvokeDynamic_info常量，从这个新常量中可以得到3项信息：</p>
+<ul>
+<li>引导方法（Bootstrap Method，该方法存放在新增的BootstrapMethods属性中）</li>
+<li>方法类型（MethodType）</li>
+<li>名称</li>
+</ul>
+<p>invokedynamic指令与此前4条传统的“invoke*”指令的最大区别就是它的分派逻辑不是由虚拟机决定的，而是由程序员决定。但是，这个指令Java其实不太好用。准确的来说，它的设计是为了在Java虚拟机层面上提供动态类型的直接支持，而Java这种静态语言就很难用到这个指令。而在JDK8中，lamda表达式和默认方法就是围绕这个指令而设计的。</p>
+<h1 id="基于栈的字节码解释执行引擎"><a href="#基于栈的字节码解释执行引擎" class="headerlink" title="基于栈的字节码解释执行引擎"></a>基于栈的字节码解释执行引擎</h1><p>许多Java虚拟机的执行引擎在执行Java代码的时候都有解释执行（通过解释器执行）和编译执行（通过即时编译器产生本地代码执行）两种选择。只有确定了谈论对象是某种具体的Java实现版本和执行引擎运行模式时，谈解释执行还是编译执行才会比较合理确切。</p>
+<p><img src="/image/jdk/engine-jslc.png" alt="字节码解释执行引擎"></p>
+<p>如今，基于物理机、Java虚拟机，或者是非Java的其他高级语言虚拟机（HLLVM）的代码执行过程，大体上都会遵循这种符合现代经典编译原理的思路，在执行前先对程序源码进行词法分析和语法分析处理，把源码转化为抽象语法树（Abstract Syntax Tree，AST）。对于一门具体语言的实现来说，</p>
+<ul>
+<li>词法、语法分析以至后面的优化器和目标代码生成器都可以选择独立于执行引擎，形成一个完整意义的编译器去实现，这类代表是C/C++语言</li>
+<li>也可以选择把其中一部分步骤（如生成抽象语法树之前的步骤）实现为一个半独立的编译器，这类代表是Java语言</li>
+<li>又或者把这些步骤和执行引擎全部集中封装在一个封闭的黑匣子之中，如大多数的JavaScript执行引擎。</li>
+</ul>
+<p>在Java语言中，Javac编译器完成了程序代码经过词法分析、语法分析到抽象语法树，再遍历语法树生成线性的字节码指令流的过程。因为这一部分动作是在Java虚拟机之外进行的，而解释器在虚拟机的内部，所以Java程序的编译就是半独立的实现。</p>
+<ol>
+<li>基于栈的指令集与基于寄存器的指令集</li>
+</ol>
+<p>Javac编译器输出的字节码指令流，基本上[1]是一种基于栈的指令集架构（Instruction Set Architecture，ISA），字节码指令流里面的指令大部分都是零地址指令，它们依赖操作数栈进行工作。与之相对的另外一套常用的指令集架构是基于寄存器的指令集，最典型的就是x86的二地址指令集。</p>
+<p>基于栈的指令集主要优点是可移植，因为寄存器由硬件直接提供[2]，程序直接依赖这些硬件寄存器则不可避免地要受到硬件的约束；栈架构指令集的主要缺点是理论上执行速度相对来说会稍慢一些。</p>
+<p>在解释执行时，栈架构指令集的代码虽然紧凑，但是完成相同功能所需的指令数量一般会比寄存器架构来得更多，因为出栈、入栈操作本身就产生了相当大量的指令。更重要的是栈实现在内存中，频繁的栈访问也就意味着频繁的内存访问，相对于处理器来说，内存始终是执行速度的瓶颈。尽管虚拟机可以采取栈顶缓存的优化方法，把最常用的操作映射到寄存器中避免直接内存访问，但这也只是优化措施而不是解决本质问题的方法。因此由于指令数量和内存访问的原因，导致了栈架构指令集的执行速度会相对慢上一点。</p>
+<ol start="2">
+<li>基于栈的解释器执行过程</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">public int calc() &#123;</span><br><span class="line">	int a = 100;</span><br><span class="line">	int b = 200;</span><br><span class="line">	int c = 300;</span><br><span class="line">	return (a + b) * c;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public int calc();</span><br><span class="line">	Code:</span><br><span class="line">	Stack=2, Locals=4, Args_size=1</span><br><span class="line">	0: bipush 100	# Bipush指令的作用是将单字节的整型常量值（-128～127）推入操作数栈顶</span><br><span class="line">	2: istore_1		# istore_1指令的作用是将操作数栈顶的整型值出栈并存放到第1个局部变量槽中</span><br><span class="line">	3: sipush 200	</span><br><span class="line">	6: istore_2</span><br><span class="line">	7: sipush 300</span><br><span class="line">	10: istore_3</span><br><span class="line">	11: iload_1		# iload_1指令的作用是将局部变量表第1个变量槽中的整型值复制到操作数栈顶</span><br><span class="line">	12: iload_2		# iload_2指令的作用是将局部变量表第2个变量槽中的整型值复制到操作数栈顶</span><br><span class="line">	13: iadd		# 栈顶取两数相加</span><br><span class="line">	14: iload_3		# iload_3指令的作用是将局部变量表第3个变量槽中的整型值复制到操作数栈顶</span><br><span class="line">	15: imul		# 栈顶取两数相除</span><br><span class="line">	16: ireturn		# ireturn指令是方法返回指令之一，它将结束方法执行并将操作数栈顶的整型值返回给该方法的调用者</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/04/26/jdk-bytecodeEngine/">http://zws6672.top/2021/04/26/jdk-bytecodeEngine/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/jdk/">jdk</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/05/15/springboot-1/" class="pre">springboot（一）入门</a><a href="/2021/04/15/jdk-cload/" class="next">虚拟机类加载机制</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、运行时栈帧结构"><span class="toc-text">一、运行时栈帧结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、方法调用"><span class="toc-text">二、方法调用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、动态类型语言"><span class="toc-text">三、动态类型语言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#基于栈的字节码解释执行引擎"><span class="toc-text">基于栈的字节码解释执行引擎</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

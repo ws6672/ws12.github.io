@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>设计模式（一）创建型模式 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">设计模式（一）创建型模式</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">设计模式（一）创建型模式</h1><div class="post-meta"><a href="/2020/04/10/desgin-pattern-1/#comments" class="comment-count"></a><p><span class="date">Apr 10, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><table>
+<thead>
+<tr>
+<th align="left">范围\目的</th>
+<th align="left">创建型模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">类模式</td>
+<td align="left">工厂方法</td>
+</tr>
+<tr>
+<td align="left">对象模式</td>
+<td align="left">单例<br>原型<br>抽象工厂<br>建造者</td>
+</tr>
+</tbody></table>
+<p>创建型模式（Creational Pattern）的主要特点是将<code>对象的创建与使用分离</code>，根据对象的创建与组合方式的不同，创建型模式可分为单例（Singleton）模式、原型（Prototype）模式、工厂方法（Factory Method）模式、抽象工厂（Abstract Factory）模式和建造者（Builder）模式 5 种。</p>
+<hr>
+<h1 id="工厂方法"><a href="#工厂方法" class="headerlink" title="工厂方法"></a>工厂方法</h1><p><strong><em>定义</em></strong><br>工厂方法（FactoryMethod）模式的定义：定义一个创建产品对象的工厂接口，将产品对象的实际创建工作推迟到具体子工厂类当中。这满足创建型模式中所要求的“创建与使用相分离”的特点。</p>
+<p><strong><em>简单工厂模式</em></strong><br>创建产品不多，使用同一个工厂类，不属于23种设计模式之一，违背了开闭原则</p>
+<p><strong><em>结构</em></strong><br>工厂方法模式由抽象工厂、具体工厂、抽象产品和具体产品等4个要素构成</p>
+<ul>
+<li>抽象工厂 创建产品的接口</li>
+<li>具体工厂 创建产品</li>
+<li>抽象产品 产品规范</li>
+<li>具体产品 产品细节</li>
+</ul>
+<p><img src="/image/degin-pattern/gcff.png" alt="gcff"></p>
+<hr>
+<h1 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h1><p>在工厂方法中，只考虑同种等级的产品；但是，在实际应用中，多产品才是主流。而 抽象工厂模式则考虑多等级产品的生产。<br>如下图所示，同种类型的产品是同等级的；而同一个牌子的产品，则是同一个产品族的：<br><img src="/image/degin-pattern/cpz.png" alt="gcff"></p>
+<p><strong><em>定义</em></strong><br>抽象工厂（AbstractFactory）模式的定义：是一种为访问类提供一个创建一组相关或相互依赖对象的接口，且访问类无须指定所要产品的具体类就能得到同族的不同等级的产品的模式结构。</p>
+<p>抽象工厂模式是工厂方法模式的升级版本，工厂方法模式只生产一个等级的产品，而抽象工厂模式可生产多个等级的产品。</p>
+<p>使用抽象工厂模式一般要满足以下条件。<br>系统中有多个产品族，每个具体工厂创建同一族但属于不同等级结构的产品。<br>系统一次只可能消费其中某一族产品，即同族的产品一起使用。</p>
+<p>抽象工厂模式除了具有工厂方法模式的优点外，其他主要优点如下。<br>可以在类的内部对产品族中相关联的多等级产品共同管理，而不必专门引入多个新的类来进行管理。<br>当增加一个新的产品族时不需要修改原代码，满足开闭原则。</p>
+<p>其缺点是：当产品族中需要增加一个新的产品时，所有的工厂类都需要进行修改。</p>
+<p><strong><em>结构</em></strong></p>
+<ul>
+<li>抽象工厂 创建产品的接口,包含不同等级的产品</li>
+<li>具体工厂 创建产品(某一产品族)</li>
+<li>抽象产品 产品规范</li>
+<li>具体产品 产品细节</li>
+</ul>
+<p><img src="/image/degin-pattern/cxgc.png" alt="抽象工厂"></p>
+<hr>
+<h1 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h1><p><strong><em>定义</em></strong></p>
+<p>单例（Singleton）模式的定义：指一个类只有一个实例，且该类能自行创建这个实例的一种模式。例如，Windows 中只能打开一个任务管理器，这样可以避免因打开多个任务管理器窗口而造成内存资源的浪费，或出现各个窗口显示内容的不一致等错误。</p>
+<p><strong><em>特点</em></strong></p>
+<ul>
+<li>单例类只有一个实例对象；</li>
+<li>该单例对象必须由单例类自行创建；</li>
+<li>单例类对外提供一个访问该单例的全局访问点；</li>
+</ul>
+<p><strong><em>分类</em></strong></p>
+<ul>
+<li>懒汉式<ul>
+<li>需要时再加载（可能存在线程安全问题）</li>
+</ul>
+</li>
+<li>饿汉式<ul>
+<li>类加载后就创建<br><img src="/image/degin-pattern/dl-lh.png" alt="抽象工厂"></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h1 id="原型模式"><a href="#原型模式" class="headerlink" title="原型模式"></a>原型模式</h1><p><strong><em>定义</em></strong><br>用一个已经创建的实例作为原型，通过复制该原型对象来创建一个和原型相同或相似的新对象。在这里，原型实例指定了要创建的对象的种类。用这种方式创建对象非常高效，根本无须知道对象创建的细节。 </p>
+<blockquote>
+<p>注：由于 Java 提供了对象的 clone() 方法，所以用 Java 实现原型模式很简单。但自定义类需要重写clone()，实现深克隆</p>
+</blockquote>
+<p><strong><em>结构</em></strong></p>
+<ul>
+<li>抽象原型类：规定了具体原型对象必须实现的接口。</li>
+<li>具体原型类：实现抽象原型类的 clone() 方法，它是可被复制的对象。</li>
+<li>访问类：使用具体原型类中的 clone() 方法来复制新的对象。</li>
+</ul>
+<p><img src="/image/degin-pattern/yxms.png" alt="原型模式"></p>
+<p><strong><em>通过反射实现通用克隆的方法</em></strong><br>需要参数：类，类对应的对象</p>
+<hr>
+<h1 id="建造者模式（Bulider模式）"><a href="#建造者模式（Bulider模式）" class="headerlink" title="建造者模式（Bulider模式）"></a>建造者模式（Bulider模式）</h1><p><strong><em>定义</em></strong><br>建造者（Builder）模式的定义：指将一个复杂对象的构造与它的表示分离，使同样的构建过程可以创建不同的表示，这样的设计模式被称为建造者模式。它是将一个复杂的对象分解为多个简单的对象，然后一步一步构建而成。它将变与不变相分离，即产品的组成部分是不变的，但每一部分是可以灵活选择的。</p>
+<p>该模式的主要优点如下：<br>各个具体的建造者相互独立，有利于系统的扩展。<br>客户端不必知道产品内部组成的细节，便于控制细节风险。</p>
+<p>其缺点如下：<br>产品的组成部分必须相同，这限制了其使用范围。<br>如果产品的内部变化复杂，该模式会增加很多的建造者类。</p>
+<p><strong><em>结构</em></strong></p>
+<p>建造者（Builder）模式的主要角色如下。</p>
+<ul>
+<li>产品角色（Product）：多个部件对象，由具体建造者来创建其各个部件。</li>
+<li>抽象建造者（Builder）：它是一个包含创建产品各个子部件的抽象方法的接口，通常还包含一个返回复杂产品的方法 getResult()。</li>
+<li>具体建造者(Concrete Builder）：实现 Builder 接口，完成复杂产品的各个部件的具体创建方法。</li>
+<li>指挥者（Director）：它调用建造者对象中的部件构造与装配方法完成复杂对象的创建，在指挥者中不涉及具体产品的信息。</li>
+</ul>
+<p><img src="/image/degin-pattern/jzzms.png" alt="建造者模式"></p>
+<hr>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/04/10/desgin-pattern-1/">http://zws6672.top/2020/04/10/desgin-pattern-1/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/设计模式/">设计模式</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/04/10/design-pattern-2/" class="pre">设计模式（二）结构型模式</a><a href="/2020/04/10/desgin-pattern-0/" class="next">设计模式（零）起始</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#工厂方法"><span class="toc-text">工厂方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#抽象工厂模式"><span class="toc-text">抽象工厂模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#单例模式"><span class="toc-text">单例模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#原型模式"><span class="toc-text">原型模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#建造者模式（Bulider模式）"><span class="toc-text">建造者模式（Bulider模式）</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>ES（零）入门 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">ES（零）入门</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">ES（零）入门</h1><div class="post-meta"><a href="/2020/07/29/elasticsearch/#comments" class="comment-count"></a><p><span class="date">Jul 29, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>ElasticSearch是一个非常好用的实时分布式搜索和分析引擎，可以帮助我们快速的处理大规模数据，也可以用于全文检索，结构化搜索以及分析等；基于Lucene开发的搜索服务器，具有分布式多用户的能力；基于Restful Web接口，能够达到实时搜索、稳定、可靠、快速、高性能、安装使用方便；同时它的横向扩展能力非常强，不需要重启服务。</p>
+<h3 id="1-安装"><a href="#1-安装" class="headerlink" title="1.安装"></a>1.安装</h3><p>由于是基于Java开发，所以需要配置JDK，不同的ElasticSearch需要不同的JDK版本。我安装的是最新的 ES7（内置JDK），只需要配置即可。</p>
+<h5 id="1-1-相关资源"><a href="#1-1-相关资源" class="headerlink" title="1.1 相关资源"></a>1.1 相关资源</h5><p><a href="https://www.elastic.co/cn/downloads/elasticsearch" target="_blank" rel="noopener">ELK官网</a><br><a href="https://www.elastic.co/guide/index.html" target="_blank" rel="noopener">ELK官网文档</a><br><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html" target="_blank" rel="noopener">ELK中文文档</a><br><a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/transport-client.html" target="_blank" rel="noopener">ELK-API</a></p>
+<p>注：elaticsearch不能用root账号运行,需要使用非root账号</p>
+<h5 id="1-2-单节点配置"><a href="#1-2-单节点配置" class="headerlink" title="1.2 单节点配置"></a>1.2 单节点配置</h5><p><strong><em>ES&amp;JDK 版本要求</em></strong></p>
+<p>查看linux是不是64位：<code>getconf LONG_BIT</code>；</p>
+<p>ES 7.x 不需要本地 JDK 环境支持：</p>
+<ul>
+<li>ES 5，安装需要 JDK 8 以上</li>
+<li>ES 6.5，安装需要 JDK 11 以上</li>
+<li>ES 7.2.1，内置了 JDK 12</li>
+</ul>
+<p><a href="https://www.elastic.co/cn/downloads/elasticsearch" target="_blank" rel="noopener">下载地址</a>，通过putty的pscp工具传输Windows文件到linux</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;pscp C:\Users\wsz\Downloads\Compressed\elasticsearch-7.8.0-linux-x86_64.tar.gz cen@192.168.223.128:/home/cen</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>解压</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">~]$ tar -zxvf elasticsearch-7.8.0-linux-x86_64.tar.gz </span><br><span class="line">~]$ sudo mv elasticsearch-7.8.0 /usr/local/</span><br><span class="line">~]$ cd /usr/local/</span><br><span class="line">local]$ sudo mv elasticsearch-7.8.0 elasticsearch</span><br><span class="line">local]$ cd elasticsearch/</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>修改配置文件</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch]$ vim config/elasticsearch.yml</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	# 设置集群名称</span><br><span class="line">	cluster.name: my-es</span><br><span class="line">	# 设置集群-结点名称</span><br><span class="line">	node.name: node-1</span><br><span class="line">	# 设置数据路径</span><br><span class="line">	path.data: /usr/local/elasticsearch/data</span><br><span class="line">	# 设置日志路径</span><br><span class="line">	path.logs: /usr/local/elasticsearch/logs</span><br><span class="line">	# 设置当前的ip地址,通过指定相同网段的其他节点会加入该集群中</span><br><span class="line">	network.host: 0.0.0.0</span><br><span class="line">	discovery.seed_hosts: []</span><br><span class="line">	cluster.initial_master_nodes: [&quot;node-1&quot;]</span><br><span class="line">	bootstrap.memory_lock: false</span><br><span class="line"></span><br><span class="line">	# 设置网络端口</span><br><span class="line">	http.port: 9200</span><br><span class="line"></span><br><span class="line">elasticsearch]$ mkdir data</span><br><span class="line">elasticsearch]$ mkdir logs</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>JDK版本冲突处理</em></strong></p>
+<p>在Linux系统中，安装了JDK8，但是ES7配置了内置的JDK12,所以需要修改启动脚本，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">vim bin/elasticsearch</span><br><span class="line"></span><br><span class="line">	#设置使用内置JDK</span><br><span class="line">	export JAVA_HOME=/usr/local/elasticsearch/jdk</span><br><span class="line">	export PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line"></span><br><span class="line">	#添加jdk判断</span><br><span class="line">	if [ -x &quot;$JAVA_HOME/bin/java&quot; ]; then</span><br><span class="line">		JAVA=&quot;/usr/local/elasticsearch/jdk/bin/java&quot;</span><br><span class="line">	else</span><br><span class="line">		JAVA=`which java`</span><br><span class="line">	fi</span><br><span class="line">:wq</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>错误处理</em></strong></p>
+<ul>
+<li>Elasticsearch start error:Native controller process has stopped - no new native processes can be started;</li>
+<li>[1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least <a href="用户创建文件的权限过低，至少需要65536">65535</a>;</li>
+</ul>
+<p>相关命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">su root</span><br><span class="line">vim /etc/security/limits.conf</span><br><span class="line"></span><br><span class="line">sudo vim /etc/security/limits.conf</span><br><span class="line"></span><br><span class="line">	cen soft nofile 65536</span><br><span class="line">	cen hard nofile 131072</span><br><span class="line">	cen soft nproc 65536</span><br><span class="line">	cen hard nproc 65536</span><br><span class="line"></span><br><span class="line">sudo vim /etc/security/limits.d/90-nproc.conf</span><br><span class="line"></span><br><span class="line">	cen soft nproc 4096</span><br><span class="line">	</span><br><span class="line">sudo vim  /etc/sysctl.conf </span><br><span class="line"></span><br><span class="line">	vm.max_map_count=280530</span><br><span class="line"></span><br><span class="line">sudo sysctl -p</span><br><span class="line"></span><br><span class="line">su cen</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>启动与关闭</em></strong></p>
+<p>启动：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># 前台启动</span><br><span class="line">./bin/elasticsearch</span><br><span class="line"># 后台启动</span><br><span class="line">./bin/elasticsearch -d</span><br><span class="line"></span><br><span class="line"># 测试</span><br><span class="line">elasticsearch]$ curl http://127.0.0.1:9200</span><br><span class="line">	&#123;</span><br><span class="line">	  &quot;name&quot; : &quot;node-1&quot;,</span><br><span class="line">	  &quot;cluster_name&quot; : &quot;my-es&quot;,</span><br><span class="line">	  &quot;cluster_uuid&quot; : &quot;_na_&quot;,</span><br><span class="line">	  &quot;version&quot; : &#123;</span><br><span class="line">		&quot;number&quot; : &quot;7.8.0&quot;,</span><br><span class="line">		&quot;build_flavor&quot; : &quot;default&quot;,</span><br><span class="line">		&quot;build_type&quot; : &quot;tar&quot;,</span><br><span class="line">		&quot;build_hash&quot; : &quot;757314695644ea9a1dc2fecd26d1a43856725e65&quot;,</span><br><span class="line">		&quot;build_date&quot; : &quot;2020-06-14T19:35:50.234439Z&quot;,</span><br><span class="line">		&quot;build_snapshot&quot; : false,</span><br><span class="line">		&quot;lucene_version&quot; : &quot;8.5.1&quot;,</span><br><span class="line">		&quot;minimum_wire_compatibility_version&quot; : &quot;6.8.0&quot;,</span><br><span class="line">		&quot;minimum_index_compatibility_version&quot; : &quot;6.0.0-beta1&quot;</span><br><span class="line">	  &#125;,</span><br><span class="line">	  &quot;tagline&quot; : &quot;You Know, for Search&quot;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关闭：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 非安全关闭</span><br><span class="line">ps -aux|grep elasticsearch</span><br><span class="line">kill -9 端口号</span><br><span class="line"></span><br><span class="line"># 安全关闭</span><br><span class="line"># 通过 elasticsearch-head关闭节点</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-可视化界面"><a href="#2-可视化界面" class="headerlink" title="2. 可视化界面"></a>2. 可视化界面</h3><p>原生的ES只能通过控制台交互，体验较差。实际使用中，最好配置可视化界面，便于检测与使用。</p>
+<h5 id="2-1-elasticsearch-head"><a href="#2-1-elasticsearch-head" class="headerlink" title="2.1 elasticsearch-head"></a>2.1 elasticsearch-head</h5><p>elasticsearch-head 是用于监控Elasticsearch 状态的客户端插件，包括数据可视化、执行增删改查操作等。</p>
+<p>安装方式</p>
+<ul>
+<li>通过插件把它集成到es（首选，但是 Elasticsearch 5.x, 6.x, and 7.x不支持该插件了）</li>
+<li>安装成一个独立webapp。</li>
+</ul>
+<p>功能：</p>
+<ul>
+<li>显示集群的拓扑,并且能够执行索引和节点级别操作</li>
+<li>搜索接口能够查询集群中原始json或表格格式的检索数据</li>
+<li>能够快速访问并显示集群的状态</li>
+</ul>
+<p>对于Elasticsearch 5.x：不支持插件。独立运行 elasticsearch-head</p>
+<p><strong><em>安装npm、nodejs</em></strong><br><a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">nodejs</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">pscp C:\Users\wsz\Downloads\node-v12.18.2-linux-x64.tar.xz cen@192.168.223.128:/home/cen</span><br><span class="line">tar -xvf node-v12.18.2-linux-x64.tar.xz</span><br><span class="line">mv  node-v12.18.2-linux-x64 nodejs</span><br><span class="line">sudo mv nodejs /usr/local/</span><br><span class="line">sudo vim /etc/profile</span><br><span class="line"></span><br><span class="line">	PATH=$PATH:/usr/local/nodejs/bin</span><br><span class="line">:wq</span><br><span class="line">source /etc/profile</span><br><span class="line">npm -version</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>安装<a href="https://github.com/mobz/elasticsearch-head#running-with-built-in-server" target="_blank" rel="noopener">elasticsearch-head</a></em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo git clone git://github.com/mobz/elasticsearch-head.git</span><br><span class="line">cd elasticsearch-head</span><br><span class="line">sudo cnpm install</span><br><span class="line">sudo cnpm run start</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>sudo: npm:找不到命令</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#查看npm命令</span><br><span class="line">#sudo 执行的命令是在 /usr/bin 目录下</span><br><span class="line">which npm </span><br><span class="line">/usr/local/nodejs/bin/npm</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#添加链接</span><br><span class="line">cd /usr/bin</span><br><span class="line">sudo ln -s /usr/local/nodejs/bin/npm</span><br><span class="line">sudo ln -s /usr/local/nodejs/bin/node</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>nodejs下载缓慢</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#自动使用国内镜像</span><br><span class="line">npm install -gd cnpm --registry=http://registry.npm.taobao.org</span><br><span class="line">sudo ln -s /usr/local/nodejs/bin/cnpm</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>elasticsearch-head插件连接不上elasticsearch</em></strong></p>
+<p>修改elasticsearch配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">vim config/elasticsearch.yml </span><br><span class="line"></span><br><span class="line">	# 连接elasticsearch-head</span><br><span class="line">	http.cors.enabled: true</span><br><span class="line">	http.cors.allow-origin: &quot;*&quot;</span><br><span class="line">:wq</span><br><span class="line"></span><br><span class="line">ps -aux|grep elasticsearch</span><br><span class="line">kill -9 端口号</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：想安装npm，就必须要装node.js，</p>
+</blockquote>
+<h5 id="2-2-kibana"><a href="#2-2-kibana" class="headerlink" title="2.2 kibana"></a>2.2 kibana</h5><p>es官方提供了可视化、分析及管理平台-kibana,<a href="https://www.elastic.co/cn/downloads/kibana" target="_blank" rel="noopener">kibana下载地址</a></p>
+<p><strong><em>解压</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pscp  C:\Users\wsz\Downloads\Compressed\kibana-7.8.0-linux-x86_64.tar.gz cen@192.168.223.128:/home/cen</span><br><span class="line"></span><br><span class="line">tar -zxvf kibana-7.8.0-linux-x86_64.tar.gz</span><br><span class="line">mv kibana-7.8.0-linux-x86_64 kibana</span><br><span class="line">sudo mv kibana /usr/local/</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>配置</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/kibana</span><br><span class="line">vim config/kibana.yml </span><br><span class="line"></span><br><span class="line">	server.port: 5601</span><br><span class="line">	server.host: &quot;0.0.0.0&quot;</span><br><span class="line">	elasticsearch.hosts: [&quot;http://localhost:9200&quot;]</span><br><span class="line">	elasticsearch.requestTimeout: 60000</span><br><span class="line">	i18n.locale: &quot;zh-CN&quot;</span><br><span class="line">	</span><br><span class="line">:wq</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>启动与验证</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./bin/kibana </span><br><span class="line">top</span><br><span class="line"></span><br><span class="line">#验证</span><br><span class="line">http://localhost:5601</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-分词器配置"><a href="#3-分词器配置" class="headerlink" title="3. 分词器配置"></a>3. 分词器配置</h3><p>分词器 接受一个字符串作为输入，将这个字符串拆分成独立的词或 语汇单元（token） （可能会丢弃一些标点符号等字符），然后输出一个 语汇单元流（token stream）。</p>
+<p>由于ES的分词器对中文不太友好，所以我们需要配置一个中文分词器。</p>
+<h5 id="3-1-组成与分类"><a href="#3-1-组成与分类" class="headerlink" title="3.1 组成与分类"></a>3.1 组成与分类</h5><p><strong><em>分析器组成</em></strong></p>
+<ul>
+<li>Character Filters（文本过滤器，去除HTML）</li>
+<li>Tokenizer（按照规则切分，比如空格）</li>
+<li>TokenFilter（将切分后的词进行处理，比如转成小写）</li>
+</ul>
+<p><strong><em>内置分词器</em></strong></p>
+<ul>
+<li><code>whitespace</code>分词器：按空白字符 —— 空格、tabs、换行符等等进行简单拆分。</li>
+<li><code>letter</code>分词器：转换为小写。</li>
+<li><code>standard</code>分词器：使用 Unicode 文本分割算法来寻找单词之间的界限，并且输出所有界限之间的内容。</li>
+</ul>
+<p>在中文环境中，我们可以自行<a href="https://github.com/medcl/elasticsearch-analysis-ik" target="_blank" rel="noopener">IK(中文分词器)</a>来处理中文。</p>
+<h5 id="3-2-安装与配置"><a href="#3-2-安装与配置" class="headerlink" title="3.2 安装与配置"></a>3.2 安装与配置</h5><p><a href="https://github.com/medcl/elasticsearch-analysis-ik/releases" target="_blank" rel="noopener">IK(下载)</a>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#安装配置</span><br><span class="line">bin/elasticsearch-plugin install  https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.8.0/elasticsearch-analysis-ik-7.8.0.zip</span><br><span class="line"></span><br><span class="line"># 重启es，查看日志如下,加载了分词器插件</span><br><span class="line">	...l</span><br><span class="line">	[2020-07-18T10:12:50,682][INFO ][o.e.p.PluginsService     ] [node-1] loaded plugin [analysis-ik]</span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line"># 测试</span><br><span class="line"># 添加数据</span><br><span class="line">curl -XPOST http://localhost:9200/index/_create/ -H &apos;Content-Type:application/json&apos; -d&apos; &#123;&quot;text&quot;:&quot;阿伯蛇加速跳&quot;&#125;&apos;</span><br><span class="line">curl -XGET http://localhost:9200/index/_search</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-基础入门"><a href="#4-基础入门" class="headerlink" title="4. 基础入门"></a>4. 基础入门</h3><h5 id="4-1-核心概念"><a href="#4-1-核心概念" class="headerlink" title="4.1 核心概念"></a>4.1 核心概念</h5><ul>
+<li>集群（cluster）<ul>
+<li>相当于节点集合</li>
+</ul>
+</li>
+<li>节点（Node），相当于<code>数据库</code></li>
+<li>索引（index）<ul>
+<li>分片（shards）<ul>
+<li>单个索引超过节点容量，将数据进行类似表分区的操作</li>
+<li>用户透明</li>
+</ul>
+</li>
+<li>副本（Replicas）<ul>
+<li>分片的副本，为了高可用性</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>类型（type），相当于<code>表</code><ul>
+<li>ES7以后被废除了，只剩下_doc作为唯一的数据类型</li>
+</ul>
+</li>
+<li>文档（Document），相当于<code>行数据</code><ul>
+<li>JSON格式的数据</li>
+</ul>
+</li>
+<li>Field：相当于MySQL的列</li>
+<li>Mapping：相当于Schema（模式）。schema就是数据库对象的集合，这个集合包含了各种对象如：表、视图、存储过程、索引等。</li>
+<li>DSL：相当于数据库的SQL    </li>
+</ul>
+<h5 id="4-2-逻辑分层"><a href="#4-2-逻辑分层" class="headerlink" title="4.2 逻辑分层"></a>4.2 逻辑分层</h5><p>elasticsearch 逻辑上可分为：</p>
+<ul>
+<li>集群层</li>
+<li>索引层</li>
+<li>分片层</li>
+<li>存储引擎层（lucene）</li>
+</ul>
+<p><strong><em>集群与节点</em></strong></p>
+<ul>
+<li>集群(cluster)是一组具相同 <code>cluster.name</code> 的节点集合，他们协同工作，共享数据并提供故障转移和扩展功能，当然一 个节点也可以组成一个集群。</li>
+<li>节点(node)是一个运行着的Elasticsearch实例。<ul>
+<li>停止节点<ul>
+<li>当Elasticsearch在前台运行，可以使用 Ctrl-C 快捷键终止</li>
+<li><code>curl -XPOST http://localhost:9200/_shutdown</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>索引(indices)</em></strong></p>
+<ul>
+<li>一个索引(index)就像是传统关系数据库中的数据库</li>
+<li>索引（动词「索引一个文档」）表示把一个文档存储到索引（名词）里，以便它可 以被检索或者查询。</li>
+<li>传统数据库为特定列增加一个索引，例如B-Tree索引来加速检索。 Elasticsearch和Lucene使用一种叫做倒排索引(inverted index)的数据结构来达到相同目的.</li>
+</ul>
+<p><strong><em>分片</em></strong><br>（空）</p>
+<p><strong><em>对象与文档</em></strong></p>
+<p>程序中大多的实体或对象能够被序列化为包含键值对的JSON对象：</p>
+<ul>
+<li>键(key)是字段(field)或属 性(property)的名字，</li>
+<li>值(value)可以是字符串、数字、布尔类型、另一个对象、值数组或者 其他特殊类型，比如表示日期的字符串或者表示地理位置的对象</li>
+</ul>
+<p>对象(Object)是一个JSON结构体——类似于哈希、hashmap、字典或者关联数组；对象 (Object)中还可能包含其他对象(Object)。 在Elasticsearch中，文档(document)这个术语有着 特殊含义。它特指最顶层结构或者根对象(root object)序列化成的JSON数据（以唯一ID标识 并存储于Elasticsearch中）。</p>
+<p>Document（文档）结构如下：</p>
+<ul>
+<li>元数据（metadata）<ul>
+<li>_index(逻辑上的命名空间):文档在哪存放<ul>
+<li>在Elasticsearch中，每一个字段的数据都是默认被索引的。也就是说，每个字段专门有一个<code>反向索引</code>用于快速检索。</li>
+</ul>
+</li>
+<li><del>_type:文档表示的对象类别</del></li>
+<li>_id:文档唯一标识;定义或ES生成<ul>
+<li>自动生成的ID有22个字符长，URL-safe, Base64-encoded string universally unique identifiers, 或者叫 UUIDs</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>数据</li>
+</ul>
+<h5 id="4-3-字段的数据类型"><a href="#4-3-字段的数据类型" class="headerlink" title="4.3 字段的数据类型"></a>4.3 字段的数据类型</h5><p><code>_index</code> 类似于传统的数据库，而ES基于<code>倒排索引</code>对数据的每一个字段配置了索引 。为了便于的检索，在ES7.X中已经去除了<code>_type(类似于表)</code>的概念。但数据的每一个字段还是存在一个<code>TYPE</code>，可以通过配置优化搜索。</p>
+<p><strong><em>基本数据类型</em></strong></p>
+<ol>
+<li>核心数据类型</li>
+</ol>
+<ul>
+<li>Text（分词）</li>
+<li>Keyword（索引ID）<ul>
+<li>若不用于range查询则可以使用keyword代替,因为keyword类型字段针对term或term-level的查询更加友好</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>数值数据类型（numeric类型）</li>
+</ol>
+<ul>
+<li>long    -2^63 ~ 2^63-1</li>
+<li>integer    -2^31 ~ 2^31-1</li>
+<li>short    -32768 ~ 32767</li>
+<li>byte    -128 ~ 127</li>
+<li>double    64位精度</li>
+<li>float    32位精度</li>
+<li>half_float    16位精度</li>
+<li>scaled_float    可配置scaling_factor参数 </li>
+</ul>
+<ol start="3">
+<li>日期数据类型</li>
+</ol>
+<ul>
+<li>json格式没有date类型。日期查询会在内部转换为long类型形式的范围查询,并且聚合和存储字段的结果将转换为字符串(具体取决于该字段的日期转换格式);日期将始终以字符串形式呈现,即使一开始在JSON文档中提供的类型为long</li>
+<li>可以使用<code>||</code>分隔符指定多种日期格式,es会依次尝试每种格式,直到找到匹配的格式</li>
+</ul>
+<ol start="4">
+<li>布尔数据类型（boolean）</li>
+<li>二进制数据类型（binary）</li>
+</ol>
+<ul>
+<li>存储字符串base64处理之后的值</li>
+</ul>
+<ol start="6">
+<li>范围数据类型（range类型）</li>
+</ol>
+<ul>
+<li>integer_range</li>
+<li>float_rangellong_range</li>
+<li>double_range</li>
+<li>date_range</li>
+<li>ip_range</li>
+</ul>
+<p><strong><em>复杂数据类型</em></strong></p>
+<p>对象数据类型</p>
+<pre><code>object 用于单个JSON对象</code></pre><p>嵌套数据类型（nested 用于JSON对象数组）</p>
+<ul>
+<li>nested类型是object类型的一种特殊形式,其允许对象数组被索引且可以独立进行查询</li>
+<li>es没有内部对象的概念,因此其将对象继承结构转成简单的key-value的list结构</li>
+</ul>
+<p><strong><em>地理数据类型</em></strong></p>
+<p>地理位置数据类型</p>
+<pre><code>geo_point 纬度/经度积分</code></pre><p>地理形状数据类型</p>
+<pre><code>geo_shape 用于多边形等复杂形状</code></pre><p><strong><em>专业数据类型</em></strong></p>
+<p>IP数据类型</p>
+<pre><code>ip 用于IPv4和IPv6地址</code></pre><p>完成数据类型</p>
+<pre><code>completion 提供自动完成建议</code></pre><p>令牌计数数据类型</p>
+<pre><code>token_count 计算字符串中令牌的数量
+mapper-murmur3
+murmur3 在索引时计算值的哈希并将其存储在索引中
+mapper-annotated-text
+annotated-text 索引包含特殊标记的文本（通常用于标识命名实体）</code></pre><p>渗滤器类型</p>
+<pre><code>接受来自query-dsl的查询</code></pre><p>join 数据类型</p>
+<pre><code>为同一索引内的文档定义父/子关系</code></pre><p>别名数据类型</p>
+<pre><code>为现有字段定义别名。</code></pre><p><strong><em>多字段</em></strong><br>    为不同的目的以不同的方式对同一字段建立索引通常很有用。例如，一个string字段可以映射为text用于全文搜索的字段，也可以映射为keyword用于排序或聚合的字段。或者，您可以使用standard分析仪， english分析仪和 french分析仪索引文本字段。这是多领域的目的。大多数数据类型通过fields参数支持多字段。</p>
+<p><strong><em>确切值(Exact values) vs. 全文文本(Full text)</em></strong></p>
+<p>Elasticsearch中的数据可以大致分为两种类型：</p>
+<ol>
+<li>确切值</li>
+</ol>
+<ul>
+<li>确切值是确定的，正如它的名字一样。比如一个date或用户ID，也可以包含更多的字符串比 如username或email地址。</li>
+<li>确切值查询要么匹配要么不匹配</li>
+</ul>
+<ol start="2">
+<li>全文文本</li>
+</ol>
+<ul>
+<li>全文文本，从另一个角度来说是文本化的数据(常常以人类的语言书写)，比如一篇推文 (Twitter的文章)或邮件正文。全文文本常常被称为 <code>非结构化数据</code>。</li>
+<li>查询全文文本，需要先分词再建立倒排索引，然后基于查询条件衡量<code>匹配程度（相关性）</code></li>
+</ul>
+<h5 id="4-4-ES7-与-ES6-的区别"><a href="#4-4-ES7-与-ES6-的区别" class="headerlink" title="4.4 ES7 与 ES6 的区别"></a>4.4 ES7 与 ES6 的区别</h5><ol>
+<li>es6时，官方就提到了es7会删除type，并且es6时已经规定每一个index只能有一个type。在es7中使用默认的_doc作为type，官方说在8.x版本会彻底移除type。</li>
+<li>api请求方式也发送变化，对索引的文档进行操作的时候，默认使用的Type是 _doc。例如：获取索引<code>GET index/_doc/id</code>,其中index和id为具体的值</li>
+<li>默认节点名称为主机名，默认分片数为1，不再是5</li>
+<li>使用Weak-AND算法优化查询算法</li>
+<li>为提升性能默认不在支持全文检索</li>
+</ol>
+<p><strong><em>新增功能</em></strong></p>
+<ol>
+<li>新增应用程序主动检测功能，搭配对应版本的kibana，用户可监测应用服务的健康状态</li>
+<li>新增间隔查询（Intervals Queries），用户可设置多字符串在文档中出现的先后顺序进行检索</li>
+<li>自带jdk</li>
+<li>JVM引入了新的circuit breaker（熔断）机制 </li>
+</ol>
+<h5 id="4-5-交互方式"><a href="#4-5-交互方式" class="headerlink" title="4.5 交互方式"></a>4.5 交互方式</h5><ul>
+<li>Java API<ul>
+<li>两个Java客户端都通过9300端口与集群交互，使用Elasticsearch传输协议(Elasticsearch Transport Protocol)。集群中的节点之间也通过9300端口进行通信。如果此端口未开放，你的 节点将不能组成集群。</li>
+<li>节点客户端（Node client）：节点客户端以无数据节点(none data node)身份加入集群，换言之，它自己不存储任何数据， 但是它知道数据在集群中的具体位置，并且能够直接转发请求到对应的节点上。</li>
+<li>传输客户端（Transport client）：不加入集群，只是简单转发请求 给集群中的节点。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>REST API(JSON，HTTP)<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">curl -X&lt;VERB&gt; &apos;&lt;PROTOCOL&gt;://&lt;HOST&gt;:&lt;PORT&gt;/&lt;PATH&gt;?&lt;QUERY_STRING&gt;&apos; -d &apos;&lt;BODY&gt;&apos;</span><br><span class="line"></span><br><span class="line">	VERB 适当的 HTTP 方法 或 谓词 : GET、 POST、 PUT、 HEAD 或者 DELETE。</span><br><span class="line">	PROTOCOL http 或者 https</span><br><span class="line">	HOST Elasticsearch 集群中任意节点的主机名，或者用 localhost 代表本地机器上的节点。</span><br><span class="line">	PORT 端口</span><br><span class="line">	PATH API 的终端路径</span><br><span class="line">	QUERY_STRING 任意可选的查询字符串参数</span><br><span class="line">	BODY JSON 格式的请求体</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>注1：Elasticsearch7.x及以上的版本不使用TYpe的原因：ES使用的倒排索引比关系型数据库的B-Tree索引快，倒排索引的生成是基于 Index，而去除Type是为了更好的构建倒排索引。<br>注2：Java客户端所在的Elasticsearch版本必须与集群中其他节点一致，否则，它们可能互相 无法识别。</p>
+</blockquote>
+<h5 id="4-6-特性"><a href="#4-6-特性" class="headerlink" title="4.6 特性"></a>4.6 特性</h5><p><strong><em>面向文档</em></strong></p>
+<p>应用中的对象很少只是简单的键值列表，更多时候它拥有复杂的数据结构，比如包含日期、 地理位置、另一个对象或者数组。Elasticsearch不仅仅是存储，还会索引(index)每个文档的内容使之可以被搜索；可以对文档（而非成行成列的数据）进行索引、搜索、排序、过滤。</p>
+<p>ELasticsearch使用Javascript对象符号(JavaScript Object Notation)，也就是JSON，作为 文档序列化格式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;_index&quot;: &quot;index&quot;,</span><br><span class="line">  &quot;_type&quot;: &quot;_doc&quot;,</span><br><span class="line">  &quot;_id&quot;: &quot;222&quot;,</span><br><span class="line">  &quot;_version&quot;: 1,</span><br><span class="line">  &quot;_seq_no&quot;: 0,</span><br><span class="line">  &quot;_primary_term&quot;: 1,</span><br><span class="line">  &quot;found&quot;: true,</span><br><span class="line">  &quot;_source&quot;: &#123;</span><br><span class="line">	&quot;text&quot;: &quot;阿伯蛇加速跳&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-7-curl"><a href="#4-7-curl" class="headerlink" title="4.7 curl"></a>4.7 curl</h5><p>我们可以通过Linux的curl命令来使用 <code>elasticsearch</code>。</p>
+<ul>
+<li>curl是一个利用URL规则在命令行下工作的文件传输工具，可以说是一款很强大的http命令行工具。它支持文件的上传和下载，是综合传输工具，但按传统，习惯称url为下载工具。</li>
+</ul>
+<p><strong><em>语法</em></strong><br><code># curl [option] [url]</code></p>
+<p><strong><em>常见参数</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">-A/--user-agent &lt;string&gt;              设置用户代理发送给服务器</span><br><span class="line">-b/--cookie &lt;name=string/file&gt;    cookie字符串或文件读取位置</span><br><span class="line">-c/--cookie-jar &lt;file&gt;                    操作结束后把cookie写入到这个文件中</span><br><span class="line">-C/--continue-at &lt;offset&gt;            断点续转</span><br><span class="line">-D/--dump-header &lt;file&gt;              把header信息写入到该文件中</span><br><span class="line">-e/--referer                                  来源网址</span><br><span class="line">-f/--fail                                          连接失败时不显示http错误</span><br><span class="line">-o/--output                                  把输出写到该文件中</span><br><span class="line">-O/--remote-name                      把输出写到该文件中，保留远程文件的文件名</span><br><span class="line">-r/--range &lt;range&gt;                      检索来自HTTP/1.1或FTP服务器字节范围</span><br><span class="line">-s/--silent                                    静音模式。不输出任何东西</span><br><span class="line">-T/--upload-file &lt;file&gt;                  上传文件</span><br><span class="line">-u/--user &lt;user[:password]&gt;      设置服务器的用户和密码</span><br><span class="line">-w/--write-out [format]                什么输出完成后</span><br><span class="line">-x/--proxy &lt;host[:port]&gt;              在给定的端口上使用HTTP代理</span><br><span class="line">-#/--progress-bar                        进度条显示当前的传送状态</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>使用</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST &quot;http://127.0.0.1:9200/_reindex?pretty&quot; -H &quot;Content-Type:application/json&quot; -d&apos;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;source&quot;: &#123;</span><br><span class="line">    &quot;index&quot;: &quot;twitter&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;dest&quot;: &#123;</span><br><span class="line">    &quot;index&quot;: &quot;new_twitter&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;&apos;</span><br></pre></td></tr></table></figure>
+
+
+
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/07/29/elasticsearch/">http://zws6672.top/2020/07/29/elasticsearch/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/elasticsearch/">elasticsearch</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/07/30/elasticsearch-1/" class="pre">ES（一）数据处理</a><a href="/2020/07/22/centos7-error-1/" class="next">centos7 异常一</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-安装"><span class="toc-text">1.安装</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-1-相关资源"><span class="toc-text">1.1 相关资源</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-2-单节点配置"><span class="toc-text">1.2 单节点配置</span></a></li></ol></li></ol><li class="toc-item toc-level-3"><a class="toc-link" href="#2-可视化界面"><span class="toc-text">2. 可视化界面</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#2-1-elasticsearch-head"><span class="toc-text">2.1 elasticsearch-head</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-2-kibana"><span class="toc-text">2.2 kibana</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-分词器配置"><span class="toc-text">3. 分词器配置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#3-1-组成与分类"><span class="toc-text">3.1 组成与分类</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-2-安装与配置"><span class="toc-text">3.2 安装与配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-基础入门"><span class="toc-text">4. 基础入门</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#4-1-核心概念"><span class="toc-text">4.1 核心概念</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-逻辑分层"><span class="toc-text">4.2 逻辑分层</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-3-字段的数据类型"><span class="toc-text">4.3 字段的数据类型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-4-ES7-与-ES6-的区别"><span class="toc-text">4.4 ES7 与 ES6 的区别</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-5-交互方式"><span class="toc-text">4.5 交互方式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-6-特性"><span class="toc-text">4.6 特性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-7-curl"><span class="toc-text">4.7 curl</span></a></li></ol></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

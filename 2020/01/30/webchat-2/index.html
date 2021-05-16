@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>小程序速读（二）小实例 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">小程序速读（二）小实例</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">小程序速读（二）小实例</h1><div class="post-meta"><a href="/2020/01/30/webchat-2/#comments" class="comment-count"></a><p><span class="date">Jan 30, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h1><p>数据存储对象包括数据流在加工过程中产生的临时文件或加工过程中需要查找的信息。小程序有时候需要存储数据，可以通过全局变量、本地存储以及可以通过浏览器存储。</p>
+<h3 id="全局变量（app-globalData）"><a href="#全局变量（app-globalData）" class="headerlink" title="全局变量（app.globalData）"></a>全局变量（app.globalData）</h3><p>数据可以保存到小程序关闭。<br>在App.js 初始化变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">App(&#123;</span><br><span class="line">  globalData:&#123;</span><br><span class="line">    appid: &apos;111&apos;,//</span><br><span class="line">    secret: &apos;111&apos;,//</span><br><span class="line">    openid:&apos;111&apos;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><em>JS</em></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 建议写在开头，方便与App.js文件关联</span><br><span class="line">var app = getApp();</span><br><span class="line">// 获取 全局变量</span><br><span class="line">var globalData = app.globalData.openid;</span><br><span class="line">this.globalData.openid = e.detail.openid;</span><br><span class="line"> </span><br><span class="line">// 设置 全局变量</span><br><span class="line">getApp().globalData.openid = &quot;12345&quot;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="本地存储"><a href="#本地存储" class="headerlink" title="本地存储"></a>本地存储</h3><p>以Sync（同步，同时）结尾的都是都是同步缓存，二者的区别是，异步不会阻塞当前任务，同步缓存直到同步方法处理完才能继续往下执行。</p>
+<h5 id="异步数据"><a href="#异步数据" class="headerlink" title="异步数据"></a>异步数据</h5><p>数据保存后，可以持续到下次启动。</p>
+<p>通过key-value的方式存储数据，可以对本地缓存进行设置、获取和清理。本地缓存最大为10MB</p>
+<p>wx.setStorageSync(KEY,DATA)<br>wx.getStorageSync(KEY)<br>wx.getStorageInfoSync<br>wx.removeStorageSync(KEY)<br>wx.clearStorageSync()</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//  添加数据</span><br><span class="line">	let taskList = wx.getStorageSync(&apos;taskList&apos;);</span><br><span class="line">	taskList.unshift(&#123;</span><br><span class="line">        id: new Date(),</span><br><span class="line">        text: this.data.work,</span><br><span class="line">        status: false</span><br><span class="line">	&#125;); </span><br><span class="line">	wx.setStorageSync(&#123;</span><br><span class="line">	  key: &apos;taskList&apos;,</span><br><span class="line">	  data: taskList</span><br><span class="line">	&#125;)</span><br><span class="line">	</span><br><span class="line">// 遍历数据</span><br><span class="line">    let taskUndone = wx.getStorageSync(&apos;taskList&apos;).filter((item) =&gt; &#123;</span><br><span class="line">      return !item.status;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+<h5 id="同步数据"><a href="#同步数据" class="headerlink" title="同步数据"></a>同步数据</h5><p>数据保存后，可以持续到下次启动。</p>
+<p>wx.setStorage<br>wx.getStorage<br>wx.getStorageInfo<br>wx.removeStorage(KEY)<br>wx.clearStorage</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wx.setStorage(&#123;</span><br><span class="line">  key: &apos;hasUserInfo&apos;,</span><br><span class="line">  data: false,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h1 id="tabBar"><a href="#tabBar" class="headerlink" title="tabBar"></a>tabBar</h1><p>小程序 的 tabBar 默认只可以设置为跳转的设置，但我们可以对她进行样式设置、显示设置、展示文字或者红点的设置。</p>
+<h3 id="tabbar右上角的红点显示与隐藏"><a href="#tabbar右上角的红点显示与隐藏" class="headerlink" title="tabbar右上角的红点显示与隐藏"></a>tabbar右上角的红点显示与隐藏</h3><p>通过【wx.showTabBarRedDot(Object object)】可以显示红点, 通过【wx.hideTabBarRedDot(Object object)】隐藏红点。设置参数如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">必填</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">index</td>
+<td align="left">number</td>
+<td align="left">是</td>
+<td align="left">定位tabBar中的位置</td>
+</tr>
+<tr>
+<td align="left">success</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用成功</td>
+</tr>
+<tr>
+<td align="left">fail</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用失败</td>
+</tr>
+<tr>
+<td align="left">complete</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用完成</td>
+</tr>
+</tbody></table>
+<p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">wx.showTabBarRedDot(&#123;</span><br><span class="line">  // 从0开始,表示显示红点的tabBar位置</span><br><span class="line">  index:1,</span><br><span class="line">  success:function()&#123;</span><br><span class="line">  &#125;,</span><br><span class="line">  fail:function()&#123;</span><br><span class="line">  &#125;,</span><br><span class="line">  complete:function()&#123;&#125;</span><br><span class="line">&#125;);</span><br><span class="line"> wx.hideTabBarRedDot(&#123;</span><br><span class="line">	// 从0开始,表示隐藏红点的tabBar位置，建议写在【onShow】函数中，在切换后红点消失</span><br><span class="line">	index: 1,</span><br><span class="line">	success: function () &#123;</span><br><span class="line">	&#125;,</span><br><span class="line">	fail: function () &#123;</span><br><span class="line">	&#125;,</span><br><span class="line">	complete: function () &#123; &#125;</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="tabbar右上角文字的显示与隐藏"><a href="#tabbar右上角文字的显示与隐藏" class="headerlink" title="tabbar右上角文字的显示与隐藏"></a>tabbar右上角文字的显示与隐藏</h3><p>通过【wx.setTabBarBadge(Object object)】可以显示文字。设置参数如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">必填</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">index</td>
+<td align="left">number</td>
+<td align="left">是</td>
+<td align="left">定位tabBar中的位置</td>
+</tr>
+<tr>
+<td align="left">text</td>
+<td align="left">string</td>
+<td align="left">是</td>
+<td align="left">显示的文本</td>
+</tr>
+<tr>
+<td align="left">success</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用成功</td>
+</tr>
+<tr>
+<td align="left">fail</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用失败</td>
+</tr>
+<tr>
+<td align="left">complete</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用完成</td>
+</tr>
+</tbody></table>
+<p>通过【wx.removeTabBarBadge(Object object)】隐藏文字。设置参数如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">必填</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">index</td>
+<td align="left">number</td>
+<td align="left">是</td>
+<td align="left">定位tabBar中的位置</td>
+</tr>
+<tr>
+<td align="left">success</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用成功</td>
+</tr>
+<tr>
+<td align="left">fail</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用失败</td>
+</tr>
+<tr>
+<td align="left">complete</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用完成</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>微信官方api要求text属性应该为number类型，但是使用过程中发现必须为string类型，并且为数字字符串、字母字符串、和汉字字符串时最多都显示4个字符，多于四个时不再显示，汉字时竖直显示。</p>
+</blockquote>
+<p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">// app.js 设置全局变量</span><br><span class="line">App(&#123;</span><br><span class="line">	globalData: &#123;</span><br><span class="line">	  undoSize:0</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br><span class="line">// index.js</span><br><span class="line">let undoSize = wx.getStorageSync(&apos;undoSize&apos;);</span><br><span class="line">undoSize++;</span><br><span class="line">wx.setStorageSync(&apos;undoSize&apos;, undoSize); </span><br><span class="line">wx.setTabBarBadge(&#123;</span><br><span class="line">  index:1,</span><br><span class="line">  text: String(undoSize)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">// undo.js</span><br><span class="line">wx.removeTabBarBadge(&#123;index:1&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="显示和隐藏-tabBar"><a href="#显示和隐藏-tabBar" class="headerlink" title="显示和隐藏 tabBar"></a>显示和隐藏 tabBar</h3><p>在开发中， 地图或者拍照等功能，需要隐藏底部的导航条。</p>
+<p>wx.showTabBar(Object object) 显示<br>wx.hideTabBar(Object object) 隐藏 </p>
+<p> wx.showTabBar({<br>    //  tabBar显示<br>    animation: true,<br>    success: function () {<br>    },<br>    fail: function () {<br>    },<br>    complete: function () { }<br>  });</p>
+<p> wx.hideTabBar({<br>    //  tabBar隐藏<br>    animation: true,<br>    success: function () {<br>    },<br>    fail: function () {<br>    },<br>    complete: function () { }<br>  });</p>
+<p>设置参数如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">必填</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">animation</td>
+<td align="left">boolean</td>
+<td align="left">否</td>
+<td align="left">是否展示动画</td>
+</tr>
+<tr>
+<td align="left">success</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用成功触发函数</td>
+</tr>
+<tr>
+<td align="left">fail</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用失败触发函数</td>
+</tr>
+<tr>
+<td align="left">complete</td>
+<td align="left">func</td>
+<td align="left">否</td>
+<td align="left">调用完成触发函数</td>
+</tr>
+</tbody></table>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">wx.hideTabBarRedDot(&#123;</span><br><span class="line">// 从0开始,表示隐藏红点的tabBar位置，建议写在【onShow】函数中，在切换后红点消失</span><br><span class="line">index: 1,</span><br><span class="line">success: function () &#123;</span><br><span class="line">&#125;,</span><br><span class="line">fail: function () &#123;</span><br><span class="line">&#125;,</span><br><span class="line">complete: function () &#123; &#125;</span><br><span class="line"> &#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="其它-tabBar-对应的全局函数"><a href="#其它-tabBar-对应的全局函数" class="headerlink" title="其它 tabBar 对应的全局函数"></a>其它 tabBar 对应的全局函数</h3><p><code>wx.setTabBarStyle(Object object)</code><br>    动态设置 tabBar 的整体样式</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">默认值</th>
+<th align="left">必填</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">color</td>
+<td align="left">string</td>
+<td align="left"></td>
+<td align="left">否</td>
+<td align="left">tab 上的文字默认颜色，HexColor</td>
+</tr>
+<tr>
+<td align="left">selectedColor</td>
+<td align="left">string</td>
+<td align="left"></td>
+<td align="left">否</td>
+<td align="left">tab 上的文字选中时的颜色，HexColor</td>
+</tr>
+<tr>
+<td align="left">backgroundColor</td>
+<td align="left">string</td>
+<td align="left"></td>
+<td align="left">否</td>
+<td align="left">tab 的背景色，HexColor</td>
+</tr>
+<tr>
+<td align="left">borderStyle</td>
+<td align="left">string</td>
+<td align="left"></td>
+<td align="left">否</td>
+<td align="left">tabBar上边框的颜色， 仅支持 black/white</td>
+</tr>
+<tr>
+<td align="left">success</td>
+<td align="left">function</td>
+<td align="left"></td>
+<td align="left">否</td>
+<td align="left">接口调用成功的回调函数</td>
+</tr>
+<tr>
+<td align="left">fail</td>
+<td align="left">function</td>
+<td align="left"></td>
+<td align="left">否</td>
+<td align="left">接口调用失败的回调函数</td>
+</tr>
+<tr>
+<td align="left">complete</td>
+<td align="left">function</td>
+<td align="left"></td>
+<td align="left">否</td>
+<td align="left">接口调用结束的回调函数（调用成功、失败都会执行）</td>
+</tr>
+</tbody></table>
+<p><code>wx.setTabBarItem(Object object)</code><br>    动态设置 tabBar 某一项的内容，2.7.0 起图片支持临时文件和网络文件<br>    &gt; 基础库 1.9.0 开始支持，低版本需做兼容处理。<br>|属性|类型|默认值|必填|说明|<br>|:–|:–|:–|:–|:–|<br>|index|number||是|tabBar 的哪一项，从左边算起|<br>|text|string||否|tab 上的按钮文字|<br>|iconPath|string||否|图片路径，icon 大小限制为 40kb，建议尺寸为 81px * 81px，当 postion 为 top 时，此参数无效|<br>|selectedIconPath|string||否|选中时的图片路径，icon 大小限制为 40kb，建议尺寸为 81px * 81px ，当 postion 为 top 时，此参数无效|<br>|success|function||否|接口调用成功的回调函数|<br>|fail|function||否|接口调用失败的回调函数|<br>|complete|function||否|接口调用结束的回调函数（调用成功、失败都会执行）|</p>
+<h3 id="导入-Iconfont-图片库"><a href="#导入-Iconfont-图片库" class="headerlink" title="导入 Iconfont 图片库"></a>导入 Iconfont 图片库</h3><p>可以通过<a href="https://www.iconfont.cn/" target="_blank" rel="noopener">Iconfont图片库</a> 获取适合的图片。</p>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/01/30/webchat-2/">http://zws6672.top/2020/01/30/webchat-2/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/微信小程序/">微信小程序</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/02/15/java-util-1/" class="pre">Java集合源码分析（一）ArrayList</a><a href="/2020/01/21/centos-vm-install/" class="next">centos 7（）在 vm 虚拟机中的安装</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#存储"><span class="toc-text">存储</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#全局变量（app-globalData）"><span class="toc-text">全局变量（app.globalData）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本地存储"><span class="toc-text">本地存储</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#异步数据"><span class="toc-text">异步数据</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#同步数据"><span class="toc-text">同步数据</span></a></li></ol></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#tabBar"><span class="toc-text">tabBar</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tabbar右上角的红点显示与隐藏"><span class="toc-text">tabbar右上角的红点显示与隐藏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tabbar右上角文字的显示与隐藏"><span class="toc-text">tabbar右上角文字的显示与隐藏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#显示和隐藏-tabBar"><span class="toc-text">显示和隐藏 tabBar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其它-tabBar-对应的全局函数"><span class="toc-text">其它 tabBar 对应的全局函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#导入-Iconfont-图片库"><span class="toc-text">导入 Iconfont 图片库</span></a></li></ol></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>ES6（二）字符串与数值 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">ES6（二）字符串与数值</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">ES6（二）字符串与数值</h1><div class="post-meta"><a href="/2019/11/08/es6-2/#comments" class="comment-count"></a><p><span class="date">Nov 08, 2019</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>这一系列文章是<a href="http://www.ruanyifeng.com/home.html" target="_blank" rel="noopener">阮一峰</a>大大的【ECMAScript 6 】学习笔记。</p>
+<p>目录</p>
+<ul>
+<li><a href="/2019/11/03/es6-1/">ES6（一）基础入门</a></li>
+<li><a href="/2019/11/08/es6-2/">ES6（二）字符串与数值</a></li>
+<li><a href="/2019/11/09/es6-3/">ES6（三）正则、函数与数组</a></li>
+</ul>
+<h1 id="一、字符串扩展"><a href="#一、字符串扩展" class="headerlink" title="一、字符串扩展"></a>一、字符串扩展</h1><h3 id="1-字符的-Unicode-表示法"><a href="#1-字符的-Unicode-表示法" class="headerlink" title="1. 字符的 Unicode 表示法"></a>1. 字符的 Unicode 表示法</h3><p>JavaScript 允许采用\uxxxx形式表示一个字符，其中xxxx表示字符的 Unicode 码点。<br><code>&quot;\u0061&quot;</code></p>
+<p>这种表示法只限于码点在\u0000~\uFFFF之间的字符。超出这个范围的字符，就会被解析为【\u20BB+XX】，所以必须用两个双字节的形式表示。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&quot;\uD842\uDFB7&quot;</span><br><span class="line">// &quot;𠮷&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-遍历字符串"><a href="#2-遍历字符串" class="headerlink" title="2. 遍历字符串"></a>2. 遍历字符串</h3><ul>
+<li>for…of循环遍历，可以识别大于0xFFFF的码点<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for (let codePoint of &apos;foo&apos;) &#123;</span><br><span class="line">  console.log(codePoint)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-中文支持"><a href="#3-中文支持" class="headerlink" title="3. 中文支持"></a>3. 中文支持</h3><p>JavaScript 字符串允许直接输入字符，以及输入字符的转义形式。举例来说，“中”的 Unicode 码点是 U+4e2d，你可以直接在字符串里面输入这个汉字，也可以输入它的转义形式\u4e2d，两者是等价的。</p>
+<p>但以下几个是不可以直接使用，需要使用转义：</p>
+<ul>
+<li>U+005C：反斜杠（reverse solidus) \ ==&gt; \</li>
+<li>U+000D：回车（carriage return） </li>
+<li>U+2028：行分隔符（line separator）</li>
+<li>U+2029：段分隔符（paragraph separator）</li>
+<li>U+000A：换行符（line feed）</li>
+</ul>
+<h3 id="4-模板字符串"><a href="#4-模板字符串" class="headerlink" title="4. 模板字符串"></a>4. 模板字符串</h3><p>以前的写法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$(&apos;#result&apos;).append(</span><br><span class="line">  &apos;There are &lt;b&gt;&apos; + basket.count + &apos;&lt;/b&gt; &apos;;</span><br><span class="line">  );</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ES6 引入了模板字符串,使用反引号【`】包含字符串即可;如果使用模板字符串表示多行字符串，所有的空格和缩进都会被保留在输出之中。</li>
+<li>模板字符串中嵌入变量，需要将变量名写在${}之中。大括号内部可以放入任意的 JavaScript 表达式，可以进行运算，以及引用对象属性。</li>
+<li>模板字符串之中还能调用函数。${function_name(params)}</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$(&apos;#result&apos;).append(`</span><br><span class="line">  There are &lt;b&gt;$&#123;basket.count&#125;&lt;/b&gt; items</span><br><span class="line">   in your basket, &lt;em&gt;$&#123;basket.onSale&#125;&lt;/em&gt;</span><br><span class="line">  are on sale!</span><br><span class="line">`);</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-标签模板"><a href="#5-标签模板" class="headerlink" title="5. 标签模板"></a>5. 标签模板</h3><p>模板字符串的功能，不仅仅是上面这些。它可以紧跟在一个函数名后面，该函数将被调用来处理这个模板字符串。这被称为“标签模板”功能（tagged template）,是一种函数调用的方式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">alert`123`</span><br><span class="line">// 等同于</span><br><span class="line">alert(123)</span><br><span class="line"></span><br><span class="line">tag`Hello $&#123; a + b &#125; world $&#123; a * b &#125;`;</span><br><span class="line">// 参数用空格分隔</span><br><span class="line">function tag(stringArr, value1, value2)&#123;</span><br><span class="line">  // ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="模板字符串的限制"><a href="#模板字符串的限制" class="headerlink" title="模板字符串的限制"></a>模板字符串的限制</h5><p>前面提到标签模板里面，可以内嵌其他语言。但是，模板字符串默认会将字符串转义，导致无法嵌入其他语言。<br>为了解决这个问题，ES2018 放松了对标签模板里面的字符串转义的限制。如果遇到不合法的字符串转义，就返回undefined，而不是报错。<br>注意，这种对字符串转义的放松，只在标签模板解析字符串时生效，不是标签模板的场合，依然会报错。</p>
+<h3 id="6-字符串新增方法"><a href="#6-字符串新增方法" class="headerlink" title="6. 字符串新增方法"></a>6. 字符串新增方法</h3><ul>
+<li>String.fromCodePoint() ,用于从 Unicode 码点返回对应字符</li>
+<li>String.raw() ,该方法返回一个斜杠都被转义（即斜杠前面再加一个斜杠）的字符串，往往用于模板字符串的处理方法。</li>
+<li>codePointAt()，将字符以 UTF-16 的格式储存，对于那些需要4个字节储存的字符会被解析为两个字符。</li>
+<li>normalize(),许多欧洲语言有语调符号和重音符号。为了表示它们，Unicode 提供了两种方法。一种是直接提供带重音符号的字符。</li>
+<li>includes()：返回布尔值，表示是否找到了参数字符串。</li>
+<li>startsWith()：返回布尔值，表示参数字符串是否在原字符串的头部。</li>
+<li>endsWith()：返回布尔值，表示参数字符串是否在原字符串的尾部。</li>
+<li>repeat():方法返回一个新字符串，表示将原字符串重复n次。</li>
+<li>padStart()用于头部补全，padEnd()用于尾部补全。<ul>
+<li><code>&#39;x&#39;.padStart(5, &#39;ab&#39;) // &#39;ababx&#39;</code>,字符串’x’不足五个字符，在开头添加’ab’直到五个字符</li>
+</ul>
+</li>
+<li>trimStart()消除字符串头部的空格，trimEnd()消除尾部的空格。</li>
+<li>matchAll()方法返回一个正则表达式在当前字符串的所有匹配。</li>
+</ul>
+<h1 id="二、Number对象拓展"><a href="#二、Number对象拓展" class="headerlink" title="二、Number对象拓展"></a>二、Number对象拓展</h1><h3 id="1-进制表示法"><a href="#1-进制表示法" class="headerlink" title="1. 进制表示法"></a>1. 进制表示法</h3><p>ES6 提供了二进制和八进制数值的新的写法，分别用前缀0b（或0B）和0o（或0O）表示。</p>
+<ul>
+<li>二进制 0b1111 ，表示十进制15</li>
+<li>八进制 0o11 ，表示十进制9</li>
+<li>提供Number() 方法将二或者八进制数转换为十进制<ul>
+<li><code>Number(&#39;0o10&#39;)  // 8</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-Number对象新增方法"><a href="#2-Number对象新增方法" class="headerlink" title="2. Number对象新增方法"></a>2. Number对象新增方法</h3><p>ES6 在Number对象上，新提供了Number.isFinite()和Number.isNaN()两个方法。它们与传统的全局方法isFinite()和isNaN()的区别在于，传统方法先调用Number()将非数值的值转为数值，再进行判断，而这两个新方法只对数值有效。</p>
+<ul>
+<li>Number.isFinite()用来检查一个数值是否为有限的（finite），即不是Infinity；不是数值，一律返回false</li>
+<li>Number.isNaN()用来检查一个值是否为NaN。</li>
+</ul>
+<p>提供Number.isInteger()用来判断一个数值是否为整数。</p>
+<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Number.isInteger(25) // true</span><br><span class="line">Number.isInteger(25.1) // false</span><br><span class="line">// JavaScript 内部，整数和浮点数采用的是同样的储存方法，所以 25 和 25.0 被视为同一个值。</span><br><span class="line">// 判断精度为小数点后15位，第16位就不准确了</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<blockquote>
+<p>   由于 JavaScript 采用 IEEE 754 标准，数值存储为64位双精度格式，数值精度最多可以达到 53 个二进制位（1 个隐藏位与 52 个有效位）。如果数值的精度超过这个限度，第54位及后面的位就会被丢弃，这种情况下，Number.isInteger可能会误判。</p>
+</blockquote>
+<p>ES6 将全局方法parseInt()和parseFloat()，移植到Number对象上面，行为完全保持不变。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// ES5的写法</span><br><span class="line">parseInt(&apos;12.34&apos;) // 12</span><br><span class="line">parseFloat(&apos;123.45#&apos;) // 123.45</span><br><span class="line"></span><br><span class="line">// ES6的写法</span><br><span class="line">Number.parseInt(&apos;12.34&apos;) // 12</span><br><span class="line">Number.parseFloat(&apos;123.45#&apos;) // 123.45</span><br></pre></td></tr></table></figure>
+
+<p>ES6使用Number.isSafeInteger()方法来测试 整数是否在JavaScript能否正确表示的范围之内。</p>
+<h3 id="3-Number更新的变量"><a href="#3-Number更新的变量" class="headerlink" title="3. Number更新的变量"></a>3. Number更新的变量</h3><p>ES6 在Number对象上面，新增一个极小的常量Number.EPSILON。根据规格，它表示 1 与大于 1 的最小浮点数之间的差。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Number.EPSILON === Math.pow(2, -52)</span><br><span class="line">// true</span><br><span class="line">Number.EPSILON</span><br><span class="line">// 2.220446049250313e-16</span><br><span class="line">Number.EPSILON.toFixed(20)</span><br><span class="line">// &quot;0.00000000000000022204&quot;</span><br></pre></td></tr></table></figure>
+
+<p>Number.EPSILON可以用来设置“能够接受的误差范围”。比如，误差范围设为 2 的-50 次方（即Number.EPSILON * Math.pow(2, 2)），即如果两个浮点数的差小于这个值，我们就认为这两个浮点数相等。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">5.551115123125783e-17 &lt; Number.EPSILON * Math.pow(2, 2)</span><br><span class="line">// true</span><br></pre></td></tr></table></figure>
+
+<p>JavaScript 能够准确表示的整数范围在-2^53到2^53之间（不含两个端点），超过这个范围，无法精确表示这个值。ES6 引入了Number.MAX_SAFE_INTEGER和Number.MIN_SAFE_INTEGER这两个常量，用来表示这个范围的上下限。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Number.MAX_SAFE_INTEGER === Math.pow(2, 53) - 1</span><br><span class="line">// true</span><br><span class="line">Number.MAX_SAFE_INTEGER === 9007199254740991</span><br><span class="line">// true</span><br><span class="line"></span><br><span class="line">Number.MIN_SAFE_INTEGER === -Number.MAX_SAFE_INTEGER</span><br><span class="line">// true</span><br><span class="line">Number.MIN_SAFE_INTEGER === -9007199254740991</span><br><span class="line">// true</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、Math-对象的扩展"><a href="#三、Math-对象的扩展" class="headerlink" title="三、Math 对象的扩展"></a>三、Math 对象的扩展</h1><p>ES6 在 Math 对象上新增了 17 个与数学相关的方法。所有这些方法都是静态方法，只能在 Math 对象上调用。</p>
+<ul>
+<li>Math.trunc() 去除小数部分；对于空值和无法截取整数的值，返回NaN。</li>
+<li>Math.sign() 用来判断一个数到底是正数、负数、还是零,<ul>
+<li><pre><code>参数为正数，返回+1；
+参数为负数，返回-1；
+参数为 0，返回0；
+参数为-0，返回-0;
+其他值，返回NaN。</code></pre></li>
+</ul>
+</li>
+<li>Math.cbrt()  用于计算一个数的立方根。</li>
+<li>Math.clz32() 将参数转为 32 位无符号整数的形式</li>
+<li>Math.fround方法返回一个数的32位单精度浮点数形式。</li>
+<li>Math.hypot方法返回所有参数的平方和的平方根。</li>
+<li>Math.hypot方法返回所有参数的平方和的平方根。</li>
+</ul>
+<p>此外，ES6 还新增了 4 个对数相关方法、6 个双曲函数方法、一个指数运算符（**）[这个运算符的一个特点是右结合，而不是常见的左结合]</p>
+<p>参考文献<br><a href="http://es6.ruanyifeng.com/#docs/string" target="_blank" rel="noopener">字符串的扩展</a><br><a href="http://es6.ruanyifeng.com/#docs/number" target="_blank" rel="noopener">数值的扩展</a></p>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2019/11/08/es6-2/">http://zws6672.top/2019/11/08/es6-2/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/es6/">es6</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2019/11/08/tomcat-sz-1/" class="pre">tomcat实战（一）linux使用多个tomcat</a><a href="/2019/11/07/oracle-sz-1/" class="next">oracle实战（一）跨表空间及跨库查询</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、字符串扩展"><span class="toc-text">一、字符串扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-字符的-Unicode-表示法"><span class="toc-text">1. 字符的 Unicode 表示法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-遍历字符串"><span class="toc-text">2. 遍历字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-中文支持"><span class="toc-text">3. 中文支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-模板字符串"><span class="toc-text">4. 模板字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-标签模板"><span class="toc-text">5. 标签模板</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#模板字符串的限制"><span class="toc-text">模板字符串的限制</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-字符串新增方法"><span class="toc-text">6. 字符串新增方法</span></a></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#二、Number对象拓展"><span class="toc-text">二、Number对象拓展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-进制表示法"><span class="toc-text">1. 进制表示法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Number对象新增方法"><span class="toc-text">2. Number对象新增方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Number更新的变量"><span class="toc-text">3. Number更新的变量</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、Math-对象的扩展"><span class="toc-text">三、Math 对象的扩展</span></a></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

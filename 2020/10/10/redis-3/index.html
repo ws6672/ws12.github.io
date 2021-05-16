@@ -1,0 +1,321 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>redis（三）安全性与持久化 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">redis（三）安全性与持久化</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">redis（三）安全性与持久化</h1><div class="post-meta"><a href="/2020/10/10/redis-3/#comments" class="comment-count"></a><p><span class="date">Oct 10, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>这一节不仅仅要讨论数据库的安全性，也要浅谈一下数据的持久化。</p>
+<h1 id="一、数据库安全性"><a href="#一、数据库安全性" class="headerlink" title="一、数据库安全性"></a>一、数据库安全性</h1><p>一个命令要在Redis生效，需要经过几个安全防护措施的测试：</p>
+<ul>
+<li>系统自带的防火墙</li>
+<li>Redis的tcp端口或Unix套接字（redis.conf）</li>
+<li>轻量级的认证方式（redis.conf）</li>
+<li>Redis无加密，AUTH命令是明文，可以被窃听。可以使用SSL代理加密</li>
+<li>禁用的特殊命令</li>
+</ul>
+<ol>
+<li>防火墙。</li>
+</ol>
+<ul>
+<li>通过系统的防火墙，我们可以使非指定ip无法通过端口访问数据库。</li>
+</ul>
+<ol start="2">
+<li>tcp端口或Unix套接字。</li>
+</ol>
+<ul>
+<li>采用绑定IP的方式来进行控制，通过编辑redis.conf文件设置允许访问的ip地址。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># If you want you can bind a single interface, if the bind option is not</span><br><span class="line"># specified all the interfaces will listen for incoming connections.</span><br><span class="line">#</span><br><span class="line">bind 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>设置密码。</li>
+</ol>
+<ul>
+<li>我们可以设置密码，以提供远程登陆（redis执行速度快，密码过短容易被暴力破解）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 修改redis.conf文件</span><br><span class="line">	requirepass password1</span><br><span class="line"></span><br><span class="line"># 访问redis1</span><br><span class="line">cmd&gt; redis-cli -h  Ip -p Port</span><br><span class="line">auth password1</span><br><span class="line"></span><br><span class="line"># 访问redis2</span><br><span class="line">cmd&gt; redis-cli -h  Ip -p Port  -a password1</span><br><span class="line"></span><br><span class="line"># 设置临时密码</span><br><span class="line">config set requirepass yourPassword</span><br><span class="line"></span><br><span class="line"># 查看密码</span><br><span class="line">config get requirepass</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>SSL加密。</li>
+</ol>
+<ul>
+<li>认证层的目标是提供多一层的保护。假如防火墙或者其它任何系统防护攻击失败的话，外部客户端如果没有认证密码的话将依然无法访问Redis实例。AUTH命令就像其它Redis命令一样，是通过非加密方式发送的，因此无法防止拥有足够的访问网络权限的攻击者进行窃听。 数据加密支持。</li>
+<li>可通过安装Stunnel客户端，安装后，配置加密的SSL连接。</li>
+</ul>
+<ol start="5">
+<li>禁用的特殊命令。</li>
+</ol>
+<p>在Redis中可以禁用命令或者将它们重命名成难以推测的名称，这样子普通用户就只能使用部分命令了。例如，一个虚拟化的服务器提供商可能提供管理Redis实例的服务。在这种情况下，普通用户可能不被允许调用CONFIG命令去修改实例的配置，但是能够提供删除实例的系统需要支持修改配置。在这种情况下，你可以从命令表中重命名命令或者禁用命令。这个特性可以在redis.conf文件中进行配置。<br>重命名命令：<code>rename-command CONFIG b840fc02d524045429941cc15f59e41cb7be6c52</code><br>禁用该命令：<code>rename-command CONFIG &quot;&quot;</code></p>
+<h1 id="二、缓存与数据库双写"><a href="#二、缓存与数据库双写" class="headerlink" title="二、缓存与数据库双写"></a>二、缓存与数据库双写</h1><p>如何保证缓存与数据库双写，是项目中使用缓存时需要考虑的一个问题。</p>
+<h3 id="错误的双写流程"><a href="#错误的双写流程" class="headerlink" title="错误的双写流程"></a>错误的双写流程</h3><ol>
+<li>先更新缓存,再写数据库（会导致读不一致）</li>
+</ol>
+<ul>
+<li>线程a更新数据库</li>
+<li>线程b更新数据库</li>
+<li>线程b更新缓存</li>
+<li>线程a更新缓存</li>
+<li>网络原因导致a线程先更新数据库，但是比b晚更新缓存，最后导致了脏数据</li>
+</ul>
+<ol start="2">
+<li>先删除缓存,再更新数据库</li>
+</ol>
+<ul>
+<li>线程a 准备写操作，先删除缓存</li>
+<li>线程b 读操作，读缓存没有命中</li>
+<li>线程b 读数据库，得到旧值，写入缓存</li>
+<li>线程a 写新数据到数据库</li>
+</ul>
+<h3 id="四种常见的双写策略"><a href="#四种常见的双写策略" class="headerlink" title="四种常见的双写策略"></a>四种常见的双写策略</h3><p>相关的几种设计模式如下：</p>
+<ul>
+<li><p>Cache aside（懒加载）</p>
+<ul>
+<li>命中：从cache获取数据，返回</li>
+<li>失效：从数据库获取数据，成功后，存放到缓存中</li>
+<li>更新：更新数据库 数据，成功后，使缓存失效</li>
+</ul>
+</li>
+<li><p>Read through</p>
+<ul>
+<li>在查询操作中更新缓存</li>
+<li>Cache aside由调用方更新缓存，而Read through则用缓存服务自己来加载，从而对应用方是透明的。</li>
+</ul>
+</li>
+<li><p>Write through</p>
+<ul>
+<li>在更新操作中更新缓存</li>
+<li>如果没有命中缓存，直接更新数据库，然后返回。如果命中了缓存，则更新缓存，然后再由Cache自己更新数据库（同步操作）</li>
+</ul>
+</li>
+<li><p>Write behind caching</p>
+<ul>
+<li>在更新数据的时候，只更新缓存，不更新数据库，而我们的缓存会异步地批量更新数据库</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>redis 的并发竞争</em></strong><br> 多客户端同时并发写一个key，由于网速原因先到的数据晚处理，产生了脏数据；多客户端同时获取一个key，修改顺序错误导致结果错误。</p>
+<p> 缓存格式可以设置为 数据+时间戳，如果新数据的时间戳更小，那么就忽略。</p>
+<h3 id="安全加固"><a href="#安全加固" class="headerlink" title="安全加固"></a>安全加固</h3><ol>
+<li>Redis Server监听的端口默认为6379,容易被扫描攻击</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 修改为非默认端口</span><br><span class="line">port 6379</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>Redis支持监听0.0.0.0,即所有ip都可以接入</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 设置为客户端需要连接的网卡；允许本机访问，应该只监听127.0.0.1</span><br><span class="line">bind 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>RedisCluster方案缺省会增加一个集群端口，且是在客户端端口偏移10000</li>
+</ol>
+<p>在端口矩阵中对额外的这个集群端口有说明。修改源码,新增一个redis.conf偏移量配置项cluster-port-increment，缺省配置+1，这样可以做到端口范围可控，避免冲突</p>
+<ol start="4">
+<li>Redis只有一个超级用户，权限过大</li>
+</ol>
+<p>权限最小化原则，增加配置项，角色区分超户，普通用户和只读用户。通过ACL管理用户权限。</p>
+<ol start="5">
+<li>危险命令被调用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis.conf 中加入如下内容，禁用相应的命令</span><br><span class="line"></span><br><span class="line">rename-command KEYS     &quot;&quot;</span><br><span class="line">rename-command FLUSHALL &quot;&quot;</span><br><span class="line">rename-command DEBUG    &quot;&quot;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h1 id="三、ACL"><a href="#三、ACL" class="headerlink" title="三、ACL"></a>三、ACL</h1><p>Redis ACL 是 Access Control List（访问控制列表）的缩写，该功能允许对访问 Redis 的连接做一些可执行命令和可访问的 KEY 的限制。它的工作方式是，在连接之后，要求客户端进行身份验证，以提供用户名和有效密码：如果身份验证成功，该<br>客户端连接与给定用户绑定，并具有该用户的访问权限。 </p>
+<blockquote>
+<p>注：Redis ACL向下兼容，存在default用户，拥有操作redis的所有权限。使用 requirepass 设置访问密码的方式与旧版本也保持一致，只不过 Redis 6.0 的这个密码仅对用户 “default” 有效</p>
+</blockquote>
+<p>配置ACL的方式有两种，一种是在config文件中直接配置，另一种是在外部aclfile中配置。配置的命令是一样的，但是两种方式只能选择其中一种</p>
+<ol>
+<li><p>通过config配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">requirepass redis</span><br><span class="line">config rewrite</span><br><span class="line"># 自动在底部追加以下配置</span><br><span class="line">user default on nopass ~* +@all</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过外部 aclfile 配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">aclfile &quot;./user.acl&quot;</span><br><span class="line"></span><br><span class="line"># 重启后，执行</span><br><span class="line">config rewrite</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># aclfile 内容</span><br><span class="line">user alice on allcommands allkeys &gt;alice</span><br><span class="line">user bob on -@all +@set +acl ~set* &gt;bob</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>AUTH命令修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AUTO &lt;username&gt; &lt;password&gt;</span><br><span class="line">AUTO &lt;password&gt;   ===   AUTO default &lt;password&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="相关语法"><a href="#相关语法" class="headerlink" title="相关语法"></a>相关语法</h3><p>ACL是使用DSL（域特定语言）定义的，该DSL描述了给定用户能够执行的操作。此类规则始终按从左到右、从第一个到最后一个执行的。</p>
+<p>eg:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">user default on nopass ~* +@all</span><br><span class="line"># 解析</span><br><span class="line"># user default：用户为default</span><br><span class="line"># on：处于活动状态</span><br><span class="line"># nopass：不需要密码</span><br><span class="line"># ~*：访问所有可能的键</span><br><span class="line"># +@all：调用所有可能的命令</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>启用和禁止用户</li>
+</ol>
+<ul>
+<li>on：启用用户：可以以该用户身份进行认证</li>
+<li>off：禁用用户：不再可以与此用户进行身份验证，但是已经过身份验证的连接仍然可以使用</li>
+</ul>
+<ol start="2">
+<li>启用或禁用命令</li>
+</ol>
+<ul>
+<li><code>+&lt;command&gt;</code>  将 <code>&lt;command&gt;</code> 命令添加到用户可调用的命令列表中</li>
+<li><code>-&lt;command&gt;</code>  从可调用的命令列表中移除 <code>&lt;command&gt;</code> 命令</li>
+<li><code>+@&lt;category&gt;</code>  允许用户调用 <code>&lt;category&gt;</code> 分类中的所有命令（可通过 ACL CAT 命令查看完成分类列表）</li>
+<li><code>-@&lt;category&gt;</code>  禁止用户调用 <code>&lt;category&gt;</code> 分类中的所有命令</li>
+<li><code>+&lt;command&gt;|subcommand</code>  允许使用原本禁用的特定类别下的特定子命令</li>
+<li><code>+@all</code>  允许调用所有命令，与使用 allcommands 效果相同。包括当前存在的命令以及将来通过模块加载的命令</li>
+<li><code>-@all</code>  禁止调用所有命令</li>
+</ul>
+<ol start="3">
+<li>允许或禁止访问某些 KEY</li>
+</ol>
+<ul>
+<li><code>~&lt;pattern&gt;</code> 添加符合条件的模式</li>
+<li>resetkeys 使用当前模式覆盖所有允许的模式；例如： <code>resetkeys ~objects:*</code> ，最终客户端只允许访问匹配 <code>~object:*</code> 模式的 KEY</li>
+</ul>
+<ol start="4">
+<li>为用户配置有效密码</li>
+</ol>
+<ul>
+<li><code>&gt;&lt;password&gt;</code>  将密码添加到用户有效密码列表中</li>
+<li><code>&lt;&lt;password&gt;</code>  将密码从用户有效密码列表中移除</li>
+<li><code>#&lt;hash&gt;</code>  将此 SHA-256 哈希值添加到用户的有效密码列表中。该哈希值将与 ACL 用户输入的密码的哈希值进行比较。这将允许用户将此哈希值存储在 acl 配置文件中，而不是存储明文密码。仅接受 SHA-256 哈希值，因为密码的哈希必须由 64 个字符长度的小写的十六进制字符组成。</li>
+<li><code>!&lt;hash&gt;</code>  从有效密码列表中删除该哈希值</li>
+<li><code>nopass</code> 删除用户所有密码，并将该用户标记为不需要密码</li>
+<li><code>resetpass</code> 清除用户可用密码列表的数据，并清除 nopass 状态;账号重新配置前，不许登陆</li>
+<li><code>reset</code>  重置用户到初始状态。该命令会执行以下操作：resetpass，resetkeys，off，-@ all</li>
+</ul>
+<ol start="5">
+<li>ACL相关命令</li>
+</ol>
+<ul>
+<li><code>ACL LIST</code>：用户不存在，检查当前活动的 ACL 列表</li>
+<li><code>ACL SETUSER&lt;username&gt;</code>：用户不存在，就按默认配置生成用户(用户名区分大小写)</li>
+<li><code>ACL SETUSER &lt;username&gt; &lt;rules&gt;</code>：用户不存在，则按默认规则创建用户，并增加 <rules> <ul>
+<li>用户默认规则为：<ul>
+<li>处于关闭状态</li>
+<li>无法执行任何命令</li>
+<li>没有匹配的访问 KEY 的模式</li>
+<li>没有有效的密码</li>
+</ul>
+</li>
+</ul>
+</rules></li>
+<li><code>ACL GETUSER &lt;username&gt;</code>：同 ACL LIST 作用类似。ACL GETUSER 用来获取指定用户的 ACL 状态信息</li>
+<li><code>ACL DELUSER &lt;username&gt;</code>：删除用户</li>
+<li><code>ACL USERS</code>：查看所有用户</li>
+<li><code>ACL WHOAMI</code>：查看当前用户</li>
+<li><code>ACL CAT</code>：显示ACL类别</li>
+<li><code>ACL CAT &lt;类别&gt;</code>：显示指定类别中所有的 Redis 命令</li>
+<li><code>ACL SAVE</code>：redis 配置中启用了 aclfile 选项，将当前所有的 ACL 存入 aclfile，覆盖 aclfile 内容</li>
+<li><code>ACL LOAD</code>：redis 配置中启用了 aclfile 选项，从 acl 文件中加载定义的 acl 规则</li>
+<li><code>ACL GENPASS</code>：可以使用该命令来生成 Redis 密码（256 bit 的 32 字节的伪随机字符串，并将其转换为 64 字节的字母+数字的字符串）</li>
+<li><code>ACL LOG</code>：安全日志</li>
+<li><code>ACL HELP</code></li>
+</ul>
+<h1 id="四、持久化数据"><a href="#四、持久化数据" class="headerlink" title="四、持久化数据"></a>四、持久化数据</h1><p>Redis 提供了多种不同级别的持久化方式：</p>
+<ul>
+<li>RDB 持久化可以在指定的时间间隔内生成数据集的时间点快照（point-in-time snapshot）。</li>
+<li>AOF 持久化记录服务器执行的所有写操作命令，并在服务器启动时，通过重新执行这些命令来还原数据集。 AOF 文件中的命令全部以 Redis 协议的格式来保存，新命令会被追加到文件的末尾。 Redis 还可以在后台对 AOF 文件进行重写（rewrite），使得 AOF 文件的体积不会超出保存数据集状态所需的实际大小。</li>
+<li>Redis 还可以同时使用 AOF 持久化和 RDB 持久化。 在这种情况下， 当 Redis 重启时， 它会优先使用 AOF 文件来还原数据集， 因为 AOF 文件保存的数据集通常比 RDB 文件所保存的数据集更完整。</li>
+<li>你甚至可以关闭持久化功能，让数据只在服务器运行时存在</li>
+</ul>
+<h3 id="RDB（快照）"><a href="#RDB（快照）" class="headerlink" title="RDB（快照）"></a>RDB（快照）</h3><p>当符合一定条件时，redis中RDB方式会自动将内存中的所有数据生成一份副本并存储在硬盘上，这个过程称为快照。</p>
+<ol>
+<li>快照流程：</li>
+</ol>
+<ul>
+<li>使用fork 函数复制一份当前进程（父进程）的副本（子进程）</li>
+<li>父进程继续处理客户端的命令，而子进程将内存中的数据写入到硬盘中的临时文件中</li>
+<li>当临时文件生成结束，临时文件会替代<code>dump.rdb</code>文件（过程中，rdb文件保持完整）</li>
+</ul>
+<blockquote>
+<p>注：rdb持久化的时候，如果 Redis因为异常退出，就会丢失最后一次快照之后的所有数据</p>
+</blockquote>
+<ol start="2">
+<li>触发快照</li>
+</ol>
+<ul>
+<li>根据配置进行自动快照</li>
+<li><code>save</code>保存命令（适合线下）：阻塞主进程，客户端无法连接主进程，同步数据</li>
+<li><code>bgsave</code>后台保存命令（适合线上）：异步执行，同步数据</li>
+<li><code>flushall</code>命令：清空整个服务器数据，然后执行自动快照</li>
+<li><code>replication</code>复制：主从复制起始阶段时进行自动快照</li>
+</ul>
+<ol start="3">
+<li>根据配置进行自动快照</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 修改 redis.window.conf 文件</span><br><span class="line"># 格式如下：</span><br><span class="line"># save N M</span><br><span class="line"># N 秒内数据集至少有 M 个改动后保存一次数据</span><br><span class="line"></span><br><span class="line">save 900 1    # 15分钟内有 1 个键被修改</span><br><span class="line">save 300 10   # 5分钟内有 10 个键被修改</span><br><span class="line">save 60 10000 # 1分钟内有 10000 个键被修改</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>缺点</li>
+</ol>
+<ul>
+<li>存储数据量大，效率低，每次快照都会读取所有数据</li>
+<li>使用fork创建子进程，占用内存</li>
+<li>意外宕机会导致丢失大量数据</li>
+</ul>
+<h3 id="AOF（默认关闭）"><a href="#AOF（默认关闭）" class="headerlink" title="AOF（默认关闭）"></a>AOF（默认关闭）</h3><p>AOF 意为Append Only File，会将执行的每一条命令追加到硬盘文件中。当使用redis 存储非临时数据时，一般需要打开aof 持久化来降低进程中止导致的数据丢失。</p>
+<ol>
+<li>AOF写数据策略（appendfsync）</li>
+</ol>
+<ul>
+<li>always(每次)：每次写入操作均同步到AOF文件中，数据零误差，性能较低，适合数据要求严格的业务场景</li>
+<li>everysec(每秒)：每秒将缓冲区中的指令同步到AOF文件中，数据准确性较高，性能较高，建议使用，也是默认配置。</li>
+<li>no(系统控制)：由操作系统控制每次同步到AOF文件的周期，整体过程不可控</li>
+</ul>
+<ol start="2">
+<li><p><code>redis.window.conf</code> 相关配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 是否启动AOF</span><br><span class="line">appendonly	yes|no # 是否启动AOF</span><br><span class="line"></span><br><span class="line"># 写策略</span><br><span class="line">appendfsync	always|everysec|no # AOF写数据策略</span><br><span class="line"></span><br><span class="line"># aof文件 名称</span><br><span class="line">appendfilename &quot;appendonly.aof&quot;</span><br><span class="line"></span><br><span class="line"># aof文件 路径</span><br><span class="line">dir &quot;E:\\Util\\redis-latest&quot;</span><br><span class="line"></span><br><span class="line"># 自动重写触发的条件设置</span><br><span class="line">auto-aof-rewrite-min-size  64mb    #设置触发aof的最小尺寸</span><br><span class="line">auto-aof-rewrite-percentage 100     #达到重写的百分比</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>AOF 重写机制</p>
+</li>
+</ol>
+<p>AOF持久化机制也会导致一个问题，那就是AOF文件越来越大。Redis 提供了<code>bgrewriteaof命令</code> 压缩持久化文件，该命令会将内存中的数据以命令的方式保存到临时文件中，同时会fork出一条新进程来将文件重写。重写机制不是压缩旧的AOF文件，而是在将内存数据用命令重写一个新的临时文件，然后覆盖旧的AOF文件。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 一个重写的实例</span><br><span class="line"></span><br><span class="line">set name a</span><br><span class="line">set name b</span><br><span class="line">set name c</span><br><span class="line"></span><br><span class="line"># aof 重写后，会压缩该命令，变成以下的命令</span><br><span class="line">set name c</span><br></pre></td></tr></table></figure>
+
+<p>相关规则如下：</p>
+<ul>
+<li>对同一数据的多条写命令合并为一条</li>
+<li>进程内超时数据忽略</li>
+<li>无效指令忽略</li>
+</ul>
+<ol start="4">
+<li>优缺点</li>
+</ol>
+<ul>
+<li>优点<ul>
+<li>AOF可以更好的保护数据不丢失，一般AOF会每隔1秒，通过一个后台线程执行一次fsync操作，最多丢失1秒钟的数据。</li>
+<li>没有磁盘寻址开销，写入性能高</li>
+<li>重写AOF文件，也不影响客户端读写</li>
+<li>合适灾难性恢复</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>日志文件相对RDB数据文件较大</li>
+<li>写（每秒查询率QPS）相对RDB较低</li>
+</ul>
+</li>
+</ul>
+<ol start="5">
+<li>AOF 文件出错</li>
+</ol>
+<p>服务器可能在程序正在对 AOF 文件进行写入时停机， 如果停机造成了 AOF 文件出错（corrupt）， 那么 Redis 在重启时会拒绝载入这个 AOF 文件， 从而确保数据的一致性不会被破坏。</p>
+<p>当发生这种情况时， 可以用以下方法来修复出错的 AOF 文件：</p>
+<ul>
+<li>为现有的 AOF 文件创建一个备份。</li>
+<li>使用 Redis 附带的 redis-check-aof 程序，对原来的 AOF 文件进行修复。<ul>
+<li><code>redis-check-aof --fix</code></li>
+</ul>
+</li>
+<li>重启 Redis 服务器，等待服务器载入修复后的 AOF 文件，并进行数据恢复</li>
+</ul>
+<ol start="6">
+<li>RDB 和 AOF 之间的相互作用</li>
+</ol>
+<p>在版本号大于等于 2.4 的 Redis 中， BGSAVE 执行的过程中， 不可以执行 BGREWRITEAOF 。 反过来说， 在 BGREWRITEAOF 执行的过程中， 也不可以执行 BGSAVE 。</p>
+<p>这可以防止两个 Redis 后台进程同时对磁盘进行大量的 I/O 操作。</p>
+<p>如果 BGSAVE 正在执行， 并且用户显示地调用 BGREWRITEAOF 命令， 那么服务器将向用户回复一个 OK 状态， 并告知用户， BGREWRITEAOF 已经被预定执行： 一旦 BGSAVE 执行完毕， BGREWRITEAOF 就会正式开始。</p>
+<p>当 Redis 启动时， 如果 RDB 持久化和 AOF 持久化都被打开了， 那么程序会优先使用 AOF 文件来恢复数据集， 因为 AOF 文件所保存的数据通常是最完整的。</p>
+<p><strong><em>备份 Redis 数据</em></strong></p>
+<p>Redis 对于数据备份是非常友好的， 因为你可以在服务器运行的时候对 RDB 文件进行复制： RDB 文件一旦被创建， 就不会进行任何修改。 当服务器要创建一个新的 RDB 文件时， 它先将文件的内容保存在一个临时文件里面， 当临时文件写入完毕时， 程序才使用 rename(2) 原子地用临时文件替换原来的 RDB 文件。</p>
+<p><strong><em>官方建议</em></strong></p>
+<ul>
+<li>创建一个定期任务（cron job）， 每小时将一个 RDB 文件备份到一个文件夹， 并且每天将一个 RDB 文件备份到另一个文件夹。</li>
+<li>确保快照的备份都带有相应的日期和时间信息， 每次执行定期任务脚本时， 使用 find 命令来删除过期的快照： 比如说， 你可以保留最近 48 小时内的每小时快照， 还可以保留最近一两个月的每日快照。</li>
+<li>至少每天一次， 将 RDB 备份到你的数据中心之外， 或者至少是备份到你运行 Redis 服务器的物理机器之外。</li>
+</ul>
+<blockquote>
+<p>注：服务端并没有马上记录，而是放到AOF写命令刷新缓存区，到一定时间之后将命令同步到AOF文件中。</p>
+</blockquote>
+<blockquote>
+<p><a href="https://www.jianshu.com/p/2936a5c65e6b" target="_blank" rel="noopener">如何保证缓存与数据库的双写一致性？</a><br><a href="https://www.cnblogs.com/middleware/p/9511389.html" target="_blank" rel="noopener">Redis缓存数据库安全加固指导（一）</a><br><a href="https://www.cnblogs.com/wangcuican/p/12882930.html" target="_blank" rel="noopener">Redis入门到精通（十二）——持久化AOF</a><br><a href="http://www.redis.cn/topics/security.html" target="_blank" rel="noopener">Redis安全性</a><br><a href="https://redis.io/topics/acl" target="_blank" rel="noopener">访问控制列表</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/10/10/redis-3/">http://zws6672.top/2020/10/10/redis-3/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/Redis/">Redis</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/10/11/leetcode-201007-201011/" class="pre">leetcode-201007-201011</a><a href="/2020/10/04/redis-5/" class="next">redis（五）集群</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、数据库安全性"><span class="toc-text">一、数据库安全性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、缓存与数据库双写"><span class="toc-text">二、缓存与数据库双写</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#错误的双写流程"><span class="toc-text">错误的双写流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四种常见的双写策略"><span class="toc-text">四种常见的双写策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全加固"><span class="toc-text">安全加固</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#三、ACL"><span class="toc-text">三、ACL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#相关语法"><span class="toc-text">相关语法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四、持久化数据"><span class="toc-text">四、持久化数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RDB（快照）"><span class="toc-text">RDB（快照）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF（默认关闭）"><span class="toc-text">AOF（默认关闭）</span></a></li></ol></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

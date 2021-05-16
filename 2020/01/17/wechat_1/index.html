@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>小程序速读（一）入门 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">小程序速读（一）入门</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">小程序速读（一）入门</h1><div class="post-meta"><a href="/2020/01/17/wechat_1/#comments" class="comment-count"></a><p><span class="date">Jan 17, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="一、基础"><a href="#一、基础" class="headerlink" title="一、基础"></a>一、基础</h1><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h3><h5 id="什么是小程序"><a href="#什么是小程序" class="headerlink" title="什么是小程序"></a>什么是小程序</h5><p>微信小程序，简称小程序，英文名Mini Program，是一种不需要下载安装即可使用的应用，它实现了应用“触手可及”的梦想，用户扫一扫或搜一下即可打开应用。</p>
+<h5 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h5><ul>
+<li>无需下载、卸载</li>
+<li>扫码获取</li>
+</ul>
+<h3 id="2-资源"><a href="#2-资源" class="headerlink" title="2. 资源"></a>2. 资源</h3><ul>
+<li><a href="https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html" target="_blank" rel="noopener">编译器下载</a></li>
+<li><a href="https://open.weixin.qq.com/" target="_blank" rel="noopener">开发者网站</a></li>
+<li><a href="https://mp.weixin.qq.com/" target="_blank" rel="noopener">微信公众平台——可以获取个人开发者的appID、发布小程序</a></li>
+<li><a href="https://developers.weixin.qq.com/miniprogram/analysis/#%E5%B8%B8%E8%A7%84%E5%88%86%E6%9E%90" target="_blank" rel="noopener">数据分析</a></li>
+<li><a href="https://developers.weixin.qq.com/miniprogram/product/" target="_blank" rel="noopener">运营规范</a></li>
+<li><a href="https://developers.weixin.qq.com/miniprogram/introduction/" target="_blank" rel="noopener">接入指南</a></li>
+<li><a href="https://developers.weixin.qq.com/miniprogram/design/v" target="_blank" rel="noopener">设计指南</a></li>
+<li><a href="https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=7_3&index=1" target="_blank" rel="noopener">支付开发</a></li>
+</ul>
+<h3 id="3-云开发"><a href="#3-云开发" class="headerlink" title="3. 云开发"></a>3. 云开发</h3><ul>
+<li>数据库：一个既可在小程序前端操作，也能在云函数中读写的 JSON 文档型数据库</li>
+<li>文件存储：在小程序前端直接上传/下载云端文件，在云开发控制台可视化管理</li>
+<li>云函数：在云端运行的代码，微信私有协议天然鉴权，开发者只需编写业务逻辑代码<br><a href="https://developers.weixin.qq.com/miniprogram/dev/wxcloud/basis/getting-started.html" target="_blank" rel="noopener">参考文档</a></li>
+</ul>
+<h3 id="4-小程序减负"><a href="#4-小程序减负" class="headerlink" title="4. 小程序减负"></a>4. 小程序减负</h3><p>微信小程序在发布的时候，对提交的代码有1M大小的限制</p>
+<p>不使用大图片<br>    使用小图片或者设置纯颜色<br>使用工具压缩优化代码<br>    使用Gulp，结合一些功能插件，如：uglify, cssnano, htmlmin等。使用这些工具<br>    +    Gulp是一个自动化构建工具,开发者可以使用它在项目开发过程中自动执行常见任务<br>    +    uglifyJs是一个js 解释器、最小化器、压缩器、美化器工具集<br>    +    cssnano是CSS优化和分解插件<br>    +    <a href="https://www.npmjs.com/package/htmlmin" target="_blank" rel="noopener">htmlmin</a>可以压缩html</p>
+<h3 id="5-快捷键列表"><a href="#5-快捷键列表" class="headerlink" title="5. 快捷键列表"></a>5. 快捷键列表</h3><h5 id="5-1-格式调整"><a href="#5-1-格式调整" class="headerlink" title="5.1 格式调整"></a>5.1 格式调整</h5><ul>
+<li>Ctrl+S：保存文件（必须保存才可以看到效果）</li>
+<li><code>Ctrl+[， Ctrl+]</code>：代码行缩进</li>
+<li><code>Ctrl+Shift+[， Ctrl+Shift+]</code>：折叠打开代码块</li>
+<li>Ctrl+C Ctrl+V：复制粘贴，如果没有选中任何文字则复制粘贴一行</li>
+<li>Shift+Alt+F：代码格式化</li>
+<li>Alt+Up，Alt+Down：上下移动一行</li>
+<li>Shift+Alt+Up，Shift+Alt+Down：向上向下复制一行</li>
+<li>Ctrl+Shift+Enter：在当前行上方插入一行</li>
+<li>Ctrl+Shift+F：全局搜索</li>
+</ul>
+<h5 id="5-2-光标相关"><a href="#5-2-光标相关" class="headerlink" title="5.2 光标相关"></a>5.2 光标相关</h5><ul>
+<li>Ctrl+End：移动到文件结尾</li>
+<li>Ctrl+Home：移动到文件开头</li>
+<li>Ctrl+i：选中当前行</li>
+<li>Shift+End：选择从光标到行尾</li>
+<li>Shift+Home：选择从行首到光标处</li>
+<li>Ctrl+Shift+L：选中所有匹配</li>
+<li>Ctrl+D：选中匹配</li>
+<li>Ctrl+U：光标回退</li>
+</ul>
+<h5 id="5-3-界面相关"><a href="#5-3-界面相关" class="headerlink" title="5.3 界面相关"></a>5.3 界面相关</h5><ul>
+<li><code>Ctrl + \\</code>：隐藏侧边栏</li>
+<li><code>Ctrl + m</code>: 打开或者隐藏模拟器     </li>
+</ul>
+<h1 id="二、实例入门"><a href="#二、实例入门" class="headerlink" title="二、实例入门"></a>二、实例入门</h1><h3 id="1-新建一个项目"><a href="#1-新建一个项目" class="headerlink" title="1. 新建一个项目"></a>1. 新建一个项目</h3><ol>
+<li>新建一个小程序<br><img src="/image/webchat/wechat-add.png" alt="小程序添加"></li>
+</ol>
+<p>其中，需要一个appID，可以在 <a href="https://mp.weixin.qq.com/" target="_blank" rel="noopener">微信公众平台—【可以获取个人开发者的appID、发布小程序】</a> 处获取<br><img src="/image/webchat/wechat-appid.png" alt="wechat-appid"></p>
+<blockquote>
+<p>小程序的 AppID 相当于小程序平台的一个身份证，后续你会在很多地方要用到 AppID （注意这里要区别于服务号或订阅号的 AppID）</p>
+</blockquote>
+<p>第一个项目想了解一下大致的功能，不打算使用微信提供的云开发功能，语言选用【TypeScript】。</p>
+<p><img src="/image/webchat/webchat-jm.png" alt="编译器界面"><br><a href="http://www.wxapp-union.com/forum.php?mod=viewthread&tid=1812" target="_blank" rel="noopener">真机预览</a></p>
+<ol start="2">
+<li>代码结构</li>
+</ol>
+<ul>
+<li><code>.json</code> 后缀的 JSON 配置文件<ul>
+<li>数据格式，静态配置</li>
+<li>app.json 是当前小程序的全局配置，包括了小程序的所有页面路径、界面表现、网络超时时间、底部 tab 等</li>
+<li>pages字段 —— 用于描述当前小程序所有页面路径</li>
+<li>window字段 —— 定义小程序所有页面的顶部背景颜色，文字颜色定义等</li>
+<li>project.config.json 编译器工具的配置信息</li>
+<li>page.json   pages目录下的【.json】文件，页面的特定配置</li>
+<li>JSON 语法</li>
+<li>JSON文件都是被包裹在一个大括号中 <code>{}</code>，通过key-value的方式来表达数据。JSON的Key必须包裹在一个<code>双引号</code>中</li>
+<li>数据格式<ul>
+<li>数字，包含浮点数和整数</li>
+<li>字符串，需要包裹在双引号中</li>
+<li>Bool值，true 或者 false</li>
+<li>数组，需要包裹在方括号中 <code>[]</code></li>
+<li>对象，需要包裹在大括号中 <code>{}</code></li>
+<li>Null</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>JSON 文件中无法使用注释，试图添加注释将会引发报错。</p>
+</blockquote>
+<ul>
+<li><code>.wxml</code> 后缀的 WXML 模板文件<ul>
+<li>与html的不同之处<ul>
+<li>【view, button, text】代替【div, p, span】</li>
+<li><code>支持【wx:if】，支持双向绑定</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>.wxss</code> 后缀的 WXSS 样式文件</li>
+<li><code>.js</code> 后缀的 JS 脚本逻辑文件</li>
+</ul>
+<h1 id="三、app-json"><a href="#三、app-json" class="headerlink" title="三、app.json"></a>三、app.json</h1><p>有五个部分可以配置：<code>pages, window, tarBar, networkTimeout和debug</code></p>
+<h3 id="1-实例"><a href="#1-实例" class="headerlink" title="1 实例"></a>1 实例</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;pages&quot;: [</span><br><span class="line">    &quot;pages/index/index&quot;,</span><br><span class="line">    &quot;pages/logs/logs&quot;</span><br><span class="line">  ],</span><br><span class="line">  &quot;window&quot;: &#123;</span><br><span class="line">    &quot;backgroundTextStyle&quot;: &quot;light&quot;,</span><br><span class="line">    &quot;navigationBarBackgroundColor&quot;: &quot;#fff&quot;,</span><br><span class="line">    &quot;navigationBarTitleText&quot;: &quot;WeChat&quot;,</span><br><span class="line">    &quot;navigationBarTextStyle&quot;: &quot;black&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;style&quot;: &quot;v2&quot;,</span><br><span class="line">  &quot;sitemapLocation&quot;: &quot;sitemap.json&quot;,</span><br><span class="line">  &quot;tabBar&quot;: &#123;</span><br><span class="line">  	// 背景色</span><br><span class="line">    &quot;backgroundColor&quot;: &quot;#fbfbfb&quot;,</span><br><span class="line">	// 边框颜色</span><br><span class="line">    &quot;borderStyle&quot;: &quot;white&quot;,</span><br><span class="line">	// 选中底部的颜色</span><br><span class="line">    &quot;selectedColor&quot;: &quot;#50e3c2&quot;,</span><br><span class="line">	// 未选中颜色</span><br><span class="line">    &quot;color&quot;: &quot;#aaa&quot;,</span><br><span class="line">	// 底部跳转的链接及文字描述</span><br><span class="line">    &quot;list&quot;: [</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;pagePath&quot;: &quot;pages/index/index&quot;,</span><br><span class="line">		&quot;iconPath&quot;: &quot;images/homepage_off.png&quot;,</span><br><span class="line">　　　　&quot;selectedIconPath&quot;: &quot;images/homepage_on.png&quot; ,//选中图标</span><br><span class="line">        &quot;text&quot;: &quot;首页&quot;</span><br><span class="line">		</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;pagePath&quot;: &quot;pages/index/index&quot;,</span><br><span class="line">		&quot;iconPath&quot;: &quot;images/homepage_off.png&quot;,</span><br><span class="line">　　　　&quot;selectedIconPath&quot;: &quot;images/homepage_on.png&quot; ,//选中图标</span><br><span class="line">        &quot;text&quot;: &quot;我&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-window"><a href="#2-window" class="headerlink" title="2 window"></a>2 window</h3><p>定义窗口的配置信息。</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">默认值</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">navigationBarBackgroundColor</td>
+<td align="left">HexColor</td>
+<td align="left">#000000</td>
+<td align="left">导航栏背景颜色，如”#000000”</td>
+</tr>
+<tr>
+<td align="left">navigationBarTextStyle</td>
+<td align="left">String</td>
+<td align="left">white</td>
+<td align="left">导航栏标题颜色，仅支持 black/white</td>
+</tr>
+<tr>
+<td align="left">navigationBarTitleText</td>
+<td align="left">String</td>
+<td align="left">a</td>
+<td align="left">导航栏标题文字内容</td>
+</tr>
+<tr>
+<td align="left">backgroundColor</td>
+<td align="left">HexColor</td>
+<td align="left">#ffffff</td>
+<td align="left">窗口的背景色</td>
+</tr>
+<tr>
+<td align="left">backgroundTextStyle</td>
+<td align="left">String</td>
+<td align="left">dark</td>
+<td align="left">下拉背景字体、loading 图的样式，仅支持 dark/light</td>
+</tr>
+<tr>
+<td align="left">enablePullDownRefresh</td>
+<td align="left">Boolean</td>
+<td align="left">False</td>
+<td align="left">是否开启下拉刷新</td>
+</tr>
+</tbody></table>
+<h3 id="3-tarBar"><a href="#3-tarBar" class="headerlink" title="3 tarBar"></a>3 tarBar</h3><p> 用来设置底部的标签页。</p>
+<h3 id="4-networkTimeout"><a href="#4-networkTimeout" class="headerlink" title="4 networkTimeout"></a>4 networkTimeout</h3><p> 用来设置各种网络请求的超时时间</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">类型</th>
+<th align="left">必填</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">request</td>
+<td align="left">Number</td>
+<td align="left">否</td>
+<td align="left">wx.request的超时时间，单位毫秒</td>
+</tr>
+<tr>
+<td align="left">connectSocket</td>
+<td align="left">Number</td>
+<td align="left">否</td>
+<td align="left">wx.connectSocket的超时时间，单位毫秒</td>
+</tr>
+<tr>
+<td align="left">uploadFile</td>
+<td align="left">Number</td>
+<td align="left">否</td>
+<td align="left">wx.uploadFile的超时时间，单位毫秒</td>
+</tr>
+<tr>
+<td align="left">downloadFile</td>
+<td align="left">Number</td>
+<td align="left">否</td>
+<td align="left">wx.downloadFile的超时时间，单位毫秒</td>
+</tr>
+</tbody></table>
+<h1 id="四、常用组件"><a href="#四、常用组件" class="headerlink" title="四、常用组件"></a>四、常用组件</h1><h3 id="1-视图容器"><a href="#1-视图容器" class="headerlink" title="1. 视图容器"></a>1. 视图容器</h3><ul>
+<li>cover-image 覆盖在原生组件之上的图片视图</li>
+<li>cover-view 覆盖在原生组件之上的文本视图</li>
+<li>movable-area movable-view的可移动区域</li>
+<li>movable-view 可移动的视图容器，在页面中可以拖拽滑动</li>
+<li>scroll-view 可滚动视图区域</li>
+<li>swiper 滑块视图容器</li>
+<li>swiper-item 仅可放置在swiper组件中，宽高自动设置为100%</li>
+<li>view 视图容器</li>
+</ul>
+<h3 id="2-基础内容"><a href="#2-基础内容" class="headerlink" title="2. 基础内容"></a>2. 基础内容</h3><ul>
+<li>icon 图标</li>
+<li>progress 进度条</li>
+<li>rich-text 富文本</li>
+<li>text 文本</li>
+</ul>
+<p><em>表单组件</em></p>
+<ul>
+<li>button 按钮</li>
+<li>checkbox 多选项目</li>
+<li>checkbox-group 多项选择器，内部由多个checkbox组成</li>
+<li>editor 富文本编辑器，可以对图片、文字进行编辑</li>
+<li>form 表单</li>
+<li>input 输入框</li>
+<li>label 用来改进表单组件的可用性</li>
+<li>picker 从底部弹起的滚动选择器</li>
+<li>picker-view 嵌入页面的滚动选择器</li>
+<li>picker-view-column 滚动选择器子项</li>
+<li>radio 单选项目</li>
+<li>radio-group 单项选择器，内部由多个 radio 组成</li>
+<li>slider 滑动选择器</li>
+<li>switch 开关选择器</li>
+<li>textarea 多行输入框</li>
+</ul>
+<p>*导航 *</p>
+<ul>
+<li>functional-page-navigator 仅在插件中有效，用于跳转到插件功能页</li>
+<li>navigator 页面链接</li>
+</ul>
+<p><em>媒体组件</em></p>
+<ul>
+<li>audio 音频</li>
+<li>camera 系统相机</li>
+<li>image 图片</li>
+<li>live-player 实时音视频播放（v2.9.1 起支持同层渲染）</li>
+<li>live-pusher 实时音视频录制（v2.9.1 起支持同层渲染）</li>
+<li>video 视频（v2.4.0 起支持同层渲染）</li>
+</ul>
+<p><em>地图</em></p>
+<ul>
+<li>map 地图（v2.7.0 起支持同层渲染）</li>
+</ul>
+<p><em>画布</em></p>
+<ul>
+<li>canvas 画布（2d 接口 v2.9.0 起支持同层渲染）</li>
+</ul>
+<p><em>开放能力</em></p>
+<ul>
+<li>web-view 承载网页的容器</li>
+<li>ad Banner 广告</li>
+<li>official-account 公众号关注组件</li>
+<li>open-data 用于展示微信开放的数据</li>
+</ul>
+<p><em>原生组件说明</em></p>
+<ul>
+<li>native-component ## 原生组件</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><blockquote>
+<p><a href="http://www.wxapp-union.com/forum.php?mod=viewthread&tid=1989" target="_blank" rel="noopener">从零开始：微信小程序新手入门宝典</a><br><a href="http://www.wxapp-union.com/portal.php?mod=view&aid=934" target="_blank" rel="noopener">一斤代码 ：如何为你的微信小程序瘦身？</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/01/17/wechat_1/">http://zws6672.top/2020/01/17/wechat_1/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/微信小程序/">微信小程序</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/01/21/centos-vm-install/" class="pre">centos 7（）在 vm 虚拟机中的安装</a><a href="/2020/01/05/mq_1/" class="next">RabbitMQ（一）入门</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、基础"><span class="toc-text">一、基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-概述"><span class="toc-text">1. 概述</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#什么是小程序"><span class="toc-text">什么是小程序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#特点"><span class="toc-text">特点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-资源"><span class="toc-text">2. 资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-云开发"><span class="toc-text">3. 云开发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-小程序减负"><span class="toc-text">4. 小程序减负</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-快捷键列表"><span class="toc-text">5. 快捷键列表</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#5-1-格式调整"><span class="toc-text">5.1 格式调整</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-2-光标相关"><span class="toc-text">5.2 光标相关</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-3-界面相关"><span class="toc-text">5.3 界面相关</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#二、实例入门"><span class="toc-text">二、实例入门</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-新建一个项目"><span class="toc-text">1. 新建一个项目</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、app-json"><span class="toc-text">三、app.json</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-实例"><span class="toc-text">1 实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-window"><span class="toc-text">2 window</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-tarBar"><span class="toc-text">3 tarBar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-networkTimeout"><span class="toc-text">4 networkTimeout</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四、常用组件"><span class="toc-text">四、常用组件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-视图容器"><span class="toc-text">1. 视图容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-基础内容"><span class="toc-text">2. 基础内容</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

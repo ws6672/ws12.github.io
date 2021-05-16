@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>Http 协议 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Http 协议</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">Http 协议</h1><div class="post-meta"><a href="/2021/01/09/http/#comments" class="comment-count"></a><p><span class="date">Jan 09, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h3 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h3><p>超文本传输协议（英文：HyperText Transfer Protocol，缩写：HTTP）是一种用于分布式、协作式和超媒体信息系统的应用层协议。HTTP是万维网的数据通信的基础。</p>
+<p>HTTP 协议的主要特点可概括如下：</p>
+<ul>
+<li>支持客户/服务器模式。</li>
+<li>简单快速：客户向服务器请求服务时，只需传送请求方法和路径。请求方法常用的有 GET、HEAD、POST。每种方法规定了客户与服务器联系的类型不同。由于 HTTP 协议简单，使得 HTTP 服务器的程序规模小，因而通信速度很快。</li>
+<li>灵活：HTTP 允许传输任意类型的数据对象（传输的类型由 Content-Type 加以标记）</li>
+<li>无连接：无连接的含义是限制每次连接只处理一个请求。服务器处理完客户的请求，并收到客户的应答后，即断开连接。采用这种方式可以节省传输时间。</li>
+<li>无状态：HTTP 协议是无状态协议。无状态是指协议对于事务处理没有记忆能力。</li>
+</ul>
+<p>HTTP 消息由客户端到服务器的请求和服务器到客户端的响应组成。请求消息和响应消息都是由开始行（对于请求消息，开始行就是请求行，对于响应消息，开始行就是状态行），消息报头（可选），空行（只 有 CRLF 的行），消息正文（可选）组成。</p>
+<h3 id="二、URL定义"><a href="#二、URL定义" class="headerlink" title="二、URL定义"></a>二、URL定义</h3><p>HTTP URL (URL 是一种特殊类型的 URI，包含了用于查找某个资源的足够的信息)的格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://host[:port][abs_path]</span><br></pre></td></tr></table></figure>
+
+<p>http各部分含义：</p>
+<ul>
+<li>http 表示要通过 HTTP 协议来定位网络资源</li>
+<li>host 表示合法的 Internet 主机域名或者 IP 地址</li>
+<li>port 指定一个端口号，为空则使用缺省端口 80</li>
+<li>abs_path 指定请求资源的 URI，如果不存在则为“/”</li>
+</ul>
+<h3 id="三、请求"><a href="#三、请求" class="headerlink" title="三、请求"></a>三、请求</h3><p>http 请求由三部分组成，分别是：</p>
+<ol>
+<li>请求行</li>
+</ol>
+<p>请求行以一个方法符号开头，以空格分开，后面跟着请求的 URI 和协议的版本，格式如下：<code>Method Request-URI HTTP-Version CRLF</code>。</p>
+<ul>
+<li><p>Method    请求方法</p>
+<ul>
+<li>GET    请求获取 Request-URI 所标识的资源</li>
+<li>POST    在 Request-URI 所标识的资源后附加新的数据</li>
+<li>HEAD    请求获取由 Request-URI 所标识的资源的响应消息报头</li>
+<li>PUT    请求服务器存储一个资源，并用 Request-URI 作为其标识</li>
+<li>DELETE    请求服务器删除 Request-URI 所标识的资源</li>
+<li>TRACE    请求服务器回送收到的请求信息，主要用于测试或诊断</li>
+<li>CONNECT    保留将来使用</li>
+<li>OPTIONS    请求查询服务器的性能，或者查询与资源相关的选项和需求</li>
+</ul>
+</li>
+<li><p>Request-URI    统一资源标识符</p>
+</li>
+<li><p>HTTP-Version 表示请求的HTTP 协议版本</p>
+</li>
+<li><p>CRLF 回车和换行（除了作为结尾的 CRLF 外，不允许出现单独的 CR 或 LF 字符）。</p>
+</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /form.html HTTP/1.1 (CRLF)</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>消息报头</li>
+<li>请求正文</li>
+</ol>
+<h3 id="四、响应"><a href="#四、响应" class="headerlink" title="四、响应"></a>四、响应</h3><p>在接收和解释请求消息后，服务器返回一个 HTTP 响应消息。HTTP 响应也是由三个部分组成，分别如下：</p>
+<ol>
+<li>状态行</li>
+</ol>
+<p>状态行格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HTTP-Version Status-Code Reason-Phrase CRLF</span><br><span class="line"></span><br><span class="line">-- HTTP-Version 表示服务器 HTTP 协议的版本</span><br><span class="line">-- Status-Code 表示服务器发回的响应状态代码</span><br><span class="line">-- Reason-Phrase 表示状态代码的文本描述</span><br></pre></td></tr></table></figure>
+
+<p>状态代码有三位数字组成，第一个数字定义了响应的类别，且有五种可能取值：</p>
+<ul>
+<li>1xx：指示信息–表示请求已接收，继续处理</li>
+<li>2xx：成功–表示请求已被成功接收、理解、接受</li>
+<li>3xx：重定向–要完成请求必须进行更进一步的操作</li>
+<li>4xx：客户端错误–请求有语法错误或请求无法实现</li>
+<li>5xx：服务器端错误–服务器未能实现合法的请求</li>
+</ul>
+<p>常见状态代码、状态描述、说明：</p>
+<ul>
+<li>200 OK //客户端请求成功</li>
+<li>400 Bad Request //客户端请求有语法错误，不能被服务器所理解</li>
+<li>401 Unauthorized // 请 求 未 经 授 权 ， 这 个 状 态 代 码 必 须 和 WWW-Authenticate 报</li>
+<li>//头域一起使用</li>
+<li>403 Forbidden //服务器收到请求，但是拒绝提供服务</li>
+<li>404 Not Found //请求资源不存在，eg：输入了错误的 URL</li>
+<li>500 Internal Server Error //服务器发生不可预期的错误</li>
+<li>503 Server Unavailable // 服 务 器 当 前 不 能 处 理 客 户 端 的 请 求 ， 一 段 时 间 后 ，</li>
+</ul>
+<ol start="2">
+<li>消息报头</li>
+<li>响应正文</li>
+</ol>
+<h3 id="五、消息报头"><a href="#五、消息报头" class="headerlink" title="五、消息报头"></a>五、消息报头</h3><p>HTTP 消息报头包括普通报头、请求报头、响应报头、实体报头。<br>每一个报头域都是由名字+“：”+空格+值 组成，消息报头域的名字是大小写无关的</p>
+<ol>
+<li>普通报头</li>
+</ol>
+<p>在普通报头中，有少数报头域用于所有的请求和响应消息，但并不用于被传输的实体，只用于传输的消息.</p>
+<ul>
+<li><p>Cache-Control 用于指定缓存指令，缓存指令是单向的（响应中出现的缓存指令在请求中未必会出现），且是独立的（一个消息的缓存指令不会影响另一个消息处理的缓存机制），HTTP1.0 使用的类似的报头域为 Pragma。请求时的缓存指令包括：no-cache（用于指示请求或响应消息不能缓存）、no-store、max-age、max-stale、min-fresh、only-if-cached;响 应 时 的 缓 存 指 令 包 括 ：public、 private、no-cache、 no-store 、no-transform、must-revalidate、proxy-revalidate、max-age、s-maxage.</p>
+<ul>
+<li>例如：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">response.sehHeader(&quot;Cache-Control&quot;,&quot;no-cache&quot;);</span><br><span class="line">//response.setHeader(&quot;Pragma&quot;,&quot;no-cache&quot;);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>Date 普通报头域表示消息产生的日期和时间。</p>
+</li>
+<li><p>Connection 普通报头域允许发送指定连接的选项。例如指定连接是连续，或者指定“close”选项，通知服务器，在响应完成后，关闭连接。</p>
+</li>
+</ul>
+<ol start="2">
+<li>请求报头</li>
+</ol>
+<p>请求报头允许客户端向服务器端传递请求的附加信息以及客户端自身的信息。</p>
+<ul>
+<li>Accept 请求报头域用于指定客户端接受哪些类型的信息。eg：<code>Accept：image/gif</code>，表明客户端希望接受 GIF 图象格式的资源；<code>Accept：text/html</code>，表明客户端希望接受 html 文本</li>
+<li>Accept-Charset 请 求 报 头 域 用 于 指 定 客 户 端 接 受 的 字 符 集 。 eg ：<code>Accept-Charset:iso-8859-1,gb2312</code>.如果在请求消息中没有设置这个域，缺省是任何字符集都可<br>以接受。</li>
+<li>Accept-Encoding 请求报头域类似于 Accept，但是它是用于指定可接受的内容编码。eg：<code>Accept-Encoding:gzip.deflate</code>.如果请求消息中没有设置这个域服务器假定客户端对各种内容编码都可以接受。</li>
+<li>Accept-Language 请 求 报 头 域 类 似 于 Accept ， 但 是 它 是 用 于 指 定 一 种 自 然 语 言 。 eg ：<code>Accept-Language:zh-cn</code>.如果请求消息中没有设置这个报头域，服务器假定客户端对各种语言都可以接受。</li>
+<li>Authorization 请求报头域主要用于证明客户端有权查看某个资源。当浏览器访问一个页面时，如果收到服务器的响应代码为 401（未授权），可以发送一个包含 Authorization 请求报头域的请求，要求服务器对其进行验证。</li>
+<li>Host 请求报头域主要用于指定被请求资源的 Internet 主机和端口号，它通常从 HTTP URL 中提取<br>出来的，eg：<code>Host：www.guet.edu.cn</code></li>
+<li>User-Agent 请求报头域允许客户端将它的操作系统、浏览器和其它属性告诉服务器</li>
+</ul>
+<ol start="3">
+<li>响应报头<br>响应报头允许服务器传递不能放在状态行中的附加响应信息，以及关于服务器的信息和对Request-URI 所标识的资源进行下一步访问的信息。</li>
+</ol>
+<ul>
+<li>Location 响应报头域用于重定向接受者到一个新的位置。Location 响应报头域常用在更换域名的<br>时候。</li>
+<li>Server 响应报头域包含了服务器用来处理请求的软件信息。与 User-Agent 请求报头域是相对应<br>的。eg:<code>Server：Apache-Coyote/1.1</code></li>
+<li>WWW-Authenticate 响应报头域必须被包含在 401（未授权的）响应消息中，客户端收到 401 响应消息时候，并发送 Authorization 报头域请求服务器对其进行验证时，服务端响应报头就包含该报头域。</li>
+</ul>
+<ol start="4">
+<li>实体报头（正文）</li>
+</ol>
+<p>请求和响应消息都可以传送一个实体。一个实体由实体报头域和实体正文组成，但并不是说实体报头域和实体正文要在一起发送，可以只发送实体报头域。实体报头定义了关于实体正文。</p>
+<ul>
+<li>Content-Encoding 实体报头域被用作媒体类型的修饰符，它的值指示了已经被应用到实体正文的附加内容的编码，因而要获得 Content-Type 报头域中所引用的媒体类型，必须采用相应的解码机制。Content-Encoding 这样用于记录文档的压缩方法，eg：<code>Content-Encoding：gzip</code></li>
+<li>Content-Language 实体报头域描述了资源所用的自然语言。没有设置该域则认为实体内容将提供给所有的语言阅读者。eg：<code>Content-Language:da</code></li>
+<li>Content-Length 实体报头域用于指明实体正文的长度，以字节方式存储的十进制数字来表示。</li>
+<li>Content-Type 实体报头域用语指明发送给接收者的实体正文的媒体类型。</li>
+<li>Last-Modified 实体报头域用于指示资源的最后修改日期和时间。</li>
+<li>Expires 实体报头域给出响应过期的日期和时间。为了让代理服务器或浏览器在一段时间以后更新缓存中(再次访问曾访问过的页面时，直接从缓存中加载，缩短响应时间和降低服务器负载)的页面，我们可以使用 Expires 实体报头域指定页面过期的时间。eg：<code>Expires：Thu，15 Sep 2006 16:23:12 GMT</code></li>
+</ul>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/01/09/http/">http://zws6672.top/2021/01/09/http/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/http/">http</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/01/09/java-util-0/" class="pre">Java集合（一）入门</a><a href="/2020/12/23/mq-2/" class="next">RabbitMQ（二）</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、概述"><span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、URL定义"><span class="toc-text">二、URL定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、请求"><span class="toc-text">三、请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、响应"><span class="toc-text">四、响应</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、消息报头"><span class="toc-text">五、消息报头</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

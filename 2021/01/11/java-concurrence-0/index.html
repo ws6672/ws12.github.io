@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>java 并发（二） 线程安全与同步 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">java 并发（二） 线程安全与同步</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">java 并发（二） 线程安全与同步</h1><div class="post-meta"><a href="/2021/01/11/java-concurrence-0/#comments" class="comment-count"></a><p><span class="date">Jan 11, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="一、基础"><a href="#一、基础" class="headerlink" title="一、基础"></a>一、基础</h1><ol>
+<li>概念</li>
+</ol>
+<ul>
+<li>进程：进程（Process）是计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位</li>
+<li>线程：是轻量级进程，是大多数操作系统中时序调度的基本单位。多个线程可以同时共享进程的内存空间，可以方便的进行数据共享，优于进程间的通讯。</li>
+<li>并发：多个任务交替使用CPU</li>
+<li>并行：多任务同时运行在多个CPU上</li>
+<li>异步与同步：着眼于消息通信机制，指请求。同步是请求得到响应前不继续运行；而异步可以在响应返回前继续执行其它任务。</li>
+<li>阻塞与非阻塞：等待调用结果（消息，返回值）时的状态，指调用者本身。阻塞会等待请求，非阻塞的如果请求没有结果，不会阻塞程序。</li>
+</ul>
+<ol start="2">
+<li>并发导致的问题</li>
+</ol>
+<p><strong><em>竞争条件</em></strong></p>
+<p>竞争条件指多个线程或者进程在读写一个共享数据时结果依赖于它们执行的相对时间的情形。竞争条件发生在当多个进程或者线程在读写数据时，其最终的的结果依赖于多个进程的指令执行顺序。访问的顺序决定了变量的结果，这称之为<code>竞争条件</code>。</p>
+<p><strong><em>递增计数器</em></strong></p>
+<p><img src="/image/java-bf/java-fxcaqxl.png" alt="不安全的序列生成器"></p>
+<p>如上图所示，是一个不安全的序列生成器；在i可能同时被两个线程得到数据，最后导致拿到一样的序号。Java中可以使用<code>AtomicLong</code>(原子变量)声明变量避免这种情况。</p>
+<p>所以，递增计数器（i++ -&gt; 读写改）也包含竞争条件，因为不是原子操作。</p>
+<p><strong><em>检查再运行</em></strong><br>检查再运行是竞争条件之一，在某个判断true/false的语句中，可能有多个线程得出相同的判断结果，然后会运行相同的代码，该代码段如果会导致判断发生变化，那么就可能会引发错误。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if(flag) &#123;</span><br><span class="line">	// 创建指定文件</span><br><span class="line">	...</span><br><span class="line">	flag=false;</span><br><span class="line">&#125;</span><br><span class="line">//在多线程中，会有多个线程创建文件，导致资源异常</span><br></pre></td></tr></table></figure>
+
+<p>单例模式中，懒汉式的代码就是检查再运行，所以存在竞争条件。</p>
+<p><strong><em>活跃度危险</em></strong><br>线程A在等待线程B的资源，线程B在等待线程A的资源导致死锁。</p>
+<p><strong><em>性能危险</em></strong><br>多线程中，线程时常需要挂起，这会带来巨大的系统开销。</p>
+<p><strong><em>非争取同步修复</em></strong></p>
+<ul>
+<li>不共享变量</li>
+<li>变量设置为不可变</li>
+<li>使用 synchronized</li>
+</ul>
+<p><strong><em>原子性</em></strong><br>原子操作是不会导致线程危机的。如果将<code>i++</code>加入代码中，那么它会是非线程安全的。因为，<code>i++</code>包含了读写存三个操作。</p>
+<p><img src="/image/java-bf/yzcz.png" alt="原子性"></p>
+<blockquote>
+<p>在并发编程中，需要关注如何在不可控的并发中保护数据、保持运行。<br>无状态对象永远是线程安全；无状态是指没有可变的全局变量。</p>
+</blockquote>
+<h1 id="二、线程安全"><a href="#二、线程安全" class="headerlink" title="二、线程安全"></a>二、线程安全</h1><ol>
+<li>this引用构造时逸出</li>
+</ol>
+<p>对象引用在当前范围之外的代码使用称之为发布；对象定义后没有被初始化就被<code>发布</code>称之为逸出。this引用构造时逸出，构造器代码没有运行结束，即便部分属性已经生成，也是不允许、不提倡的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class Memento &#123;</span><br><span class="line">    private String state;</span><br><span class="line">    public Memento(String state)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(state);</span><br><span class="line">        this.state=state;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>线程安全的几个方法</li>
+</ol>
+<p>可以同通过使用线程封闭技术实现线程安全，即不共享变量</p>
+<ul>
+<li>Ad-hoc 线程限制，是一种规范，由开发者实现，约束差</li>
+<li>栈封闭 使用Thread Local（非ThreadLocal类），全部使用局部变量</li>
+<li>使用ThreadLocal类</li>
+<li>使用不可变对象(final)，对于不变的变量应当尽可能使用它修饰</li>
+</ul>
+<ol start="3">
+<li>发布模式</li>
+</ol>
+<p>安全发布：</p>
+<ul>
+<li><img src="/image/java-bf/aqfbms.png" alt="安全发布模式"></li>
+</ul>
+<p>高效不可变对象：</p>
+<ul>
+<li>对象发布后在逻辑上不需要进行修改，但是可变的。</li>
+</ul>
+<p>发布模式：</p>
+<ul>
+<li><img src="/image/java-bf/fbms.png" alt="发布模式"></li>
+</ul>
+<ol start="4">
+<li>安全共享</li>
+</ol>
+<p><img src="/image/java-bf/aqgx.png" alt="安全共享"></p>
+<h3 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h3><p>使用synchronized避免多线程同时间访问同一数据</p>
+<p>synchronized 是JAVA同步机制中的关键字，是独占锁、互斥锁。可以用于备注方法、代码段。</p>
+<p>原子操作中的lock和unlock操作，对应JVM中的monitorenter和monitorexit指令。monitorenter和monitorexit指令是进入和退出同步块执行的指令，synchronized关键字底层的字节码指令中就包含了这两个命令，所以它可以锁住代码块。</p>
+<p><strong><em>特点</em></strong></p>
+<ul>
+<li>原子锁</li>
+<li>内存可见性<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// 方法锁</span><br><span class="line">public synchronized Memento getMemento()</span><br><span class="line">&#123;</span><br><span class="line">  return memento;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//代码段锁</span><br><span class="line">synchronized (MementoPattern.class) &#123;</span><br><span class="line">  System.out.println(&quot;初始状态:&quot;+or.getState());</span><br><span class="line">  cr.setMemento(or.createMemento()); //保存状态</span><br><span class="line">  or.setState(&quot;S1&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong><em>重进入机制</em></strong></p>
+<p><img src="/image/java-bf/xccjr.png" alt="重进入机制"></p>
+<p><strong><em>用锁保护状态</em></strong></p>
+<p>并非<em>写入</em>共享变量的时候才需要同步。我们可以在对象内部为共享变量添加锁。而对于涉及多个状态的不变约束，需要用同一个锁进行保护。</p>
+<p><img src="/image/java-bf/sbh.png" alt="锁保护"></p>
+<h3 id="共享对象（volatile）"><a href="#共享对象（volatile）" class="headerlink" title="共享对象（volatile）"></a>共享对象（volatile）</h3><p><strong><em>重排序问题</em></strong></p>
+<p>重排序是指编译器和处理器为了优化程序性能而对指令序列进行重新排序的一种手段。只要重排序保证了不会影响本线程的结果，就不能保证它的操作按照程序的既定顺序运行——即便重排序会影响其它线程的结果。指令重排序会导致内存的可见性问题。</p>
+<p>特点：</p>
+<ul>
+<li>数据依赖性（针对单个处理器而已） 带写操作的数据具有依赖性，不会随意调整代码顺序。</li>
+<li>as-if-serial 不管怎么重排序，（单线程）程序的执行结果不能被改变。编译器、runtime和处理器都必须遵守as-if-serial语义。</li>
+<li>happens-before   如果一个操作执行的结果需要对另一个操作可见，那么这两个操作之间必须要存在happens-before关系。这里提到的两个操作既可以是在一个线程之内，也可以是在不同线程之间。</li>
+</ul>
+<p><strong><em>非原子的64位</em></strong></p>
+<p><img src="/image/java-bf/fyz64.png" alt="非原子的64位"></p>
+<blockquote>
+<p>访问共享变量式，要求多线程由同一个锁进行同步，也是为了避免读取到过期数据。</p>
+</blockquote>
+<p><strong><em>volatile的使用</em></strong></p>
+<p><img src="/image/java-bf/volatile.png" alt="volatile"></p>
+<p><code>volatile</code>的典型应用之一就是声明状态标记，例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">volatile boolean flag = true;</span><br><span class="line">@Test</span><br><span class="line">public void test() &#123;</span><br><span class="line">    if (flag) &#123;</span><br><span class="line">        System.out.println(flag);</span><br><span class="line">        flag = false;</span><br><span class="line">        // 业务代码</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/java-bf/volatile2.png" alt="volatile"></p>
+<blockquote>
+<p><code>volatile</code>不可以过度使用。例如，它不可以用于标注递增数（i++），因为它不能使自增操作原子化。<br><em>加锁可以保证原子性与可见性，而使用 volatile只能保证可见性，无法使操作原子化。</em></p>
+</blockquote>
+<h3 id="final"><a href="#final" class="headerlink" title="final"></a>final</h3><p>final关键字意为不可改变，类不可继承、方法不可重写、属性不可修改。对于集合对象声明为final指的是引用不能被更改，但是你可以向其中增加，删除或者改变内容。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//初始化后不能被修改</span><br><span class="line">final String str =&quot;STR&quot;; </span><br><span class="line"></span><br><span class="line">//方法不可重写</span><br><span class="line">public final void finalMethod() &#123;</span><br><span class="line">    System.out.println(&quot;finalMathod&quot;);</span><br><span class="line">&#125;</span><br><span class="line">//类不可继承</span><br><span class="line">final class FinalClass &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于final域，编译器和处理器要遵守两个重排序规则：</p>
+<ul>
+<li>在构造函数内对一个final域的写入，与随后把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序（编译器会在final域的写之后，插入一个StoreStore屏障）。在对象引用为任意线程可见之前，对象的final域已经被正确的初始化过了。</li>
+<li>初次读一个包含final域的对象的引用，与随后初次读这个final域，这两个操作之间不能重排序（编译器会在读final域操作的前面插入一个LoadLoad屏障）。只有得到了包含final域对象的引用，才能后读到final域的值</li>
+</ul>
+<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><ol>
+<li>wait、notify</li>
+</ol>
+<p>wait()、notify/notifyAll() 方法是Object的本地final方法，无法被重写。wait()使当前线程阻塞，前提是 必须先获得锁，一般配合synchronized 关键字使用，即，一般在synchronized 同步代码块里使用 wait()、notify/notifyAll() 方法。</p>
+<ul>
+<li>wait()方法。当线程执行wait()方法时候，会释放当前的锁，然后让出CPU，进入等待状态。</li>
+<li>notify/notifyAll()方法。只有当 notify/notifyAll() 被执行时候，才会唤醒一个或多个正处于等待状态的线程，然后继续往下执行，直到执行完synchronized 代码块的代码或是中途遇到wait() ，再次释放锁。</li>
+</ul>
+<ol start="2">
+<li>Lock、Atomic、ThreadLocal</li>
+</ol>
+<p>Lock接口提供了与synchronized相似的同步功能，和synchronized（隐式的获取和释放锁，主要体现在线程进入同步代码块之前需要获取锁退出同步代码块需要释放锁）不同的是，Lock在使用的时候是显示的获取和释放锁。虽然Lock接口缺少了synchronized隐式获取释放锁的便捷性，但是对于锁的操作具有更强的可操作性、可控制性以及提供可中断操作和超时获取锁等机制。Lock接口如果不释放锁，那么会触发异常。</p>
+<p>Atomic包是Java.util.concurrent下的另一个专门为线程安全设计的Java包，包含多个原子操作类。这个包里面提供了一组原子变量类。</p>
+<p>ThreadLocal是一个本地线程副本变量工具类。主要用于将私有线程和该线程存放的副本对象做一个映射，各个线程之间的变量互不干扰，在高并发场景下，可以实现无状态的调用，特别适用于 各个线程依赖不通的变量值完成操作的场景。</p>
+<h1 id="三、多线程实现方法"><a href="#三、多线程实现方法" class="headerlink" title="三、多线程实现方法"></a>三、多线程实现方法</h1><ol>
+<li>同步线程（在执行完任务之后无法获取执行结果）</li>
+</ol>
+<ul>
+<li>通过继承Thread类，重写Thread的run()方法，将线程运行的逻辑放在其中</li>
+<li>通过实现Runnable接口，实例化Thread类</li>
+</ul>
+<ol start="2">
+<li>异步</li>
+</ol>
+<p>Callable位于java.util.concurrent包下，它也是一个接口，在它里面也只声明了一个方法，只不过这个方法叫做call()：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public interface Callable&lt;V&gt; &#123;</span><br><span class="line">    /**</span><br><span class="line">     * Computes a result, or throws an exception if unable to do so.</span><br><span class="line">     *</span><br><span class="line">     * @return computed result</span><br><span class="line">     * @throws Exception if unable to compute a result</span><br><span class="line">     */</span><br><span class="line">    V call() throws Exception;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Callable 意为可回调的，一般是和ExecutorService配合来使用的。</p>
+<ol start="2">
+<li>Future就是对于具体的Runnable或者Callable任务的执行结果进行取消、查询是否完成、获取结果。必要时可以通过get方法获取执行结果，该方法会阻塞直到任务返回结果。</li>
+</ol>
+<p>Future类位于java.util.concurrent包下，它是一个接口。</p>
+<ol start="3">
+<li>ExecutorService 是一个线程池的一个接口类，用于创建线程池。</li>
+</ol>
+<h1 id="四、参考"><a href="#四、参考" class="headerlink" title="四、参考"></a>四、参考</h1><blockquote>
+<p><a href="https://blog.csdn.net/ym123456677/article/details/79700623" target="_blank" rel="noopener">JAVA并发理解之重排序问题</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/01/11/java-concurrence-0/">http://zws6672.top/2021/01/11/java-concurrence-0/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/并发/">并发</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/01/14/java-concurrence-2/" class="pre">java 并发（三）数据的并发</a><a href="/2021/01/10/linux-command-1/" class="next">linux常用命令（CentOS7）</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、基础"><span class="toc-text">一、基础</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、线程安全"><span class="toc-text">二、线程安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#synchronized"><span class="toc-text">synchronized</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#共享对象（volatile）"><span class="toc-text">共享对象（volatile）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#final"><span class="toc-text">final</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其它"><span class="toc-text">其它</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#三、多线程实现方法"><span class="toc-text">三、多线程实现方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四、参考"><span class="toc-text">四、参考</span></a></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

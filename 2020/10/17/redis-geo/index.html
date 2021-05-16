@@ -1,0 +1,93 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>redis-geo | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">redis-geo</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">redis-geo</h1><div class="post-meta"><a href="/2020/10/17/redis-geo/#comments" class="comment-count"></a><p><span class="date">Oct 17, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h3 id="一、入门"><a href="#一、入门" class="headerlink" title="一、入门"></a>一、入门</h3><p>Redis GEO 主要用于存储地理位置信息，并对存储的信息进行操作，该功能在 Redis 3.2 版本新增。</p>
+<p>相关命令</p>
+<ul>
+<li>geoadd：添加坐标。</li>
+<li>geopos：获取坐标。</li>
+<li>geodist：计算坐标间的距离。</li>
+<li>georadius：根据用户给定的经纬度坐标来获取指定范围内的地理位置集合。</li>
+<li>georadiusbymember：根据储存在位置集合里面的某个地点获取指定范围内的地理位置集合。</li>
+<li>geohash：返回一个或多个位置对象的 geohash 值</li>
+</ul>
+<h4 id="GeoHash"><a href="#GeoHash" class="headerlink" title="GeoHash"></a>GeoHash</h4><p>Redis GEO模块使用了GeoHash 算法，可以实现“附近的人”之类的业务。Geohash算法就是将经纬度编码，将二维变一维，给地址位置分区的一种算法。地球上的经度范围就是[-180， 180]，纬度范围就是[-90，90]，以此可以将世界分为四个部分，还可以将每个部分都分成四个部分，那么区域更小、更精确。</p>
+<p><strong><em>例如</em></strong><br><img src="/image/redis/geohash.png" alt="geohash"></p>
+<p>1.转换(按上图方式转换)<br>    经度转换结果：<code>10111000110001111001</code><br>    纬度转换结果：<code>11010010110001000100</code><br>2.经纬度合并<br>    经度占偶数位，纬度占奇数位<br>    <code>11100 11101 00100 01111 00000 01101 01011 00001</code><br>3.base32转换<br>    <code>wx4g0ec1</code></p>
+<h4 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h4><p><strong><em>GEOADD</em></strong></p>
+<p>1.<code>GEOADD key longitude latitude member [longitude latitude member …]</code></p>
+<ol start="2">
+<li>将给定的空间元素（纬度、经度、名字）添加到指定的键里面。 这些数据会以有序集合的形式被储存在键里面， 从而使得像 GEORADIUS 和 GEORADIUSBYMEMBER 这样的命令可以在之后通过位置查询取得这些元素。<br>GEOADD 命令以标准的 x,y 格式接受参数， 所以用户必须先输入经度， 然后再输入纬度。 GEOADD 能够记录的坐标是有限的： 非常接近两极的区域是无法被索引的。 精确的坐标限制由 EPSG:900913 / EPSG:3785 / OSGEO:41001 等坐标系统定义， 具体如下：</li>
+</ol>
+<ul>
+<li>有效的经度介于 -180 度至 180 度之间。</li>
+<li>有效的纬度介于 -85.05112878 度至 85.05112878 度之间。</li>
+</ul>
+<ol start="3">
+<li>返回值：新添加到键里面的空间元素数量， 不包括那些已经存在但是被更新的元素。</li>
+</ol>
+<p><strong><em>GEOPOS</em></strong></p>
+<p>1.<code>GEOPOS key member [member …]</code></p>
+<ol start="2">
+<li>从键里面返回所有给定位置元素的位置（经度和纬度）。因为 GEOPOS 命令接受可变数量的位置元素作为输入， 所以即使用户只给定了一个位置元素， 命令也会返回数组回复。</li>
+<li>返回值：GEOPOS 命令返回一个数组， 数组中的每个项都由两个元素组成： 第一个元素为给定位置元素的经度， 而第二个元素则为给定位置元素的纬度。 当给定的位置元素不存在时， 对应的数组项为空值。</li>
+</ol>
+<p><strong><em>GEODIST</em></strong></p>
+<p>1.<code>GEODIST key member1 member2 [unit]</code></p>
+<ol start="2">
+<li>返回两个给定位置之间的距离。如果两个位置之间的其中一个不存在， 那么命令返回空值。</li>
+</ol>
+<p>指定单位的参数 unit 必须是以下单位的其中一个：</p>
+<ul>
+<li>m 表示单位为米(默认)</li>
+<li>km 表示单位为千米</li>
+<li>mi 表示单位为英里</li>
+<li>ft 表示单位为英尺</li>
+</ul>
+<ol start="3">
+<li>返回值：计算出的距离会以双精度浮点数的形式被返回。 如果给定的位置元素不存在， 那么命令返回空值。</li>
+</ol>
+<p><strong><em>GEORADIUS</em></strong></p>
+<p>1.<code>GEORADIUS key longitude latitude radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [ASC|DESC] [COUNT count]</code></p>
+<ol start="2">
+<li><p>以给定的经纬度为中心， 返回键包含的位置元素当中， 与中心的距离不超过给定最大距离的所有位置元素。<br> longitude 经度<br> latitude 纬度<br> radius m|km|ft|mi 半径<br> WITHDIST：在返回位置元素的同时，将位置元素与中心之间的距离也一并返回。 距离的单位和用户给定的范围单位保持一致。<br> WITHCOORD：将位置元素的经度和维度也一并返回。<br> WITHHASH：以 52 位有符号整数的形式，返回位置元素经过原始 geohash 编码的有序集合分值。这个选项主要用于底层应用或者调试， 实际中的作用并不大。<br> ASC|DESC：按从近到远|从远到近的方式返回位置元素<br> COUNT：限制返回元素个数</p>
+</li>
+<li><p>返回值：GEORADIUS 命令返回一个数组</p>
+</li>
+</ol>
+<p><strong><em>GEORADIUSBYMEMBER</em></strong></p>
+<p>1.<code>GEORADIUSBYMEMBER key member radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [ASC|DESC] [COUNT count]</code></p>
+<ol start="2">
+<li>这个命令和 GEORADIUS 命令一样， 都可以找出位于指定范围内的元素， 但是 GEORADIUSBYMEMBER 的中心点是由给定的位置元素决定的， 而不是像 GEORADIUS 那样， 使用输入的经度和纬度来决定中心点。</li>
+<li>返回值：一个数组， 数组中的每个项表示一个范围之内的位置元素。</li>
+</ol>
+<p><strong><em>GEOHASH</em></strong></p>
+<p>1.<code>GEOHASH key member [member …]</code></p>
+<ol start="2">
+<li>返回一个或多个位置元素的 Geohash 表示。</li>
+<li>返回值：一个数组， 数组的每个项都是一个 geohash 。 命令返回的 geohash 的位置与用户给定的位置元素的位置一一对应。</li>
+</ol>
+<h3 id="二、使用"><a href="#二、使用" class="headerlink" title="二、使用"></a>二、使用</h3><ol start="0">
+<li><p>避免显示中文乱码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --raw</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加测试数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">geoadd test 117.68942402507139 39.38156099601735 &quot;天津市天津市宁河县县城&quot; </span><br><span class="line">geoadd test 117.80726908576221 39.36186975004569 &quot;天津市天津市宁河县芦台镇&quot; </span><br><span class="line">geoadd test 117.71584605379024 39.4933465148498 &quot;天津市天津市宁河县宁河镇&quot; </span><br><span class="line">geoadd test 117.8501844708907 39.42779849732088 &quot;天津市天津市宁河县苗庄镇&quot; </span><br><span class="line">geoadd test 117.78543846525872 39.531225826084246 &quot;天津市天津市宁河县丰台镇&quot; </span><br><span class="line">geoadd test 117.88141914455765 39.54872385385267 &quot;天津市天津市宁河县岳龙镇&quot;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取地点坐标</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; geopos test &quot;天津市天津市宁河县县城&quot;</span><br><span class="line">1) 1) &quot;117.68942266702651978&quot;</span><br><span class="line">   2) &quot;39.38156089934552284&quot;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取两个地点的距离</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; GEODIST test &quot;天津市天津市宁河县芦台镇&quot; &quot;天津市天津市宁河县丰台镇&quot; km</span><br><span class="line">&quot;18.9301&quot;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取半径内最近的地点</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; georadiusbymember test &quot;天津市天津市宁河县县城&quot; 13 km</span><br><span class="line">天津市天津市宁河县县城</span><br><span class="line">天津市天津市宁河县宁河镇</span><br><span class="line">天津市天津市宁河县芦台镇</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>获取GEOHASH算法转换结果<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; GEOHASH test &quot;天津市天津市宁河县县城&quot;</span><br><span class="line">wx58n14y4r0</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="三、参考文章"><a href="#三、参考文章" class="headerlink" title="三、参考文章"></a>三、参考文章</h3><blockquote>
+<p><a href="https://www.redis.net.cn/order/3689.html" target="_blank" rel="noopener">Redis GEORADIUS 命令 </a><br><a href="https://www.jianshu.com/p/2fd0cf12e5ba" target="_blank" rel="noopener">Geohash算法原理及实现</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/10/17/redis-geo/">http://zws6672.top/2020/10/17/redis-geo/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/10/17/redis-memory/" class="pre">Redis 内存命令</a><a href="/2020/10/16/redis-stream/" class="next">redis Stream（消息队列）</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、入门"><span class="toc-text">一、入门</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#GeoHash"><span class="toc-text">GeoHash</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#相关命令"><span class="toc-text">相关命令</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、使用"><span class="toc-text">二、使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、参考文章"><span class="toc-text">三、参考文章</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

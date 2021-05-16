@@ -1,0 +1,218 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>牛客网-201015-201018 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">牛客网-201015-201018</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">牛客网-201015-201018</h1><div class="post-meta"><a href="/2020/10/18/nk-201015-201018/#comments" class="comment-count"></a><p><span class="date">Oct 18, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h3 id="一、201015-错题"><a href="#一、201015-错题" class="headerlink" title="一、201015 错题"></a>一、201015 错题</h3><ol>
+<li>在JAVA中， 下列标识符合法的是（C）<br>A.3kyou<br>B.@163<br>C.name<br>F.while</li>
+</ol>
+<blockquote>
+<p>解析：JAVA中,标识符, 指用于给变量.类.方法名 等命名的名称.<br>1.标识以数字,字符,下划线,以及美元$符组成.（不能包括@、%、空格等）<br>2.不能以数字开头<br>3.不能与JAVA关键字重复<br>4,严格区分的大小写,（Flag和flag是两个变量）</p>
+</blockquote>
+<hr>
+<ol start="2">
+<li>以下代码的循环次数是(D)<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">public static void main(String args[]) &#123;</span><br><span class="line">int i = 7;</span><br><span class="line">do &#123;</span><br><span class="line">System.out.println(--i);</span><br><span class="line">--i;</span><br><span class="line">&#125; while (i != 0);</span><br><span class="line">System.out.println(i);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>A.0<br>B.1<br>C.7<br>D.无限次</p>
+<blockquote>
+<p>解析：循环到第四次，跳过0，直接到-1，陷入死循环</p>
+</blockquote>
+<hr>
+<ol start="3">
+<li>若有下列定义，下列哪个表达式返回false？（B）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String s = &quot;hello&quot;;</span><br><span class="line">String t = &quot;hello&quot;;</span><br><span class="line">char c[] = &#123;&apos;h&apos;,&apos;e&apos;,&apos;l&apos;,&apos;l&apos;,&apos;o&apos;&#125; ;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>A.s.equals(t);<br>B.t.equals(c);<br>C.s==t;<br>D.t.equals(new String(“hello”));</p>
+<blockquote>
+<p>解析：String类的equals方法会判断比较的对象是不是字符串，不是就直接返回false</p>
+</blockquote>
+<hr>
+<ol start="4">
+<li>表达式(short)10/10.2*2运算后结果是什么类型？(C)<br>A.short<br>B.int<br>C.double<br>D.float</li>
+</ol>
+<blockquote>
+<p>解析：(short)10 会把10转换为short类型，而不是结果；然后算式中存在浮点型数据，存在类型提升，浮点型类型提升默认是double</p>
+</blockquote>
+<hr>
+<ol start="5">
+<li>下面程序的输出结果是什么(C)</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public class A2&#123; </span><br><span class="line">public static void main(String[] args)&#123;</span><br><span class="line">    int[] a=&#123;2,4,6,8,3,6,9,12&#125;;</span><br><span class="line">    doSomething(a,0,a.length-1);</span><br><span class="line">    for(int i=0;i&lt;=a.length-1;i++)</span><br><span class="line">    System.out.print(a[i]+&quot; &quot;);</span><br><span class="line">&#125; </span><br><span class="line">private static void doSomething(int[] a,int start,int end)&#123;</span><br><span class="line">    if(start&lt;end)&#123;</span><br><span class="line">        int p=core(a,start,end);</span><br><span class="line">        doSomething(a,start,p-1);</span><br><span class="line">        doSomething(a,p+1,end);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">private static int core(int[] a,int start,int end)</span><br><span class="line">&#123;</span><br><span class="line">    int x=a[end];</span><br><span class="line">    int i=start;</span><br><span class="line">    for(int j=start;j&lt;=end-1;j++)&#123;</span><br><span class="line">        if(a[j]&gt;=x)&#123;</span><br><span class="line">            swap(a,i,j);</span><br><span class="line">            i++;//交换了几次 </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;//把最大的放到最后</span><br><span class="line">    swap(a,i,end);//把最大的放到i的位置 </span><br><span class="line">    return i;</span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">private static void swap(int[] a,int i,int j) </span><br><span class="line">&#123;</span><br><span class="line">    int tmp=a[i];</span><br><span class="line">    a[i]=a[j];</span><br><span class="line">    a[j]=tmp;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.找到最大值<br>B.找到最小值<br>C.从大到小的排序<br>D.从小到大的排序</p>
+<blockquote>
+<p>解析：按照快排的思路排序数据，和末尾值比较，比它大的跳过，小的和前面的数据交换</p>
+</blockquote>
+<hr>
+<ol start="6">
+<li>在java7中,下列哪个说法是正确的是（C）<br>A.ConcurrentHashMap 使用synchronized关键字保证线程安全<br>B.HashMap 实现了Collection接口<br>C.Arrays.asList方法返回java.util.ArrayList对象<br>D.SimpleDateFormat对象是线程不安全的</li>
+</ol>
+<blockquote>
+<p>解析: ConcurrentHashMap采用分段加锁的机制;<br>HashMap实现了Map接口;<br>SimpleDateFormat对象是线程安全的.</p>
+</blockquote>
+<hr>
+<ol start="7">
+<li>jre 判断程序是否执行结束的标准是（A）<br>A.所有的前台线程执行完毕<br>B.所有的后台线程执行完毕<br>C.所有的线程执行完毕<br>D.和以上都无关</li>
+</ol>
+<blockquote>
+<p>解析: 使用Thread建立的线程默认情况下是前台线程，在进程中，只要有一个前台线程未退出，进程就不会终止。主线程就是一个前台线程。而后台线程不管线程是否结束，只要所有的前台线程都退出（包括正常退出和异常退出）后，进程就会自动终止。</p>
+</blockquote>
+<hr>
+<ol start="8">
+<li>下列代码片段中，存在编译错误的语句是( B C D)<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">byte b1=1,b2=2,b3,b6,b8;</span><br><span class="line">final byte b4=4,b5=6,b7;</span><br><span class="line">b3=(b1+b2);  /*语句1*/</span><br><span class="line">b6=b4+b5;    /*语句2*/</span><br><span class="line">b8=(b1+b4);  /*语句3*/</span><br><span class="line">b7=(b2+b5);  /*语句4*/</span><br><span class="line">System.out.println(b3+b6);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>A.语句2<br>B.语句1<br>C.语句3<br>D.语句4</p>
+<blockquote>
+<p>解析：语句1 3 4 结果被转换成int，类型错误；语句2中 b4、b5是final不会进行类型转换，类型依旧是byte，结果正确</p>
+</blockquote>
+<hr>
+<ol start="9">
+<li>下列寻址方式中，操作数有效地址 E=(Rb)+A(A为形式地址)的是( A )。<br>A.基址寻址<br>B.变址寻址<br>C.相对寻址<br>D.间接寻址</li>
+</ol>
+<blockquote>
+<p>解析：基址寻址计算公式：EA = (BR) + A<br>变址寻址计算公式：EA = (IX) + A</p>
+</blockquote>
+<h3 id="二、201016-错题"><a href="#二、201016-错题" class="headerlink" title="二、201016 错题"></a>二、201016 错题</h3><p>1.下面这段程序的输出结果是（A）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class Main &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        split(12);</span><br><span class="line">    &#125;</span><br><span class="line">    public static int split(int number) &#123;</span><br><span class="line">	if (number &gt; 1) &#123;</span><br><span class="line">		if (number % 2 != 0) System.out.print(split((number + 1) / 2)); //语句一</span><br><span class="line">			System.out.print(split(number / 2)); //语句二</span><br><span class="line">	&#125;</span><br><span class="line">		return number;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.12136<br>B.63121<br>C.61213<br>D.11236</p>
+<blockquote>
+<p>解析：<br>12进栈，执行语句二，结果为6；6<br>6进栈，执行语句二，结果为3；63<br>3进栈，执行语句一，结果为2；6312<br>    2进栈，执行语句二，结果为1；631<br>3进栈，执行语句二，结果为1。63121</p>
+</blockquote>
+<hr>
+<p>2.在Java图形用户界面编程中，如果需要显示信息，一般是使用（A）类的对象来实现。<br>A.JLabel 提示信息<br>B.JButton 按钮<br>C.JTextArea 单行文本<br>D.JtextField 多行文本</p>
+<hr>
+<p>3.关于 Socket 通信编程，以下描述正确的是：（C）<br>A.客户端通过new ServerSocket()创建TCP连接对象<br>B.客户端通过TCP连接对象调用accept()方法创建通信的Socket对象<br>C.客户端通过new Socket()方法创建通信的Socket对象<br>D.服务器端通过new ServerSocket()创建通信的Socket对象</p>
+<blockquote>
+<p>解析：客户端通过new Socket()方法创建通信的Socket对象；服务器端通过new ServerSocket()创建TCP连接对象  accept接纳客户端请求</p>
+</blockquote>
+<hr>
+<p>4.以下哪个命令用于查看tar（backup.tar）文件的内容而不提取它?（B）<br>A.tar -xvf backup.tar<br>B.tar -tvf backup.tar<br>C.tar -svf backup.tar<br>D.none of these</p>
+<blockquote>
+<p>解析：tar解压选项如下<br>-c: 建立压缩档案<br>-x：解压<br>-t：查看内容<br>-r：向压缩归档文件末尾追加文件<br>-u：更新原压缩包中的文件</p>
+</blockquote>
+<hr>
+<p>5.下面关于程序编译说法正确的是（C）<br>A.java语言是编译型语言，会把java程序编译成二进制机器指令直接运行<br>B.java编译出来的目标文件与具体操作系统有关<br>C.java在运行时才进行翻译指令<br>D.java编译出来的目标文件，可以运行在任意jvm上</p>
+<blockquote>
+<p>解析：低版本jvm无法运行高版本的JDK代码</p>
+</blockquote>
+<hr>
+<p>6.下面有关 JAVA 异常类的描述,说法正确的有(A B C)<br>A.异常的继承结构:基类为 Throwable,Error 和 Exception 。实现 Throwable,RuntimeException 和 IOException 等继承Exception<br>B.非 RuntimeException 一般是外部错误(不考虑Error的情况下),其可以在当前类被 try{}catch 语句块所捕获<br>C.Error 类体系描述了 Java 运行系统中的内部错误以及资源耗尽的情形,Error 不需要捕捉<br>D.RuntimeException 体系包括错误的类型转换、数组越界访问和试图访问空指针等等,必须 被 try{}catch 语句块所捕获</p>
+<hr>
+<p>7.Java语言中，下面哪个语句是创建数组的正确语句？(A B D E)<br>A.float f[][] = new float[6][6];<br>B.float []f[] = new float[6][6];<br>C.float f[][] = new float[][6];<br>D.float [][]f = new float[6][6];<br>E.float [][]f = new float[6][];</p>
+<hr>
+<p>8.截止JDK1.8版本,java并发框架支持锁包括?（ A B D）<br>A.读写锁<br>B.自旋锁<br>C.X锁<br>D.乐观锁<br>E.排他锁</p>
+<hr>
+<p>9.下面哪些赋值语句是正确的（A B D ）<br>A.long test=012<br>B.float f=-412<br>C.int other =(int)true<br>D.double d=0x12345678<br>E.byte b=128</p>
+<hr>
+<p>10.类之间存在以下几种常见的关系(ABC)<br>A.“USES-A”关系<br>B.“HAS-A”关系<br>C.“IS-A”关系<br>D.“INHERIT-A”关系.</p>
+<blockquote>
+<p>解析：USES-A：依赖关系，A类会用到B类,A类方法中的参数包含了B类。<br>关联关系：A类会用到B类，这是一种强依赖关系，是长期的并非偶然。在代码中的表现为：A类的成员变量中含有B类。<br>HAS-A：组合关系，拥有关系(整体和部分的关系)<br>IS-A：继承关系</p>
+</blockquote>
+<hr>
+<h3 id="三、201017-错题"><a href="#三、201017-错题" class="headerlink" title="三、201017 错题"></a>三、201017 错题</h3><p>1.下面有关java实例变量,局部变量,类变量和final变量的说法，错误的是？(B)<br>A.实例变量指的是类中定义的变量，即成员变量，如果没有初始化，会有默认值。<br>B.局部变量指的是在方法中定义的变量，如果没有初始化，会有默认值<br>C.类变量指的是用static修饰的属性<br>D.final变量指的是用final 修饰的变量</p>
+<blockquote>
+<p>解析：局部变量必须有初始值。</p>
+</blockquote>
+<hr>
+<p>2.java程序内存泄露的最直接表现是（C ）<br>A.频繁FullGc<br>B.jvm崩溃<br>C.程序抛内存控制的Exception<br>D.java进程异常消失</p>
+<blockquote>
+<p>解析：频繁FullGc，老年代回收垃圾<br>jvm崩溃，内存溢出或设置了错误的JVM参数<br>程序抛内存控制的Exception，内存泄露导致内存溢出</p>
+</blockquote>
+<hr>
+<p>3.Test.main()函数执行后的输出是（ B）<br>A.6 7 7<br>B.22 34 17<br>C.22 74 74<br>D.11 17 34</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        System.out.println(new B().getValue());</span><br><span class="line">    &#125;</span><br><span class="line">    static class A &#123;</span><br><span class="line">        protected int value;</span><br><span class="line">        public A (int v) &#123;</span><br><span class="line">            setValue(v);</span><br><span class="line">        &#125;</span><br><span class="line">        public void setValue(int value) &#123;</span><br><span class="line">            this.value= value;</span><br><span class="line">        &#125;</span><br><span class="line">        public int getValue() &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                value ++;</span><br><span class="line">                return value;</span><br><span class="line">            &#125; finally &#123;</span><br><span class="line">                this.setValue(value);</span><br><span class="line">                System.out.println(value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    static class B extends A &#123;</span><br><span class="line">        public B () &#123;</span><br><span class="line">            super(5);</span><br><span class="line">            setValue(getValue()- 3);</span><br><span class="line">        &#125;</span><br><span class="line">        public void setValue(int value) &#123;</span><br><span class="line">            super.setValue(2 * value);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>解析：需要遵循一个原则，即： 调用的方法都是实例化的子类中的重写方法，只有明确调用了super.xxx关键词或者是子类中没有该方法时，才会去调用父类相同的同名方法。因为上下文是子类，而不是父类。使用super才会将上下文切换为父类。</p>
+</blockquote>
+<hr>
+<p>4.以下程序段执行后将有（C）个字节被写入到文件afile.txt中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">try &#123;</span><br><span class="line">    FileOutputStream fos = new FileOutputStream(&quot;afile.txt&quot;);</span><br><span class="line">    DataOutputStream dos = new DataOutputStream(fos);</span><br><span class="line">    dos.writeInt(3);</span><br><span class="line">    dos.writeChar(1);</span><br><span class="line">    dos.close();</span><br><span class="line">    fos.close();</span><br><span class="line">&#125; catch (IOException e) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.3<br>B.5<br>C.6<br>D.不确定，与软硬件环境相关</p>
+<blockquote>
+<p>解析：byte 1个字节<br>short  2个字节<br>int 4个字节<br>long 8个字节<br>float 4个字节<br>double 8个字节<br>char 2个字节<br>boolean 1个字节或4个字节，在java规范2中，如果boolean用于声明一个基本类型变量时占4个字节，如果声明一个数组类型的时候，那么数组中的每个元素占1个字节</p>
+</blockquote>
+<hr>
+<p>5.下面说法正确的是？（BC）<br>A.调用Thread的sleep()方法会释放锁，调用wait()方法不释放锁<br>B.一个线程调用yield方法，可以使具有相同优先级线程获得处理器<br>C.在Java中，高优先级的可运行的线程会抢占低优先级线程的资源<br>D.java中，线程可以调用yield方法使比自己低优先级的线程运行</p>
+<blockquote>
+<p>解析：yiled方法将资源让给相同优先级的线程；<br>sleep()方法、wait()方法都会释放锁</p>
+</blockquote>
+<hr>
+<p>6.常用的servlet包的名称是？（BD）<br>A.java.servlet<br>B.javax.servlet<br>C.servlet.http<br>D.javax.servlet.http</p>
+<hr>
+<p>7.Servlet的生命周期可以分为初始化阶段、运行阶段和销毁阶段三个阶段，以下过程属于初始化阶段是（ACD）。<br>A.加载Servlet类及.class对应的数据<br>B.创建servletRequest和servletResponse对象<br>C.创建ServletConfig对象<br>D.创建Servlet对象</p>
+<hr>
+<p>8.Java是一门支持反射的语言,基于反射为Java提供了丰富的动态性支持，下面关于Java反射的描述，哪些是错误的：( A D F )<br>A.Java反射主要涉及的类如Class, Method, Filed,等，他们都在java.lang.reflet包下<br>B.通过反射可以动态的实现一个接口，形成一个新的类，并可以用这个类创建对象，调用对象方法<br>C.通过反射，可以突破Java语言提供的对象成员、类成员的保护机制，访问一般方式不能访问的成员<br>D.Java反射机制提供了字节码修改的技术，可以动态的修剪一个类<br>E.Java的反射机制会给内存带来额外的开销。例如对永生堆的要求比不通过反射要求的更多<br>F.Java反射机制一般会带来效率问题，效率问题主要发生在查找类的方法和字段对象，因此通过缓存需要反射类的字段和方法就能达到与之间调用类的方法和访问类的字段一样的效率</p>
+<blockquote>
+<p>解析：A错，反射主要涉及的是java.lang.reflect包中的Field、Method、Constructor，分别用于描述类的与、方法和构造器，Class类在java.lang中；<br>D错，反射并不能对类进行修改，只能对类进行访问；<br>缓存可以提高效率，但是比起直接访问类字段来说效率相对较低。</p>
+</blockquote>
+<hr>
+<p>10.下面哪项技术可以用在WEB开发中实现会话跟踪实现？（A B C D）<br>A.session<br>B.Cookie<br>C.地址重写<br>D.隐藏域</p>
+<h3 id="四、201018-错题"><a href="#四、201018-错题" class="headerlink" title="四、201018 错题"></a>四、201018 错题</h3><p>1.以下哪项陈述是正确的？(E)<br>A.垃圾回收线程的优先级很高，以保证不使用的内存将被及时回收<br>B.垃圾收集允许程序开发者明确指定释放 哪一个对象<br>C.垃圾回收机制保证了JAVA程序不会出现 内存溢出<br>D.进入”Dead”状态的线程将被垃圾回收器回收<br>E.以上都不对</p>
+<blockquote>
+<p>解析：垃圾回收线程优先级相当低；<br>无法指定释放的对象，由程序决定；<br>无法保证不会出现内存溢出；<br>”Dead”状态的线程可恢复。</p>
+</blockquote>
+<hr>
+<p>2.尝试编译以下程序会产生怎么样的结果？（C）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class MyClass &#123;</span><br><span class="line">    long var;</span><br><span class="line">    public void MyClass(long param) &#123; var = param; &#125;//(1)</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        MyClass a, b;</span><br><span class="line">        a =new MyClass();//(2)</span><br><span class="line">        b =new MyClass(5);//(3)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.编译错误将发生在（1），因为构造函数不能指定返回值<br>B.编译错误将发生在（2），因为该类没有默认构造函数<br>C.编译错误将在（3）处发生，因为该类没有构造函数，该构造函数接受一个int类型的参数<br>D.该程序将正确编译和执行</p>
+<hr>
+<p>3.以下哪个I / O类可以附加或更新文件(A)<br>A.RandomAccessFile()<br>B.OutputStream()<br>C.DataOutputStream()<br>D.None of the above</p>
+<blockquote>
+<p>解析：Test类的hello方法是静态的，所以是属于类的，当实例化该类的时候，静态会被优先加载而且只加载一次，所以不受实例化new Test();影响，只要是使用到了Test类，都会加载静态hello方法</p>
+</blockquote>
+<hr>
+<p>4.如何获取ServletContext设置的参数值？(B)<br>A.context.getParameter()<br>B.context.getInitParameter()<br>C.context.getAttribute()<br>D.context.getRequestDispatcher()</p>
+<blockquote>
+<p>解析：getParameter()是获取POST/GET传递的参数值；<br>getInitParameter获取Tomcat的server.xml中设置Context的初始化参数<br>getAttribute()是获取对象容器中的数据值；<br>getRequestDispatcher()是请求转发。</p>
+</blockquote>
+<hr>
+<p>5.java运行时内存分为“线程共享”和“线程私有”两部分，以下哪些属于“线程共享”部分(B D)<br>A.程序计算器<br>B.方法区<br>C.java虚拟机栈<br>D.java堆</p>
+<hr>
+<p>6.对于构造方法，下列叙述正确的是（ACD ）。<br>A.构造方法的优先级一般比代码块低。<br>B.构造方法的返回类型只能是void型。<br>C.构造方法的主要作用是完成对类的对象的初始化工作。<br>D.一般在创建新对象时，系统会自动调用构造方法。</p>
+<hr>
+<p>7.有关hashMap跟hashTable的区别，说法正确的是？(ABCD)<br>A.HashMap和Hashtable都实现了Map接口<br>B.HashMap是非synchronized，而Hashtable是synchronized<br>C.HashTable使用Enumeration，HashMap使用Iterator<br>D.HashMap允许将 null 作为一个 entry 的 key 或者 value，而 Hashtable 不允许。</p>
+<hr>
+<p>8.局部内部类可以用哪些修饰符修饰？( C D )<br>A.public<br>B.private<br>C.abstract<br>D.final</p>
+<p>内部类</p>
+<ul>
+<li>成员内部类<ul>
+<li>类似成员属性<ul>
+<li>可以无条件访问外部类的所有成员属性和成员方法</li>
+</ul>
+</li>
+<li>访问外部类的同名成员<ul>
+<li>外部类.this.成员变量</li>
+<li>外部类.this.成员方法</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>局部内部类<ul>
+<li>类似局部变量，不能有public、protected、private和static修饰符</li>
+</ul>
+</li>
+<li>匿名内部类<ul>
+<li>一般用于编写事件监听代码</li>
+<li>不能有访问修饰符和static修饰符</li>
+<li>没有构造器</li>
+</ul>
+</li>
+<li>静态内部类<ul>
+<li>不需要依赖外部类，不能使用外部类的非static成员变量或方法</li>
+</ul>
+</li>
+</ul>
+<p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">interface Z &#123;</span><br><span class="line">	void getZ();</span><br><span class="line">&#125;</span><br><span class="line">public class A &#123;</span><br><span class="line"></span><br><span class="line">	//1. 成员内部类</span><br><span class="line">	class Inner&#123;</span><br><span class="line">		int a = 0;//非静态变量</span><br><span class="line">		//static int b = 0;//静态变量【报错！！】</span><br><span class="line">	&#125;</span><br><span class="line">	//2. 静态内部类</span><br><span class="line">	static class Inner2&#123;</span><br><span class="line">        private String name;</span><br><span class="line">        public void fun()</span><br><span class="line">        &#123;</span><br><span class="line">            System.out.println(name);</span><br><span class="line">            System.out.println(age);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">	public int get() &#123;</span><br><span class="line">		//3. 局部内部类</span><br><span class="line">		class Inner3&#123;</span><br><span class="line">			int a = 0;//非静态变量</span><br><span class="line">			//static int b = 0;//静态变量【报错！！】</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	public Z getZ() &#123;</span><br><span class="line">		//4. 匿名内部类</span><br><span class="line">		return new Z() &#123;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>9.下列哪些操作会使线程释放锁资源？( B C  )<br>A.sleep()<br>B.wait()<br>C.join()<br>D.yield()</p>
+<blockquote>
+<p>解析：所谓的释放锁资源实际是通知对象内置的monitor对象进行释放，而只有所有对象都有内置的monitor对象才能实现任何对象的锁资源都可以释放。又因为所有类都继承自Object，所以wait(）就成了Object方法，也就是通过wait()来通知对象内置的monitor对象释放，而且事实上因为这涉及对硬件底层的操作，所以wait()方法是native方法，底层是用C写的。<br>其他都是Thread所有，所以其他3个是没有资格释放资源的<br>而join()有资格释放资源其实是通过调用wait()来实现的</p>
+</blockquote>
+<hr>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/10/18/nk-201015-201018/">http://zws6672.top/2020/10/18/nk-201015-201018/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/nk/">nk</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/10/18/redis-lua-1/" class="pre">Redis Lua脚本入门</a><a href="/2020/10/18/leetcode-201012-201018/" class="next">leetcode-201012-201018</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、201015-错题"><span class="toc-text">一、201015 错题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、201016-错题"><span class="toc-text">二、201016 错题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、201017-错题"><span class="toc-text">三、201017 错题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、201018-错题"><span class="toc-text">四、201018 错题</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

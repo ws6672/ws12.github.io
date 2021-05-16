@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>jvm探索（二）垃圾回收机制 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">jvm探索（二）垃圾回收机制</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">jvm探索（二）垃圾回收机制</h1><div class="post-meta"><a href="/2020/03/30/jvm-2-gc/#comments" class="comment-count"></a><p><span class="date">Mar 30, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h3 id="一、JVM-堆内存空间"><a href="#一、JVM-堆内存空间" class="headerlink" title="一、JVM 堆内存空间"></a>一、JVM 堆内存空间</h3><p><code>JVM Heap</code>分为两个不同的分代：新生代以及旧生代：</p>
+<p><img src="/image/jvm/jvm-heap.png" alt="JVM Heap"></p>
+<ul>
+<li><p>堆内存分为 年轻代（Young Generation）、老年代（Old Generation）；<del>非堆内存就一个永久代（Permanent Generation），即方法区。</del>垃圾收集器还为年轻代和老年代提供了虚拟空间，垃圾收集器使用它们来调整其他区域的大小，主要是为了满足不同的GC目标。</p>
+<ul>
+<li><p>年轻代又分为<code>Eden</code>和<code>Survivor</code>区。<code>Eden</code>区占大容量，<code>Survivor</code>两个区占小容量，默认比例是8:1:1。</p>
+<ul>
+<li><code>Eden</code>区：新创建对象存放位置。</li>
+<li><code>Survivor</code>区：堆回收时，存活对象的存放位置。由 <code>FromSpace</code> 和<code>ToSpace</code>组成。<ul>
+<li>步骤一：第一次Minor GC后，幸存的对象从<code>Eden</code>区复制到<code>Survivor0</code>，即<code>From</code>区；<code>Eden</code>区清空。</li>
+<li>步骤二：第二次Minor GC后，<code>Eden</code>和<code>Survivor0</code>中的存活对象又会被复制送入第二块幸存空间，即<code>To</code>区；<code>Eden</code>和<code>Survivor0</code>清空。</li>
+<li>然后下一轮S0与S1交换角色，如此循环往复（重复步骤二）。<em>如果对象的复制次数达到16次，该对象就会被送到老年代中</em>。如此操作，永远有一块<code>Survivor</code>区是空的，而另外一块<code>Survivor</code>区是无碎片的。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>年老代主要存放JVM认为生命周期比较长的对象（经过几次的Young Gen的垃圾回收后仍然存在），采用压缩的方式来避免内存碎片</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/image/jvm/jvm-heap-handle.png" alt="jvm-heap-handle">    </p>
+<blockquote>
+<p>在JDK1.8版本废弃了永久代，替代的是元空间（MetaSpace），元空间与永久代上类似，都是方法区的实现，他们最大区别是：元空间并不在JVM中，而是使用本地内存。</p>
+</blockquote>
+<h3 id="二、垃圾回收算法"><a href="#二、垃圾回收算法" class="headerlink" title="二、垃圾回收算法"></a>二、垃圾回收算法</h3><p><strong><em>1.引用计数</em></strong><br>比较古老的回收算法。原理是此对象有一个引用，即增加一个计数，删除一个引用则减少一个计数。垃圾回收时，只用收集计数为0的对象。此算法最致命的是无法处理循环引用的问题。</p>
+<p><strong><em>2.复制算法</em></strong><br>此算法把内存空间划为两个相等的区域，每次只使用其中一个区域。垃圾回收时，遍历当前使用区域，把正在使用中的对象复制到另外一个区域中。此算法每次只处理正在使用中的对象，因此复制成本比较小，同时复制过去以后还能进行相应的内存整理，不会出现“碎片”问题。当然，此算法的缺点也是很明显的，就是需要两倍内存空间。</p>
+<p><strong><em>3.标记-清除算法</em></strong><br>此算法执行分两阶段。第一阶段从引用根节点开始标记所有被引用的对象，第二阶段遍历整个堆，把未标记的对象清除。此算法需要暂停整个应用，同时，会产生内存碎片。</p>
+<p><strong><em>4.标记-整理算法</em></strong><br>此算法结合了“标记-清除”和“复制”两个算法的优点。也是分两阶段，第一阶段从根节点开始标记所有被引用对象，第二阶段遍历整个堆，把清除未标记对象并且把存活对象“压缩”到堆的其中一块，按顺序排放。此算法避免了“标记-清除”的碎片问题，同时也避免了“复制”算法的空间问题。</p>
+<h3 id="三、垃圾收集器（Garbage-Collectors）"><a href="#三、垃圾收集器（Garbage-Collectors）" class="headerlink" title="三、垃圾收集器（Garbage Collectors）"></a>三、垃圾收集器（Garbage Collectors）</h3><p><strong><em>次收集器（Minor Gc）</em></strong></p>
+<ul>
+<li>从年轻代空间（包括 Eden 和 Survivor 区域）回收内存被称为 Minor GC。</li>
+<li>当JVM无法为新对象分配空间时（生成区），总是会触发次收集器。因此，分配率越高，次要GC的执行频率就越高。相对于全收集而言，收集间隔较短。</li>
+<li>只要空间已满，就将复制其全部内容，并且指针可以再次从零开始跟踪可用内存，使用<code>Mark and Copy</code>算法来清理Eden和Survivor空间。</li>
+</ul>
+<p><strong><em>主收集器（Major GC）</em></strong><br>Major GC 用于清理<code>Tenured space</code>,即<code>老年代</code>所在的空间。</p>
+<p><strong><em>全收集器（Full GC）</em></strong></p>
+<ul>
+<li>Full GC 是清理整个堆空间—包括年轻代和永久代。</li>
+<li>Full GC，指发生在老年代的GC，<code>出现了Full GC一般会伴随着至少一次的Minor GC</code>（老年代的对象大部分是Scavenge GC过程中从新生代进入老年代），比如：分配担保失败。Full GC的速度一般会比Scavenge GC慢10倍以上。当老年代内存不足或者显式调用System.gc()方法时，会触发Full GC。</li>
+<li>当老年代或者持久代堆空间满了，会触发全收集操作。可以使用System.gc()方法来显式的启动全收集，全收集一般根据堆大小的不同，需要的时间不尽相同，但一般会比较长。</li>
+</ul>
+<blockquote>
+<p>注：在实际应用中，不必过分关注GC类型，而是着眼于GC是停止了所有应用的线程还是可以与应用线程同时进行。</p>
+</blockquote>
+<h3 id="四、分代垃圾收集器"><a href="#四、分代垃圾收集器" class="headerlink" title="四、分代垃圾收集器"></a>四、分代垃圾收集器</h3><p><strong><em>(1)串行收集器（Serial GC）</em></strong><br>Serial收集器是Hotspot运行在Client模式下的默认新生代收集器</p>
+<ul>
+<li>单线程收集器。</li>
+<li>通常适用于数据量少的小型应用程序。</li>
+<li>可以通过指定命令行选项来启用:<ul>
+<li><code>-XX:+UseSerialGC</code></li>
+</ul>
+</li>
+</ul>
+<p><strong><em>(2)并行收集器（Parallel GC）</em></strong></p>
+<ul>
+<li>串行和并行之间的区别在于并行GC使用多个线程来执行垃圾收集过程。</li>
+<li>此GC类型也称为吞吐量收集器。</li>
+<li>可以通过显式指定以下选项来启用它：<ul>
+<li><code>-XX:+UseParallelGC</code></li>
+</ul>
+</li>
+</ul>
+<p><strong><em>(3)Parallel Scavenge收集器</em></strong><br>与ParNew类似, Parallel Scavenge也是使用复制算法, 也是并行多线程收集器. 但与其他收集器关注尽可能缩短垃圾收集时间不同, Parallel Scavenge更关注系统吞吐量:</p>
+<ul>
+<li><code>系统吞吐量=运行用户代码时间/(运行用户代码时间+垃圾收集时间)</code></li>
+</ul>
+<p><strong><em>(4)Serial Old收集器</em></strong></p>
+<p>Serial Old是Serial收集器的老年代版本, 同样是单线程收集器,使用“标记-整理”算法。</p>
+<p><strong><em>(5)Parallel Old</em></strong><br>Parallel Old是Parallel Scavenge收集器的老年代版本, 使用多线程和“标记－整理”算法, 吞吐量优先, 主要与Parallel Scavenge配合在注重吞吐量及CPU资源敏感系统内使用.</p>
+<p><strong><em>(6)标记-扫描 并发收集器(Concurrent Mark Sweep)</em></strong><br>CMS(Concurrent Mark Sweep)收集器是一款具有划时代意义的收集器, 一款真正意义上的并发收集器。<br>CMS是一种以获取最短回收停顿时间为目标的收集器(CMS又称多并发低暂停的收集器), 基于”标记-清除”算法实现。</p>
+<p>整个GC过程分为以下4个步骤:</p>
+<ul>
+<li>初始标记(CMS initial mark)</li>
+<li>并发标记(CMS concurrent mark: GC Roots Tracing过程)</li>
+<li>重新标记(CMS remark)</li>
+<li>并发清除(CMS concurrent sweep: 已死对象将会就地释放, 注意:此处没有压缩)</li>
+</ul>
+<p>通过以下选项启动：<br>    <code>-XX:+UseConcMarkSweepGC</code></p>
+<blockquote>
+<p>特点：应用程序暂停时间保持最短</p>
+</blockquote>
+<p><strong><em>(7)G1收集器（Garbage-First）</em></strong><br>G1(Garbage-First)是一款面向服务端应用的收集器, 主要目标用于配备多颗CPU的服务器治理大内存。</p>
+<p>与其他基于分代的收集器不同, G1将整个Java堆划分为多个大小相等的独立区域(Region), 虽然还保留有新生代和老年代的概念, 但新生代和老年代不再是物理隔离的了, 它们都是一部分Region(不需要连续)的集合</p>
+<p>通过以下选项启动：<br>    <code>-XX:+UseG1GC</code></p>
+<blockquote>
+<p>特点：高吞吐量和合理的应用程序暂停时间。</p>
+</blockquote>
+<h3 id="四、参考文章"><a href="#四、参考文章" class="headerlink" title="四、参考文章"></a>四、参考文章</h3><blockquote>
+<p>   <a href="https://dzone.com/articles/gc-explained-heap" target="_blank" rel="noopener">Yet Another Post About Java Heap Space</a><br><a href="https://www.cnblogs.com/guanghe/p/10524807.html" target="_blank" rel="noopener">JVM垃圾回收算法及分代垃圾收集器</a><br><a href="https://dzone.com/articles/minor-gc-vs-major-gc-vs-full" target="_blank" rel="noopener">Minor GC vs Major GC vs Full GC</a><br><a href="https://dzone.com/articles/java-memory-management" target="_blank" rel="noopener">Java Memory Management</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/03/30/jvm-2-gc/">http://zws6672.top/2020/03/30/jvm-2-gc/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/java/">java</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/03/31/jvm-tool-jstat/" class="pre">JVM工具 jstat</a><a href="/2020/03/30/jvm-1/" class="next">jvm探索（一）体系结构</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、JVM-堆内存空间"><span class="toc-text">一、JVM 堆内存空间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、垃圾回收算法"><span class="toc-text">二、垃圾回收算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、垃圾收集器（Garbage-Collectors）"><span class="toc-text">三、垃圾收集器（Garbage Collectors）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、分代垃圾收集器"><span class="toc-text">四、分代垃圾收集器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、参考文章"><span class="toc-text">四、参考文章</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

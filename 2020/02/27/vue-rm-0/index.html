@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>VUE（一）入门 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">VUE（一）入门</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">VUE（一）入门</h1><div class="post-meta"><a href="/2020/02/27/vue-rm-0/#comments" class="comment-count"></a><p><span class="date">Feb 27, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="一、基础"><a href="#一、基础" class="headerlink" title="一、基础"></a>一、基础</h1><ol>
+<li>Vue.js 是什么<br>Vue (读音 /vjuː/，类似于 view) 是一套用于构建用户界面的渐进式框架。与其它大型框架不同的是，Vue 被设计为可以自底向上逐层应用。Vue 的核心库只关注视图层，不仅易于上手，还便于与第三方库或既有项目整合。另一方面，当与现代化的工具链以及各种支持类库结合使用时，Vue 也完全能够为复杂的单页应用提供驱动。</li>
+</ol>
+<ol start="2">
+<li>特点</li>
+</ol>
+<ul>
+<li><p>轻量级的框架</p>
+</li>
+<li><p>数据驱动视图</p>
+<ul>
+<li>当一个 Vue 实例被创建时，它将 data 对象中的所有的属性加入到 Vue 的响应式系统中。当这些属性的值发生改变时，视图将会产生“响应”，即匹配更新为新的值。</li>
+</ul>
+</li>
+<li><p>声明式渲染（声明式地将数据渲染进 DOM）</p>
+<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-- 元素绑定</span><br><span class="line">&lt;div id=&quot;app&quot;&gt;</span><br><span class="line">  &#123;&#123; message &#125;&#125;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">var test = new Vue(&#123;</span><br><span class="line">  el: &apos;#app&apos;,</span><br><span class="line">  data: &#123;</span><br><span class="line">	message: &apos;Hello Vue!&apos;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>指令：存在内置指令支持Vue.js与页面交互</p>
+</li>
+<li><p>组件化：可以扩展 HTML 元素，封装可重用的代码</p>
+</li>
+<li><p>客户端路由：提供路由插件Vue-router，用于构建单页面应用</p>
+</li>
+<li><p>状态管理：状态管理实际就是一个单向的数据流，State 驱动 View 的渲染，而用户对 View 进行操作产生 Action，使 State 产生变化，从而使 View 重新渲染，形成一个单独的组件。</p>
+</li>
+</ul>
+<ol start="3">
+<li>组件化的思想</li>
+</ol>
+<p>组件系统是 Vue 的另一个重要概念，因为它是一种抽象，允许我们使用小型、独立和通常可复用的组件构建大型应用。在vue在中，一个工具条、弹出框、一个按钮甚至于一个标题，都可以抽象为一个组件，构成类似树的结构。</p>
+<p>VUE组件本质上是一个拥有预定义选项的一个 Vue 实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 定义名为 todo-item 的新组件</span><br><span class="line">Vue.component(&apos;todo-item&apos;, &#123;</span><br><span class="line">  template: &apos;&lt;li&gt;这是个待办项&lt;/li&gt;&apos;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">var app = new Vue(...)</span><br></pre></td></tr></table></figure>
+
+<p>一个 Vue 应用由一个通过 new Vue 创建的根 Vue 实例，以及可选的嵌套的、可复用的组件树组成。<br><img src="/image/vue/vue-0-tree.png" alt="组件树"></p>
+<ol start="4">
+<li>Vue 组件与自定义元素的关系</li>
+</ol>
+<blockquote>
+<p>Vue 组件非常类似于自定义元素——它是 Web 组件规范的一部分，这是因为 Vue 的组件语法部分参考了该规范。例如 Vue 组件实现了 Slot API 与 is attribute。但是，还是有几个关键差别：</p>
+</blockquote>
+<ul>
+<li>Web Components 规范已经完成并通过，但未被所有浏览器原生实现。目前 Safari 10.1+、Chrome 54+ 和 Firefox 63+ 原生支持 Web Components。相比之下，Vue 组件不需要任何 polyfill，并且在所有支持的浏览器 (IE9 及更高版本) 之下表现一致。必要时，Vue 组件也可以包装于原生自定义元素之内。</li>
+<li>Vue 组件提供了纯自定义元素所不具备的一些重要功能，最突出的是跨组件数据流、自定义事件通信以及构建工具集成。</li>
+<li>虽然 Vue 内部没有使用自定义元素，不过在应用使用自定义元素、或以自定义元素形式发布时，依然有很好的互操作性。Vue CLI 也支持将 Vue 组件构建成为原生的自定义元素。</li>
+</ul>
+<h1 id="二、使用"><a href="#二、使用" class="headerlink" title="二、使用"></a>二、使用</h1><ol>
+<li>使用VSCODE编辑器</li>
+</ol>
+<ul>
+<li><p><a href="https://code.visualstudio.com/docs/?dv=win" target="_blank" rel="noopener">下载</a></p>
+</li>
+<li><p>安装插件快捷键——[ctrl+Shift+X ]</p>
+</li>
+<li><p>安装必要插件</p>
+<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">-- 中文支持</span><br><span class="line">configure display language</span><br><span class="line">-- 实现支持vue文件的代码高亮</span><br><span class="line">vetur</span><br><span class="line">	-- 配置</span><br><span class="line">	文件-&gt;首选项-&gt;设置-&gt;用户设置</span><br><span class="line">	&quot;emmet.syntaxProfiles&quot;: &#123;&quot;vue-html&quot;:&quot;html&quot;,&quot;vue&quot;:&quot;html&quot;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">—— 自动完成另一侧标签的同步修改</span><br><span class="line">Auto Rename Tag </span><br><span class="line">—— 自动闭合HTML/XML标签</span><br><span class="line">Auto Close Tag</span><br><span class="line">—— 自动路劲补全</span><br><span class="line">Path Intellisense</span><br><span class="line">——— 快捷键显示</span><br><span class="line">vue vscode snippets</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>修改vue模板，输入vue即可触发模板</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">--Ctrl+Shift+P打开命令输入 snippets; 在搜索框输入vue选择‘vue.json’</span><br><span class="line">&#123;</span><br><span class="line">	&quot;Print to console&quot;: &#123;</span><br><span class="line">		&quot;prefix&quot;: &quot;vue&quot;,</span><br><span class="line">		&quot;body&quot;: [</span><br><span class="line">			&quot;&lt;template&gt;&quot;,</span><br><span class="line">			&quot; &lt;div&gt;\n&quot;,</span><br><span class="line">			&quot; &lt;/div&gt;&quot;,</span><br><span class="line">			&quot;&lt;/template&gt;\n&quot;,</span><br><span class="line">			&quot;&lt;script&gt;&quot;,</span><br><span class="line">			&quot; export default &#123;&quot;,</span><br><span class="line">			&quot;   data () &#123;&quot;,</span><br><span class="line">			&quot;     return &#123;\n&quot;,</span><br><span class="line">			&quot;     &#125;&quot;,</span><br><span class="line">			&quot;   &#125;,&quot;,</span><br><span class="line">			&quot;   components: &#123;\n&quot;,</span><br><span class="line">			&quot;   &#125;&quot;,</span><br><span class="line">			&quot; &#125;&quot;,</span><br><span class="line">			&quot;&lt;/script&gt;\n&quot;,</span><br><span class="line">			&quot;&lt;style&gt;\n&quot;,</span><br><span class="line">			&quot; &quot;,</span><br><span class="line">			&quot;&lt;/style&gt;&quot;,</span><br><span class="line">			&quot;$2&quot;</span><br><span class="line">		],</span><br><span class="line">		&quot;description&quot;: &quot;Log output to console&quot;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ol start="2">
+<li>npm 安装 VUE</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-- vue.js</span><br><span class="line">$ npm install -g vue</span><br><span class="line"></span><br><span class="line">-- 如果下载不了，可以使用淘宝源</span><br><span class="line">$ npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br><span class="line"></span><br><span class="line">-- 安装vue客户端，用于生成项目</span><br><span class="line">cnpm install --global vue-cli</span><br><span class="line"></span><br><span class="line">-- 生成初始化项目</span><br><span class="line">vue init webpack test</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>初始化项目</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">-- test是项目名称，不能用中文</span><br><span class="line">--创建项目 </span><br><span class="line">	-- webpack是打包方式</span><br><span class="line">vue init webpack test</span><br><span class="line">	? Project name test</span><br><span class="line">	? Project description (A Vue.js project)</span><br><span class="line">	? Project description A Vue.js project </span><br><span class="line">	? Vue build (Use arrow keys)</span><br><span class="line">	? Vue build standalone</span><br><span class="line">	? Install vue-router? (Y/n) y	路由管理器</span><br><span class="line">	? Install vue-router? Yes</span><br><span class="line">	? Use ESLint to lint your code? (Y/n) y	代码检测工具</span><br><span class="line">	? Use ESLint to lint your code? Yes</span><br><span class="line">	? Pick an ESLint preset (Use arrow keys)</span><br><span class="line">	? Pick an ESLint preset Standard</span><br><span class="line">	? Set up unit tests (Y/n) y		单元测试框架</span><br><span class="line">	? Set up unit tests Yes</span><br><span class="line">	? Pick a test runner (Use arrow keys)	测试执行过程管理平台</span><br><span class="line">	? Pick a test runner jest</span><br><span class="line">	? Setup e2e tests with Nightwatch? (Y/n) n	自动化测试框架</span><br><span class="line">	? Setup e2e tests with Nightwatch? No</span><br><span class="line">	</span><br><span class="line">-- 启动</span><br><span class="line">npm run dev</span><br><span class="line"></span><br><span class="line">-- 打包项目</span><br><span class="line">npm run build</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>新建项目遇到的问题</p>
+</li>
+</ol>
+<p><em>【webpack-dev-server’】不是内部或外部命令，也不是可运行的程序</em></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">--webpack-dev-server版本过高</span><br><span class="line"></span><br><span class="line">npm remove webpack-dev-server</span><br><span class="line">npm install webpack-dev-server@2.9.1</span><br><span class="line">npm run dev</span><br></pre></td></tr></table></figure>
+
+<p><em>【npm ERR! Maximum call stack size exceeded】错误</em></p>
+<ol>
+<li>npm异常,最大回调函数栈数量超出，全局更新npm<br><code>npm install npm -g</code></li>
+<li>如果无效，修改仓库源<br><code>npm set registry https://registry.npm.taobao.org/</code></li>
+</ol>
+<p><em>【npm ERR! code EINTEGRITY】错误</em><br><code>npm cache verify</code></p>
+<ol start="5">
+<li>vue更新</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- 先删除vue</span><br><span class="line">npm uninstall vue-cli -g</span><br><span class="line"></span><br><span class="line">-- 重新下载</span><br><span class="line">npm install vue-cli -g</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、生命周期"><a href="#三、生命周期" class="headerlink" title="三、生命周期"></a>三、生命周期</h1><ol>
+<li>实例的生命周期钩子</li>
+</ol>
+<p>每个 Vue 实例在被创建时都要经过一系列的初始化过程.例如，</p>
+<ul>
+<li>需要设置数据监听</li>
+<li>编译模板</li>
+<li>将实例挂载到 DOM</li>
+<li>在数据变化时更新 DOM 等。</li>
+</ul>
+<p>在这个过程中也会运行一些叫做生命周期钩子的函数，这给了用户在不同阶段添加自己的代码的机会。</p>
+<ol start="2">
+<li>钩子分类</li>
+</ol>
+<ul>
+<li>beforeCreate 在实例初始化之后，数据观测 (data observer) 和 event/watcher 事件配置之前被调用。</li>
+<li>created 在实例创建完成后被立即调用。在这一步，实例已完成以下的配置：数据观测 (data observer)，属性和方法的运算，watch/event 事件回调。然而，挂载阶段还没开始，$el 属性目前尚不可用。</li>
+<li>beforeMount 在挂载开始之前被调用：相关的 render 函数首次被调用。</li>
+<li>mounted 实例被挂载后调用，这时 el 被新创建的 vm.$el 替换了</li>
+<li>beforeUpdate 数据更新时调用，</li>
+<li>updated </li>
+<li>activated 被 keep-alive 缓存的组件激活时调用。</li>
+<li>deactivated 被 keep-alive 缓存的组件停用时调用。</li>
+<li>beforeDestroy 实例销毁之前调用。在这一步，实例仍然完全可用。</li>
+<li>destroyed 实例销毁时调用</li>
+<li>errorCaptured 当捕获一个来自子孙组件的错误时被调用</li>
+</ul>
+<blockquote>
+<p>所有的生命周期钩子自动绑定 this 上下文到实例中，因此你可以访问数据，对属性和方法进行运算。这意味着你不能使用箭头函数来定义一个生命周期方法 (例如 created: () <code>=&gt;</code> this.fetchTodos())。这是因为箭头函数绑定了父上下文， 它并没有this，this 会作为变量一直向上级词法作用域查找，直至找到为止，经常导致 Uncaught TypeError: Cannot read property of undefined 或 Uncaught TypeError: this.myMethod is not a function 之类的错误。</p>
+</blockquote>
+<ol start="3">
+<li><p>钩子的使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">new Vue(&#123;</span><br><span class="line">  data: &#123;</span><br><span class="line">    a: 1</span><br><span class="line">  &#125;,</span><br><span class="line">  created: function () &#123;</span><br><span class="line">    // `this` 指向 vm 实例</span><br><span class="line">    console.log(&apos;a is: &apos; + this.a)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生命周期图示</p>
+</li>
+</ol>
+<p><img src="/image/vue/vue-1-lifecycle.png" alt="生命周期图示"></p>
+<h1 id="四、参考文章"><a href="#四、参考文章" class="headerlink" title="四、参考文章"></a>四、参考文章</h1><blockquote>
+<p><a href="https://blog.csdn.net/fungleo/article/details/79016838" target="_blank" rel="noopener">vue-cli + webpack 新建项目出错的解决方法</a><br><a href="https://cn.vuejs.org/v2/guide/instance.html" target="_blank" rel="noopener">Vue 实例</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/02/27/vue-rm-0/">http://zws6672.top/2020/02/27/vue-rm-0/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/vue/">vue</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/03/10/java-idea-2003100/" class="pre">idea_2003100 错误处理笔记</a><a href="/2020/02/24/crawlab-1/" class="next">crawlab（一）入门</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、基础"><span class="toc-text">一、基础</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、使用"><span class="toc-text">二、使用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、生命周期"><span class="toc-text">三、生命周期</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四、参考文章"><span class="toc-text">四、参考文章</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

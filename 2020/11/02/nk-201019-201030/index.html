@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>nk-201019-201030 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">nk-201019-201030</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">nk-201019-201030</h1><div class="post-meta"><a href="/2020/11/02/nk-201019-201030/#comments" class="comment-count"></a><p><span class="date">Nov 02, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h3 id="2020-10-19"><a href="#2020-10-19" class="headerlink" title="2020-10-19"></a>2020-10-19</h3><p>1.以上代码返回值是什么？(B)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public boolean returnTest()</span><br><span class="line">&#123;</span><br><span class="line">    try</span><br><span class="line">    &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    catch (Exception e)</span><br><span class="line">    &#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">    finally</span><br><span class="line">    &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.true<br>B.false</p>
+<hr>
+<p>2.以下会产生信息丢失的类型转换是( B）</p>
+<p>A.float  a=10<br>B.int a=（int）8846.0<br>C.byte  a=10； int b=-a<br>D.double d=100</p>
+<hr>
+<p>3.在Web应用程序中，( C   )负责将HTTP请求转换为HttpServletRequest对象()<br>A.Servlet对象<br>B.HTTP服务器<br>C.Web容器<br>D.JSP网页</p>
+<hr>
+<p>4.下面哪种情况会导致持久区jvm堆内存溢出？(C)<br>A.循环上万次的字符串处理<br>B.在一段代码内申请上百M甚至上G的内存<br>C.使用CGLib技术直接操作字节码运行，生成大量的动态类<br>D.不断创建对象</p>
+<hr>
+<p>5.以下JAVA程序代码的输出是(B)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String args[]) &#123;</span><br><span class="line">System.out.println(14^3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.2744<br>B.13<br>C.17<br>D.11</p>
+<blockquote>
+<p>解析：异或处理，转换为位<br>14：1110<br>3：0011<br>13：1101</p>
+</blockquote>
+<hr>
+<p>6.哪个类可用于处理 Unicode?（A）<br>A.InputStreamReader<br>B.BufferedReader<br>C.Writer<br>D.PipedInputStream</p>
+<blockquote>
+<p>解析：InputStreamReader可以指定编码格式</p>
+</blockquote>
+<hr>
+<p>7.往OuterClass类的代码段中插入内部类声明, 哪一个是错误的:(ABCD)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public class OuterClass&#123;</span><br><span class="line">    private float f=1.0f;</span><br><span class="line">    //插入代码到这里</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">class InnerClass&#123;</span><br><span class="line">//静态内部类才可以声明静态方法</span><br><span class="line">public static float func()&#123;return f;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>B.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">abstract class InnerClass&#123;</span><br><span class="line">//抽象方法不可以有函数体</span><br><span class="line">public abstract float func()&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>C.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">static class InnerClass&#123;</span><br><span class="line">//静态方法不可以使用非静态变量</span><br><span class="line">protected static float func()&#123;return f;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>D.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public class InnerClass&#123;</span><br><span class="line">//静态内部类才可以声明静态方法</span><br><span class="line"> static float func()&#123;return f;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<h3 id="2020-10-20"><a href="#2020-10-20" class="headerlink" title="2020-10-20"></a>2020-10-20</h3><p>1.下面关于垃圾收集的说法正确的是(D)<br>A.一旦一个对象成为垃圾，就立刻被收集掉。<br>B.对象空间被收集掉之后，会执行该对象的finalize方法<br>C.finalize方法和C++的析构函数是完全一回事情<br>D.一个对象成为垃圾是因为不再有引用指着它，但是线程并非如此</p>
+<blockquote>
+<p>解析：对象何时被回收取决于垃圾回收器何时被运行；<br>一旦垃圾回收器准备好释放对象占用的存储空间，将首先调用其finalize()方法， 并且在下一次垃圾回收动作发生时，才会真正的回收对象占用的内存（《java 编程思想》）；<br>在C++中，对象的内存在哪个时刻通过析构函数回收是可以确定的，而Java则不然；<br>线程在其run()方法执行完以后就会释放掉内存，但是其引用不一定不存在了</p>
+</blockquote>
+<hr>
+<p>2.运用下列哪个命令能够获取JVM的内存映像（B）<br>A.jinfo jinfo是java虚拟机自带的Java配置信息工具。<br>B.jmap 打印内存映射，制作堆dump文件<br>C.jhat 内存分析工具<br>D.jstat 性能监控工具</p>
+<hr>
+<p>3.对于上面这段代码，以下说法正确的是：(c)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public class Test</span><br><span class="line">&#123;</span><br><span class="line">    public int x;</span><br><span class="line">    public static void main(String []args)</span><br><span class="line">    &#123;</span><br><span class="line">        System. out. println(&quot;Value is&quot; + x);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.程序会打出 “Value is 0”<br>B.程序会抛出 NullPointerException<br>C.非静态变量不能够被静态方法引用<br>D.编译器会抛出 “possible reference before assignment”的错误</p>
+<hr>
+<p>4.某程序要求每次输入只能是正整数，并且每次输入的数值要求必须是100的倍数且小于等于500，则下列哪个是正确的无效等价类(  C      )<br>A.（0，100）、（100，200）、（200，300）、（300，400）、（400，500）、（500，+∞）;<br>B.（500，+∞）<br>C.（500，+∞）、任意大于0小于500的非100倍数的整数；<br>D.（-∞，100）、（100，200）、（200，300）、（300，400）、（400，500）、（500，+∞）;</p>
+<blockquote>
+<p>解析：无效等价类，无效参数</p>
+</blockquote>
+<hr>
+<p>5.假设如下代码中，若t1线程在t2线程启动之前已经完成启动。代码的输出是（）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[]args)throws Exception &#123;</span><br><span class="line">    final Object obj = new Object();</span><br><span class="line">    Thread t1 = new Thread() &#123;</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            synchronized (obj) &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    obj.wait();</span><br><span class="line">                    System.out.println(&quot;Thread 1 wake up.&quot;);</span><br><span class="line">                &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    t1.start();</span><br><span class="line">    Thread.sleep(1000);//We assume thread 1 must start up within 1 sec.</span><br><span class="line">    Thread t2 = new Thread() &#123;</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            synchronized (obj) &#123;</span><br><span class="line">                obj.notifyAll();</span><br><span class="line">                System.out.println(&quot;Thread 2 sent notify.&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    t2.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Thread 1 wake up</span><br><span class="line">Thread 2 sent notify.</span><br></pre></td></tr></table></figure></p>
+<p>B.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Thread 2 sent notify. </span><br><span class="line">Thread 1 wake up</span><br></pre></td></tr></table></figure></p>
+<p>C.A、B皆有可能<br>D.程序无输出卡死</p>
+<blockquote>
+<p>解析：<code>obj.wait();</code>使线程一放弃锁，等待获取锁后继续执行。线程2通过<code>obj.notifyAll();</code>激活线程1</p>
+</blockquote>
+<hr>
+<p>6.下列叙述中，错误的是（ B）<br>A.File类能够存储文件属性<br>B.File类能够读写文件<br>C.File类能够建立文件<br>D.File类能够获取文件目录信息</p>
+<blockquote>
+<p>解析：File类能操作文件本身，但不能对文件内容进行修改</p>
+</blockquote>
+<hr>
+<p>7.由3 个“1”和 5 个“0”组成的 8 位二进制补码，能表示的最小整数（B）<br>A.-126<br>B.-125<br>C.-32<br>D.-3</p>
+<blockquote>
+<p>解析：在计算机系统中，数值一律用补码来表示和存储。<br>补码中，首位0表示正数；首位1表示负数。<br>补码转换为原码（减一，除首位其余位取反）：<br>原码：11111101<br>补码：10000011</p>
+</blockquote>
+<hr>
+<p>8.在Java中，对于不再使用的内存资源，如调用完成的方法，“垃圾回收器”会自动将其释放。（ B ）<br>A.正确<br>B.错误</p>
+<blockquote>
+<p>解析：方法调用时，会创建栈帧在栈中，调用完是程序自动出栈释放，而不是gc释放</p>
+</blockquote>
+<hr>
+<p>9.以下程序的输出结果为(D)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class Base&#123;</span><br><span class="line">    public Base(String s)&#123;</span><br><span class="line">        System.out.print(&quot;B&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Derived extends Base&#123;</span><br><span class="line">    public Derived (String s) &#123;</span><br><span class="line">        System.out.print(&quot;D&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public static void main(String[] args)&#123;</span><br><span class="line">        new Derived(&quot;C&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.BD<br>B.DB<br>C.C<br>D.编译错误</p>
+<blockquote>
+<p>解析：java初始化顺序。初始化子类必先初始化父类。子类的构造方***隐式去调用 父类无参的构造方法（不会在代码中显示）。但如果父类没有无参的构造方法，就必须在子类构造方法第一行显示调用父类的有参构造方法。否则编译失败</p>
+</blockquote>
+<hr>
+<p>10.final、finally和finalize的区别中，下述说法正确的有？（AB）<br>A.final用于声明属性，方法和类，分别表示属性不可变，方法不可覆盖，类不可继承。<br>B.finally是异常处理语句结构的一部分，表示总是执行。<br>C.finalize是Object类的一个方法，在垃圾收集器执行的时候会调用被回收对象的此方法，可以覆盖此方法提供垃圾收集时的其他资源的回收，例如关闭文件等。<code>(不能用于关闭文件)</code><br>D.引用变量被final修饰之后，不能再指向其他对象，它指向的对象的内容也是不可变的。</p>
+<hr>
+<h3 id="2020-10-21"><a href="#2020-10-21" class="headerlink" title="2020-10-21"></a>2020-10-21</h3><p>1.下面的程序输出的结果是( B)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class A implements B&#123;</span><br><span class="line">public static void main(String args[])&#123;</span><br><span class="line">    int i;</span><br><span class="line">    A a1=new  A();</span><br><span class="line">    i =a1.k;</span><br><span class="line">    System.out.println(&quot;i=&quot;+i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">interface B&#123;</span><br><span class="line">    int k=10；</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.i=0<br>B.i=10<br>C.程序有编译错误<br>D.i=true</p>
+<hr>
+<p>2.关于ASCII码和ANSI码，以下说法不正确的是（D）？<br>A.标准ASCII只使用7个bit<br>B.在简体中文的Windows系统中，ANSI就是GB2312<br>C.ASCII码是ANSI码的子集<br>D.ASCII码都是可打印字符</p>
+<hr>
+<p>3.以下声明合法的是(B)<br>A.default  String  s<br>B.public  final  static  native  int  w( )<br>C.abstract  double  d<br>D.abstract  final  double  hyperbolicCosine( )</p>
+<blockquote>
+<p>解析：java的访问权限有public、protected、private和default的，default不能修饰变量；<br>普通变量不能用abstract修饰，abstract一般修饰方法和类；<br>final、abstract无法同时修饰一个方法</p>
+</blockquote>
+<hr>
+<p>4.off-heap是指那种内存（B）<br>A.JVM GC能管理的内存<br>B.JVM进程管理的内存<br>C.在JVM老年代内存区<br>D.在JVM新生代内存</p>
+<blockquote>
+<p>解析：off-heap是指堆外内存</p>
+</blockquote>
+<hr>
+<p>5.如果希望监听TCP端口9000，服务器端应该怎样创建socket?（B）<br>A.new Socket(“localhost”,9000);<br>B.new ServerSocket(9000);<br>C.new Socket(9000);<br>D.new ServerSocket(“localhost”,9000);</p>
+<hr>
+<p>6.关于下列代码的执行顺序，下面描述正确的有哪些选项（ABC）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class HelloA &#123;</span><br><span class="line">    public HelloA() &#123; </span><br><span class="line">        System.out.println(&quot;A的构造函数&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#123; </span><br><span class="line">    System.out.println(&quot;A的构造代码块&quot;);</span><br><span class="line">&#125;</span><br><span class="line">static &#123; </span><br><span class="line">    System.out.println(&quot;A的静态代码块&quot;);</span><br><span class="line">&#125;</span><br><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">    HelloA a = new HelloA();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.打印顺序A的静态代码块&gt; A的构造函数<br>B.打印顺序A的静态代码块&gt; A的构造代码块<br>C.打印顺序A的构造代码块&gt; A的构造函数<br>D.打印顺序A的构造函数&gt; A的构造代码块</p>
+<hr>
+<p>7.关于Java的一些概念，下面哪些描述是正确的：( BF )<br>A.所有的Java异常和错误的基类都是java.lang.Exception, 包括java.lang.RuntimeException<br>B.通过try … catch … finally语句，finally中的语句部分无论发生什么异常都会得到执行<br>C.java中所有的数据都是对象<br>D.Java通过垃圾回收回收不再引用的变量，垃圾回收时对象的finallize方法一定会得到执行<br>E.Java是跨平台的语言，无论通过哪个版本的Java编写的程序都能在所有的Java运行平台中运行<br>F.Java通过synchronized进行访问的同步，synchronized作用非静态成员方法和静态成员方法上同步的目标是不同的</p>
+<blockquote>
+<p>解析：A 基类是Throwable;<br>C 基类不是对象；<br>D 即使垃圾回收器工作，finalize（）也不一定得到执行，这是由于程序中的其他线程的优先级远远高于执行finalize（）函数线程的优先级。或者说，如果是等待清理队列中如果又被调用，则不会执行finallize（）;<br>E 高版本程序无法在低版本JDK运行</p>
+</blockquote>
+<hr>
+<p>8.关于运行时常量池，下列哪个说法是正确的（BCD）<br>A.运行时常量池大小受栈区大小的影响<br>B.运行时常量池大小受方法区大小的影响<br>C.存放了编译时期生成的各种字面量<br>D.存放编译时期生成的符号引用</p>
+<hr>
+<p>9.下列哪些操作会使线程释放锁资源？(BC)<br>A.sleep() 线程暂停执行，但不会释放“锁标志”<br>B.wait()<br>C.join()<br>D.yield() 暂停线程</p>
+<hr>
+<p>10.在Java语言中，下列关于字符集编码（Character set encoding）和国际化（i18n）的问题，哪些是正确的？（CD）<br>A.每个中文字符占用2个字节，每个英文字符占用1个字节<br>B.假设数据库中的字符是以GBK编码的，那么显示数据库数据的网页也必须是GBK编码的。<br>C.Java的char类型，通常以UTF-16 Big Endian的方式保存一个字符。<br>D.实现国际化应用常用的手段是利用ResourceBundle类</p>
+<blockquote>
+<p>解析：Java一律采用Unicode编码方式，每个字符无论中文还是英文字符都占用2个字节;<br>Java虚拟机中通常使用UTF-16的方式保存一个字符;</p>
+</blockquote>
+<hr>
+<p>11.以下JAVA程序的运行结果是什么( D )</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">Object o1 = true ? new Integer(1) : new Double(2.0);</span><br><span class="line">Object o2;</span><br><span class="line">if (true) &#123;</span><br><span class="line">             o2 = new Integer(1);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">o2 = new Double(2.0);</span><br><span class="line">&#125;</span><br><span class="line">System.out.print(o1);</span><br><span class="line">System.out.print(&quot; &quot;);         </span><br><span class="line">System.out.print(o2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.1 1<br>B.1.0 1.0<br>C.1 1.0<br>D.1.0 1</p>
+<blockquote>
+<p>解析：三元操作符如果遇到可以转换为数字的类型，会做自动类型提升。</p>
+</blockquote>
+<hr>
+<h3 id="2020-10-22"><a href="#2020-10-22" class="headerlink" title="2020-10-22"></a>2020-10-22</h3><p>1.Java 程序中使用赋值运算符进行对象赋值时，可以得到两个完全相同的对象。(B)<br>A.正确<br>B.错误</p>
+<blockquote>
+<p>解析：a,b都将指向同一块地址</p>
+</blockquote>
+<hr>
+<p>2.如果一个list初始化为{5，3，1}，执行以下代码后，其结果为（B）？<br>nums.add(6); 5 3 1 6<br>nums.add(0,4); 4 5 3 1 6<br>nums.remove(1); 4 3 1 6</p>
+<p>A.[5, 3, 1, 6]<br>B.[4, 3, 1, 6]<br>C.[4, 3, 6]<br>D.[5, 3, 6]</p>
+<hr>
+<p>3.以下程序段的输出结果为：(B)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class EqualsMethod</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Integer n1 = new Integer(47);</span><br><span class="line">        Integer n2 = new Integer(47);</span><br><span class="line">        System.out.print(n1 == n2);</span><br><span class="line">        System.out.print(&quot;,&quot;);</span><br><span class="line">        System.out.println(n1 != n2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.false，false<br>B.false，true<br>C.true，false<br>D.true，true</p>
+<blockquote>
+<p>解析：使用valueOf的时候使用的才是缓存，<br>Integer n3 = Integer.valueOf(47)<br>Integer n4 = Integer.valueOf(47);<br>这里的n3==n4才是true。</p>
+</blockquote>
+<hr>
+<p>4.以下是java concurrent包下的4个类，选出差别最大的一个（C）<br>A.Semaphore        类，控制某个资源可被同时访问的个数;;<br>B.ReentrantLock        类，具有与使用synchronized方法和语句所访问的隐式监视器锁相同的一些基本行为和语义，但功能更强大<br>C.Future        接口，表示异步计算的结果<br>D.CountDownLatch         类，可以用来在一个线程中等待多个线程完成任务的类</p>
+<hr>
+<p>5.抽象类方法的访问权限默认都是public。（  ）<br>A.正确<br>B.错误</p>
+<blockquote>
+<p>解析：关于抽象类<br>JDK 1.8以前，抽象类的方法默认访问权限为 protected<br>JDK 1.8时，抽象类的方法默认访问权限变为 default<br>关于接口<br>JDK 1.8以前，接口中的方法必须是 public的<br>JDK 1.8时，接口中的方法可以是 public的，也可以是default的<br>JDK 1.9时，接口中的方法可以是 private的</p>
+</blockquote>
+<hr>
+<p>6.URL u =new URL(“<a href="http://www.123.com&quot;);。如果www.123.com不存在，则返回______（A）" target="_blank" rel="noopener">http://www.123.com&quot;);。如果www.123.com不存在，则返回______（A）</a><br>A.<a href="http://www.123.com" target="_blank" rel="noopener">http://www.123.com</a><br>B.””<br>C.null<br>D.抛出异常</p>
+<hr>
+<p>7.以下关于JAVA语言异常处理描述正确的有？(CD)<br>A.throw关键字可以在方法上声明该方法要抛出的异常。 <code>throws方法上抛异常</code><br>B.throws用于抛出异常对象。 <code>throw 抛出对象</code><br>C.try是用于检测被包住的语句块是否出现异常，如果有异常，则抛出异常，并执行catch语句。<br>D.finally语句块是不管有没有出现异常都要执行的内容。<br>E.在try块中不可以抛出异常 <code>错误</code></p>
+<hr>
+<p>8.关于Java中的ClassLoader下面的哪些描述是错误的：( B D F )<br>A.默认情况下，Java应用启动过程涉及三个ClassLoader: Boostrap, Extension, System<br>B.一般的情况不同ClassLoader装载的类是不相同的，但接口类例外，对于同一接口所有类装载器装载所获得的类是相同的<br>C.类装载器需要保证类装载过程的线程安全<br>D.ClassLoader的loadClass在装载一个类时，如果该类不存在它将返回null<br>E.ClassLoader的父子结构中，默认装载采用了父优先<br>F.所有ClassLoader装载的类都来自CLASSPATH环境指定的路径</p>
+<blockquote>
+<p>解析：对于任意一个类，都需要由加载它的类加载器和这个类本身一同确立其在Java虚拟机中的唯一性，每一个类加载器，都拥有一个独立的类名称空间;<br>如果父类加载失败，抛出ClassNotFoundException异常;<br>应用程序类加载器（Application ClassLoader）负责加载用户类路径（ClassPath）上所指定的类库，不是所有的ClassLoader都加载此路径.</p>
+</blockquote>
+<hr>
+<p>9.有关线程的叙述正确的是(CD)<br>A.可以获得对任何对象的互斥锁定<br>B.通过继承Thread类或实现Runnable接口，可以获得对类中方法的互斥锁定<br>C.线程通过使用synchronized关键字可获得对象的互斥锁定<br>D.线程调度算法是平台独立的</p>
+<hr>
+<p>10.CMS垃圾回收器在那些阶段是没用用户线程参与的(AC)<br>A.初始标记<br>B.并发标记<br>C.重新标记<br>D.并发清理</p>
+<blockquote>
+<p>解析：CMS的基础算法是：标记—清除,它的过程可以分为以下6个步骤：<br>初始标记(STW initial mark)<br>并发标记(Concurrent marking)<br>并发预清理(Concurrent precleaning)<br>重新标记(STW remark)<br>并发清理(Concurrent sweeping)<br>并发重置(Concurrent reset)</p>
+</blockquote>
+<hr>
+<p>11.下面关于变量及其范围的陈述哪些是不正确的（BC）<br>A.实例变量是类的成员变量<br>B.实例变量用关键字static声明<br>C.在方法中定义的局部变量在该方法被执行时创建 <code>在该变量被声明并赋值时创建</code><br>D.局部变量在使用前必须被初始化</p>
+<hr>
+<h3 id="2020-10-30"><a href="#2020-10-30" class="headerlink" title="2020-10-30"></a>2020-10-30</h3><p>1.以下代码执行后输出结果为（A）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123; </span><br><span class="line">    public static void main(String[] args) &#123; </span><br><span class="line">        System.out.println(&quot;return value of getValue(): &quot; +</span><br><span class="line">        getValue()); </span><br><span class="line">    &#125; </span><br><span class="line">     public static int getValue() &#123; </span><br><span class="line">         try &#123; </span><br><span class="line">             return 0; </span><br><span class="line">         &#125; finally &#123; </span><br><span class="line">             return 1; </span><br><span class="line">         &#125; </span><br><span class="line">     &#125; </span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.return value of getValue(): 1<br>B.return value of getValue(): 0<br>C.return value of getValue(): 0return value of getValue(): 1<br>D.return value of getValue(): 1return value of getValue(): 0</p>
+<hr>
+<p>2.以下代码的输出的正确结果是(D)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">public static void main(String args[]) &#123;</span><br><span class="line">String s = &quot;祝你考出好成绩！&quot;;</span><br><span class="line">System.out.println(s.length());</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.24<br>B.16<br>C.15<br>D.8</p>
+<hr>
+<p>3.输出结果为(B)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String str =</span><br><span class="line">&quot;&quot;;</span><br><span class="line">System.out.print(str.split(&quot;,&quot;).length);</span><br></pre></td></tr></table></figure>
+
+<p>A.0<br>B.1<br>C.出现异常</p>
+<hr>
+<p>4.在各自最优条件下,对N个数进行排序,哪个算法复杂度最低的是? （A）</p>
+<p>A.插入排序：最佳O（N）<br>B.快速排序：最佳O（NlogN）<br>C.堆    排序：最佳O（NlogN）<br>D.归并排序：最佳O（NlogN）</p>
+<hr>
+<p>5.下面的switch语句中，x可以是哪些类型的数据：(B D)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">switch(x)</span><br><span class="line">&#123;</span><br><span class="line">default:</span><br><span class="line">System.out.println(&quot;Hello&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A.long<br>B.char<br>C.float<br>D.byte<br>E.double<br>F.Object</p>
+<blockquote>
+<p>解析：switch支持10种类型 基本类型：byte char short int 对于包装类 ：Byte,Short,Character,Integer String enum </p>
+</blockquote>
+<hr>
+<p>6.以下哪种方式实现的单例是线程安全的（ A B C D）<br>A.枚举<br>B.静态内部类<br>C.双检锁模式<br>D.饿汉式</p>
+<hr>
+<p>7.haracter流和byte流的区别不包括（B C ）<br>A.每次读入的字节数不同<br>B.前者带有缓冲，后者没有。<br>C.前者是字符读入，后者是字节读入。<br>D.二者没有区别，可以互换。</p>
+<hr>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/11/02/nk-201019-201030/">http://zws6672.top/2020/11/02/nk-201019-201030/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/nk/">nk</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/11/02/leetcode-201019-201030/" class="pre">leetcode-201019-201030</a><a href="/2020/10/18/redis-lua-1/" class="next">Redis Lua脚本入门</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#2020-10-19"><span class="toc-text">2020-10-19</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2020-10-20"><span class="toc-text">2020-10-20</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2020-10-21"><span class="toc-text">2020-10-21</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2020-10-22"><span class="toc-text">2020-10-22</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2020-10-30"><span class="toc-text">2020-10-30</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

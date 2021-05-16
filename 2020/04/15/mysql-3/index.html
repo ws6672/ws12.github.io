@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>mysql 基础语法（三）查询二三事 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">mysql 基础语法（三）查询二三事</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">mysql 基础语法（三）查询二三事</h1><div class="post-meta"><a href="/2020/04/15/mysql-3/#comments" class="comment-count"></a><p><span class="date">Apr 15, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h3 id="一、运算符的使用"><a href="#一、运算符的使用" class="headerlink" title="一、运算符的使用"></a>一、运算符的使用</h3><p>MySQL 数据库中的表结构确立后，表中的数据代表的意义就已经确定。而通过 MySQL 运算符进行运算，就可以获取到表结构以外的另一种数据。</p>
+<p>MySQL 支持 4 种运算符，分别是：<br>1) 算术运算符<br>执行算术运算，例如：加、减、乘、除等。</p>
+<table>
+<thead>
+<tr>
+<th align="left">算术运算符</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">+</td>
+<td align="left">加法运算</td>
+</tr>
+<tr>
+<td align="left">-</td>
+<td align="left">减法运算</td>
+</tr>
+<tr>
+<td align="left">*</td>
+<td align="left">乘法运算</td>
+</tr>
+<tr>
+<td align="left">/</td>
+<td align="left">除法运算，返回商</td>
+</tr>
+<tr>
+<td align="left">%</td>
+<td align="left">求余运算，返回余数</td>
+</tr>
+</tbody></table>
+<p>2) 比较运算符<br>包括大于、小于、等于或者不等于，等等。主要用于数值的比较、字符串的匹配等方面。例如：LIKE、IN、BETWEEN AND 和 IS NULL 等都是比较运算符，还包括正则表达式的 REGEXP 也是比较运算符。</p>
+<table>
+<thead>
+<tr>
+<th align="left">比较运算符</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">=</td>
+<td align="left">等于</td>
+</tr>
+<tr>
+<td align="left">&lt;</td>
+<td align="left">小于</td>
+</tr>
+<tr>
+<td align="left">&lt;=</td>
+<td align="left">小于等于</td>
+</tr>
+<tr>
+<td align="left">&gt;</td>
+<td align="left">大于</td>
+</tr>
+<tr>
+<td align="left">&gt;=</td>
+<td align="left">大于等于</td>
+</tr>
+<tr>
+<td align="left">&lt;=&gt;</td>
+<td align="left">安全的等于，不会返回 UNKNOWN</td>
+</tr>
+<tr>
+<td align="left">&lt;&gt; 或!=</td>
+<td align="left">不等于</td>
+</tr>
+<tr>
+<td align="left">IS NULL 或 ISNULL</td>
+<td align="left">判断一个值是否为 NULL</td>
+</tr>
+<tr>
+<td align="left">IS NOT NULL</td>
+<td align="left">判断一个值是否不为 NULL</td>
+</tr>
+<tr>
+<td align="left">LEAST</td>
+<td align="left">当有两个或多个参数时，返回最小值</td>
+</tr>
+<tr>
+<td align="left">GREATEST</td>
+<td align="left">当有两个或多个参数时，返回最大值</td>
+</tr>
+<tr>
+<td align="left">BETWEEN AND</td>
+<td align="left">判断一个值是否落在两个值之间</td>
+</tr>
+<tr>
+<td align="left">IN</td>
+<td align="left">判断一个值是IN列表中的任意一个值</td>
+</tr>
+<tr>
+<td align="left">NOT IN</td>
+<td align="left">判断一个值不是IN列表中的任意一个值</td>
+</tr>
+<tr>
+<td align="left">LIKE</td>
+<td align="left">通配符匹配</td>
+</tr>
+<tr>
+<td align="left">REGEXP</td>
+<td align="left">正则表达式匹配</td>
+</tr>
+</tbody></table>
+<p>3) 逻辑运算符<br>包括与、或、非和异或等逻辑运算符。其返回值为布尔型，真值（1 或 true）和假值（0 或 false）。</p>
+<table>
+<thead>
+<tr>
+<th align="left">逻辑运算符</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">NOT 或者 !</td>
+<td align="left">逻辑非</td>
+</tr>
+<tr>
+<td align="left">AND 或者 &amp;&amp;</td>
+<td align="left">逻辑与</td>
+</tr>
+<tr>
+<td align="left">OR 或者 ||</td>
+<td align="left">逻辑或</td>
+</tr>
+<tr>
+<td align="left">XOR</td>
+<td align="left">逻辑异或</td>
+</tr>
+</tbody></table>
+<p>4) 位运算符<br>包括按位与、按位或、按位取反、按位异或、按位左移和按位右移等位运算符。位运算必须先将数据转换为二进制，然后在二进制格式下进行操作,运算完成后，将二进制的值转换为原来的类型，返回给用户。</p>
+<table>
+<thead>
+<tr>
+<th align="left">位运算符</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">|</td>
+<td align="left">按位或</td>
+</tr>
+<tr>
+<td align="left">&amp;</td>
+<td align="left">按位与</td>
+</tr>
+<tr>
+<td align="left">^</td>
+<td align="left">按位异或</td>
+</tr>
+<tr>
+<td align="left">&lt;&lt;</td>
+<td align="left">按位左移</td>
+</tr>
+<tr>
+<td align="left">&gt;&gt;</td>
+<td align="left">按位右移</td>
+</tr>
+<tr>
+<td align="left">~</td>
+<td align="left">按位取反，反转所有比特</td>
+</tr>
+</tbody></table>
+<p>各种符合的优先级如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">优先级由低到高排列</th>
+<th align="left">运算符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1</td>
+<td align="left">=(赋值运算）、:=</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">II、OR</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">XOR</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">&amp;&amp;、AND</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">NOT</td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="left">BETWEEN、CASE、WHEN、THEN、ELSE</td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="left">=(比较运算）、&lt;=&gt;、&gt;=、&gt;、&lt;=、&lt;、&lt;&gt;、!=、 IS、LIKE、REGEXP、IN</td>
+</tr>
+<tr>
+<td align="left">8</td>
+<td align="left">|</td>
+</tr>
+<tr>
+<td align="left">9</td>
+<td align="left">&amp;</td>
+</tr>
+<tr>
+<td align="left">10</td>
+<td align="left">&lt;&lt;、&gt;&gt;</td>
+</tr>
+<tr>
+<td align="left">11</td>
+<td align="left">-(减号）、+</td>
+</tr>
+<tr>
+<td align="left">12</td>
+<td align="left">*、/、%</td>
+</tr>
+<tr>
+<td align="left">13</td>
+<td align="left">^</td>
+</tr>
+<tr>
+<td align="left">14</td>
+<td align="left">-(负号）、〜（位反转）</td>
+</tr>
+<tr>
+<td align="left">15</td>
+<td align="left">!</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="二、查询"><a href="#二、查询" class="headerlink" title="二、查询"></a>二、查询</h3><p><strong><em>条件查询</em></strong></p>
+<p>在使用 MySQL SELECT语句时，可以使用 WHERE 子句来指定查询条件，从 FROM 子句的中间结果中选取适当的数据行，达到数据过滤的效果。</p>
+<p>语法格式如下：<br>    <code>WHERE &lt;查询条件&gt; {&lt;判定运算1&gt;，&lt;判定运算2&gt;，…}</code></p>
+<p>判定运算的语法分类如下：<br>    +    <code>&lt;表达式1&gt;{=|&lt;|&lt;=|&gt;|&gt;=|&lt;=&gt;|&lt;&gt;|！=}&lt;表达式2&gt;</code><br>    +    <code>&lt;表达式1&gt;[NOT]LIKE&lt;表达式2&gt;</code><br>    +    <code>&lt;表达式1&gt;[NOT][REGEXP|RLIKE]&lt;表达式2&gt;</code><br>    +    <code>&lt;表达式1&gt;[NOT]BETWEEN&lt;表达式2&gt;AND&lt;表达式3&gt;</code><br>    +    <code>&lt;表达式1&gt;IS[NOT]NULL</code></p>
+<p>实例：</p>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">-- 单一条件查询</span><br><span class="line">select t.PMONTH `month`, t.PYEAR `year` from ttt t where t.PYEAR = 2013   limit 5;</span><br><span class="line"></span><br><span class="line">-- 多条件查询</span><br><span class="line">select t.PMONTH `month`, t.PYEAR `year` from ttt t where t.PYEAR = 2013 and t.PMONTH = 1   limit 5;</span><br><span class="line"></span><br><span class="line">-- 模糊查询</span><br><span class="line">select t.PMONTH `month`, t.PYEAR `year` from ttt t where t.PYEAR like &apos;201%&apos;   limit 5;</span><br><span class="line"></span><br><span class="line">-- 模糊查询 结尾</span><br><span class="line">select t.PMONTH `month`, t.PYEAR `year` from ttt t where t.PYEAR like &apos;%3&apos;   limit 5;</span><br></pre></td></tr></table></figure></code></pre><p><strong><em>内连接查询</em></strong></p>
+<p>内连接是通过在查询中设置连接条件的方式，来移除查询结果集中某些数据行后的交叉连接。简单来说，就是利用条件表达式来消除交叉连接的某些数据行。<br>在 MySQL FROM 子句中使用关键字 INNER JOIN 连接两张表，并使用 ON 子句来设置连接条件。如果没有任何条件，INNER JOIN 和 CROSS JOIN 在语法上是等同的，两者可以互换。</p>
+<p>语法格式如下：<br>    <code>SELECT &lt;列名1，列名2 …&gt; FROM &lt;表名1&gt; INNER JOIN &lt;表名2&gt; [ ON子句]</code></p>
+<p>实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-- 并表查询</span><br><span class="line"> SELECT id,name,age,dept_name</span><br><span class="line">    FROM tb_students_info,tb_departments</span><br><span class="line">		WHERE tb_students_info.dept_id=tb_departments.dept_id;</span><br><span class="line">		</span><br><span class="line">-- 内连接（INNER JOIN）</span><br><span class="line"></span><br><span class="line">SELECT id,name,age,dept_name</span><br><span class="line">	FROM tb_students_info INNER JOIN tb_departments</span><br><span class="line">		WHERE tb_students_info.dept_id=tb_departments.dept_id;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>LEFT/RIGHT JOIN：外连接查询</em></strong></p>
+<p>MySQL 中内连接是在交叉连接的结果集上返回满足条件的记录；而外连接先将连接的表分为基表和参考表，再以基表为依据返回满足和不满足条件的记录。</p>
+<p>外连接更加注重两张表之间的关系。按照连接表的顺序，可以分为左外连接和右外连接。</p>
+<p>在左外连接的结果集中，除了匹配的行之外，还包括左表中有但在右表中不匹配的行，对于这样的行，从右表中选择的列的值被设置为 NULL，即左外连接的结果集中的 NULL 值表示右表中没有找到与左表相符的记录。</p>
+<p>右外连接又称为右连接，在 FROM 子句中使用 RIGHT OUTER JOIN 或者 RIGHT JOIN。与左外连接相反，右外连接以右表为基表，连接方法和左外连接相同。在右外连接的结果集中，除了匹配的行外，还包括右表中有但在左表中不匹配的行，对于这样的行，从左表中选择的值被设置为 NULL。</p>
+<p>实例：<br>    <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-- 左连接</span><br><span class="line">SELECT*FROM ttt t LEFT JOIN t_bas_unit_rule tr </span><br><span class="line">	ON t.GRIDCODE=tr.GRIDCODE;</span><br><span class="line"></span><br><span class="line">-- 右连接</span><br><span class="line">SELECT*FROM ttt t RIGHT JOIN t_bas_unit_rule tr </span><br><span class="line">	ON t.GRIDCODE=tr.GRIDCODE;</span><br></pre></td></tr></table></figure></p>
+<p><img src="/image/mysql/zylj.png" alt="左右连接"></p>
+<p><strong><em>子查询</em></strong></p>
+<p>子查询指一个查询语句嵌套在另一个查询语句内部的查询，这个特性从 MySQL 4.1 开始引入，在 SELECT 子句中先计算子查询，子查询结果作为外层另一个查询的过滤条件，查询可以基于一个表或者多个表。</p>
+<p>子查询中常用的操作符有 ANY（SOME）、ALL、IN 和 EXISTS。子查询可以添加到 SELECT、UPDATE 和 DELETE 语句中，而且可以进行多层嵌套。子查询也可以使用比较运算符，如“&lt;”、“&lt;=”、“&gt;”、“&gt;=”、“！=”等。</p>
+<p>实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-- in 查询</span><br><span class="line">SELECT*FROM ttt t where t.GRIDCODE in(select GRIDCODE from t_bas_unit_rule);</span><br><span class="line"></span><br><span class="line">-- not in</span><br><span class="line">SELECT*FROM ttt t where t.GRIDCODE not in(select GRIDCODE from t_bas_unit_rule);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-- EXISTS 查询</span><br><span class="line">SELECT*FROM ttt t where exists(select GRIDCODE from t_bas_unit_rule tr where tr.GRIDCODE = &apos;CSG&apos; );</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-- 运算符</span><br><span class="line">SELECT*FROM ttt t where t.GRIDCODE = (select distinct GRIDCODE from t_bas_unit_rule tr where tr.GRIDCODE = &apos;CSG&apos;);</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>分组查询</em></strong><br>在 MySQL SELECT 语句中，允许使用 GROUP BY 子句，将结果集中的数据行根据选择列的值进行逻辑分组，以便能汇总表内容的子集，实现对每个组而不是对整个结果集进行整合。</p>
+<p>语法格式如下：<br>    <code>GROUP BY { &lt;列名&gt; | &lt;表达式&gt; | &lt;位置&gt; } [ASC | DESC]</code></p>
+<p>对于 GROUP BY 子句的使用，需要注意以下几点。</p>
+<ul>
+<li>GROUP BY 子句可以包含任意数目的列，使其可以对分组进行嵌套，为数据分组提供更加细致的控制。</li>
+<li>GROUP BY 子句列出的每个列都必须是检索列或有效的表达式，但不能是聚合函数。若在 SELECT 语句中使用表达式，则必须在 GROUP BY 子句中指定相同的表达式。</li>
+<li>除聚合函数之外，SELECT 语句中的每个列都必须在 GROUP BY 子句中给出。</li>
+<li>若用于分组的列中包含有 NULL 值，则 NULL 将作为一个单独的分组返回；若该列中存在多个 NULL 值，则将这些 NULL 值所在的行分为一组。</li>
+</ul>
+<p><strong><em>指定过滤条件</em></strong><br>在 MySQL SELECT 语句中，除了能使用 GROUP BY 子句分组数据外，还可以使用 HAVING 子句过滤分组，在结果集中规定了包含哪些分组和排除哪些分组。</p>
+<p>语法格式如下：<br>    <code>HAVING &lt;条件&gt;</code></p>
+<p>HAVING 子句和 WHERE 子句非常相似，HAVING 子句支持 WHERE 子句中所有的操作符和语法，但是两者存在几点差异：</p>
+<ul>
+<li>WHERE 子句主要用于过滤数据行，而 HAVING 子句主要用于过滤分组，即 HAVING 子句基于分组的聚合值而不是特定行的值来过滤数据，主要用来过滤分组。</li>
+<li>WHERE 子句不可以包含聚合函数，HAVING 子句中的条件可以包含聚合函数。</li>
+<li>HAVING 子句是在数据分组后进行过滤，WHERE 子句会在数据分组前进行过滤。WHERE 子句排除的行不包含在分组中，可能会影响 HAVING 子句基于这些值过滤掉的分组。</li>
+</ul>
+<hr>
+<h3 id="三、其余操作"><a href="#三、其余操作" class="headerlink" title="三、其余操作"></a>三、其余操作</h3><p><strong><em>去重查询</em></strong></p>
+<p>通过<code>distinct</code>去重，它往往用来查询不重复的具体条数，而不是具体数据。因为，它只能返回目标字段，而无法返回其它字段。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-- 去重</span><br><span class="line">select distinct PMONTH from ttt</span><br></pre></td></tr></table></figure>
+
+<p>如果使用多个字段，那么久需要多个字段不同：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select *, count(distinct PMONTH) from ttt group by PMONTH</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>别名</em></strong></p>
+<p>为表指定别名的基本语法格式为：<br><code>&lt;表名&gt; [AS] &lt;别名&gt;</code></p>
+<p>实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- 表别名</span><br><span class="line">select t.PMONTH, t.PYEAR from ttt t;</span><br><span class="line"></span><br><span class="line">-- 字段别名</span><br><span class="line">select t.PMONTH `month`, t.PYEAR `year` from ttt t;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>限制查询结果的记录条数</em></strong></p>
+<p>基本的语法格式如下：<br>    <code>&lt;LIMIT&gt; [&lt;位置偏移量&gt;,] &lt;行数&gt;</code></p>
+<p>实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- 查询至多五行</span><br><span class="line">select t.PMONTH `month`, t.PYEAR `year` from ttt t limit 5;</span><br><span class="line"></span><br><span class="line">-- 偏移三行，查询至多五行</span><br><span class="line">select t.PMONTH `month`, t.PYEAR `year` from ttt t limit 3, 5;</span><br></pre></td></tr></table></figure>
+
+<p><strong><em>对查询结果进行排序</em></strong></p>
+<p>其语法格式为：<br>    <code>ORDER BY {&lt;列名&gt; | &lt;表达式&gt; | &lt;位置&gt;} [ASC|DESC]</code></p>
+<p>关键字 ASC 表示按升序分组，关键字 DESC 表示按降序分组，其中 ASC 为默认值。这两个关键字必须位于对应的列名、表达式、列的位置之后。</p>
+<p>实例：</p>
+<pre><code>select t.PMONTH `month`, t.PYEAR `year` from ttt t order by `year`,`month` limit 5;</code></pre></div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/04/15/mysql-3/">http://zws6672.top/2020/04/15/mysql-3/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/mysql/">mysql</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/04/15/mysql-4-engines/" class="pre">mysql 存储引擎</a><a href="/2020/04/14/mysql-2/" class="next">mysql 基础语法（二）</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、运算符的使用"><span class="toc-text">一、运算符的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、查询"><span class="toc-text">二、查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、其余操作"><span class="toc-text">三、其余操作</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>redis（一）入门 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">redis（一）入门</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">redis（一）入门</h1><div class="post-meta"><a href="/2020/09/24/redis-1/#comments" class="comment-count"></a><p><span class="date">Sep 24, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="一、基础"><a href="#一、基础" class="headerlink" title="一、基础"></a>一、基础</h1><p>Redis （Remote Dictionary Server）可以翻译为远程词典服务器，，是一个开源的使用ANSI- C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。顾名思义，它的存储形式是以字典形式存储结构，并且允许其他应用通过 TCP 协议进行读写操作。</p>
+<p>Redis的架构包括两个部分：Redis Client和Redis Server。Redis客户端负责向服务器端发送请求并接受来自服务器端的响应。服务器端负责处理客户端请求，例如，存储数据，修改数据等。 </p>
+<h3 id="1-1-衡量Redis优劣"><a href="#1-1-衡量Redis优劣" class="headerlink" title="1.1 衡量Redis优劣"></a>1.1 衡量Redis优劣</h3><p>衡量一个数据库系统的优劣，可以从以下几个方面着手：</p>
+<ul>
+<li>安全性</li>
+<li>性能</li>
+<li>可持续性</li>
+<li>业务支撑</li>
+</ul>
+<ol>
+<li>安全性</li>
+</ol>
+<p>Redis被设计成仅有可信环境下的可信用户才可以访问。这意味着将Redis实例直接暴露在网络上或者让不可信用户可以直接访问Redis的tcp端口或Unix套接字，是不安全的。正常情况下，使用Redis的web应用程序是将Redis作为数据库，缓存，消息系统，网站的前端用户将会查询Redis来生成页面，或者执行所请求的操作，或者被web应用程序用户所触发。总而言之，Redis并没有最大地去优化安全方面，而是尽最大可能去优化高性能和易用性。</p>
+<ol start="2">
+<li>性能</li>
+</ol>
+<ul>
+<li>Redis基于内存的数据库。数据被存储在内存中，不需要到硬盘读取。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CPU上下文的切换大概在 1500ns 左右。</span><br><span class="line">从内存中读取 1MB 的连续数据，耗时大约为 250us，假设1MB的数据由多个线程读取了1000次，那么就有1000次时间上下文的切换，</span><br><span class="line">那么就有1500ns * 1000 = 1500us ,切换上下文的时间是读取数据消耗时间的6倍。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>单线程。多线程的本质就是 CPU 模拟出来多个线程的情况，这种模拟出来的情况就有一个代价，就是上下文的切换数据库来说，它没有上下文的切换就是效率最高的。所以，Redis被设计成单线程。CPU不是Redis的瓶颈，Redis的瓶颈最有可能是机器内存的大小或者网络带宽。</li>
+<li>使用多路I/O复用模型（连接重复使用），非阻塞IO（不能立刻得到调用结果之前，函数不会阻塞当前线程）</li>
+</ul>
+<ol start="3">
+<li>可持续性</li>
+</ol>
+<p>Redis 将数据存储在内存中，重启后数据消失。为了保证数据的可持续性，Redis提供RDB（默认持久化方式，定时存储数据）、AOF（定时存储命令）两种方式来持久化数据。</p>
+<ol start="4">
+<li>业务支撑</li>
+</ol>
+<ul>
+<li>热点数据的缓存(redis速度块、支持的数据类型比较丰富、expire)</li>
+<li>计数器相关问题（incrby）</li>
+<li>排行榜（SortedSet）</li>
+<li>分布式锁（setnx）</li>
+<li>延时操作（Pub/Sub、expire）</li>
+<li>分页、模糊搜索（ZRANGEBYLEX）</li>
+<li>队列（list push、list pop）</li>
+</ul>
+<blockquote>
+<p><a href="https://cloud.tencent.com/developer/article/1120615" target="_blank" rel="noopener">Redis为什么是单线程</a><br><a href="https://www.cnblogs.com/qwangxiao/p/8535202.html" target="_blank" rel="noopener">Redis的性能瓶颈</a></p>
+</blockquote>
+<hr>
+<h1 id="二、使用"><a href="#二、使用" class="headerlink" title="二、使用"></a>二、使用</h1><p>相关资源：<br><a href="https://redis.io/" target="_blank" rel="noopener">redis 官网</a><br><a href="http://redisdoc.com/" target="_blank" rel="noopener">redis 文档</a><br><a href="https://github.com/ServiceStack/redis-windows" target="_blank" rel="noopener">window版的Redis v3.0.503</a></p>
+<h3 id="2-1-通过Vagrant载Redis"><a href="#2-1-通过Vagrant载Redis" class="headerlink" title="2.1 通过Vagrant载Redis"></a>2.1 通过Vagrant载Redis</h3><p>Vagrant是一个基于Ruby的工具，用于创建和部署虚拟化开发环境。它 使用Oracle的开源VirtualBox虚拟化系统，使用 Chef创建自动化虚拟环境。</p>
+<ol>
+<li>在Windows上安装Vagrant</li>
+<li>下载vagrant-redis.zip vagrant配置</li>
+<li>vagrant-redis.zip在任何文件夹中提取，例如在c:\vagrant-redis</li>
+<li>启动Virtual Box VM vagrant up</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd c:\vagrant-redis</span><br><span class="line">vagrant up</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Redis配置与使用"><a href="#2-2-Redis配置与使用" class="headerlink" title="2.2 Redis配置与使用"></a>2.2 Redis配置与使用</h3><ol>
+<li>修改配置文件 <code>redis.windows.conf</code></li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># maxmemory &lt;bytes&gt;</span><br><span class="line"># 设置大约1GB</span><br><span class="line">maxmemory 1024000000</span><br><span class="line"></span><br><span class="line"># requirepass foobared</span><br><span class="line"># 设置密码</span><br><span class="line">requirepass 111</span><br><span class="line"># 设置端口</span><br><span class="line">port 6379</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>通过命令启动</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">cd e:/util/redis</span><br><span class="line">e:</span><br><span class="line"># 服务端</span><br><span class="line"></span><br><span class="line">redis-server.exe redis.windows.conf</span><br><span class="line"></span><br><span class="line"># 客户端</span><br><span class="line">redis-cli.exe</span><br><span class="line"></span><br><span class="line"># 添加【redis】服务</span><br><span class="line">redis-server --service-install redis.windows.conf --port 6379</span><br><span class="line"># 卸载【redist】服务</span><br><span class="line">redis-server --service-uninstall --service-name Redis</span><br><span class="line"># 启动服务</span><br><span class="line">redis-server --service-start</span><br><span class="line"># 停止服务</span><br><span class="line">redis-server --service-stop</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>Redis React——视图化工具</li>
+</ol>
+<p>Redis React 可以非常便捷的查询键值对，也可以输入命令。<a href="https://github.com/ServiceStackApps/RedisReact#download" target="_blank" rel="noopener">下载</a>,打开后即可使用。</p>
+<ol start="4">
+<li>为快速登陆创建批处理文件</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd E:\Util\redis-latest</span><br><span class="line">e:</span><br><span class="line">redis-server.exe redis.windows.con</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>Redis无需密码<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">可以在redis.conf里设置:</span><br><span class="line"></span><br><span class="line">	# requirepass foobared</span><br><span class="line">	requirepass yourpassword</span><br><span class="line"></span><br><span class="line">重新启动redis-server redis.conf</span><br><span class="line"> </span><br><span class="line">集群设置密码(修改所有redis集群中的redis.conf文件)</span><br><span class="line">	masterauth 1234 </span><br><span class="line">	requirepass 1234</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="2-3-Linux中下载与安装"><a href="#2-3-Linux中下载与安装" class="headerlink" title="2.3 Linux中下载与安装"></a>2.3 Linux中下载与安装</h3><ol start="0">
+<li>Linux环境下安装redis报错structredisServer没有名为XXXX的成员</li>
+</ol>
+<p>安装gcc套装</p>
+<ul>
+<li>yum install cpp</li>
+<li>yum install binutils</li>
+<li>yum install glibc</li>
+<li>yum install glibc-kernheaders</li>
+<li>yum install glibc-common</li>
+<li>yum install glibc-devel</li>
+<li>yum install gcc</li>
+<li>yum install make<br>升级gcc</li>
+<li>yum -y install centos-release-scl</li>
+<li>yum -y install devtoolset-9-gcc devtoolset-9-gcc-c++ devtoolset-9-binutils</li>
+<li>scl enable devtoolset-9 bash</li>
+</ul>
+<ol>
+<li><p><a href="https://redis.io/" target="_blank" rel="noopener">下载</a></p>
+</li>
+<li><p>安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&gt;pscp C:\Users\wsz\Downloads\Compressed\redis-6.0.8.tar.gz cen@192.168.223.129:/home/cen</span><br><span class="line"></span><br><span class="line">首先查看gcc-c++是否安装</span><br><span class="line">	[root@localhost src]# gcc -v</span><br><span class="line">	没有安装，则进入root：</span><br><span class="line">		$ su</span><br><span class="line">		$ yum install gcc-c++</span><br><span class="line">进入下载包所在的文件；</span><br><span class="line"></span><br><span class="line">解压：</span><br><span class="line">	$ tar zxvf redis-4.0.1.tar.gz</span><br><span class="line"></span><br><span class="line">进入解压文件中的src文件夹</span><br><span class="line"></span><br><span class="line">编译：</span><br><span class="line">	 </span><br><span class="line">	[zws@localhost src]$ </span><br><span class="line">	tar zxvf redis-4.0.10.tar.gz -C /usr/local/</span><br><span class="line">	[zws@localhost src]$ Cd /usr/local</span><br><span class="line">	[zws@localhost src]$ cd  redis-4.0.10</span><br><span class="line">	[zws@localhost src]$ make</span><br><span class="line">	[zws@localhost src]$ cd  src</span><br><span class="line">	[zws@localhost src]$ make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用, 进入</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Cd redis-4.0.10</span><br><span class="line">Redis-server</span><br><span class="line">Reids-cli</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-数据结构"><a href="#2-4-数据结构" class="headerlink" title="2.4 数据结构"></a>2.4 数据结构</h3><p>它支持多种类型的数据结构，如 字符串（strings）， 散列（hashes）， 列表（lists）， 集合（sets）， 有序集合（sorted sets） 与范围查询， bitmaps， hyperloglogs 和 地理空间（geospatial） 索引半径查询。</p>
+<ul>
+<li>Redis 内置了 复制（replication），LUA脚本（Lua scripting）， LRU驱动事件（LRU eviction），事务（transactions） 和不同级别的 磁盘持久化（persistence）， 并通过 Redis哨兵（Sentinel）和自动 分区（Cluster）提供高可用性（high availability）。</li>
+</ul>
+<ul>
+<li><p>String（字符串）</p>
+<ul>
+<li><p>存放key/value存储</p>
+</li>
+<li><p>set</p>
+</li>
+<li><p>get</p>
+</li>
+<li><p>decr （decrement）递减</p>
+<ul>
+<li>将数字格式的键减一</li>
+<li>如果键 key 不存在， 那么键 key 的值会先被初始化为 0 ， 然后再执行 DECR 操作。</li>
+<li>本操作的值限制在 64 位(bit)有符号数字表示之内。</li>
+</ul>
+</li>
+<li><p>incr （increment）递增</p>
+<ul>
+<li>将数字格式的键增一</li>
+<li>如果键 key 不存在， 那么键 key 的值会先被初始化为 0 ， 然后再执行 incr 操作。</li>
+<li>本操作的值限制在 64 位(bit)有符号数字表示之内。</li>
+</ul>
+</li>
+<li><p>mget</p>
+<ul>
+<li>返回给定的一个或多个字符串键的值。</li>
+<li>如果给定的字符串键里面， 有某个键不存在， 那么这个键的值将以特殊值 nil 表示。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Hash（散列）</p>
+<ul>
+<li>存放二维数据</li>
+<li>hset<ul>
+<li>格式：HSET hash field value （eg: <code>hset image id 11</code> <code>插入一个hash表 key 为image,域为id，值为11的hash数据</code>）</li>
+<li>返回值 当 HSET 命令在哈希表中新创建 field 域并成功为它设置值时， 命令返回 1 ； 如果域 field 已经存在于哈希表， 并且 HSET 命令成功使用新值覆盖了它的旧值， 那么命令返回 0 。</li>
+</ul>
+</li>
+<li>hget<ul>
+<li>格式：HGET hash field （eg: <code>HGET image id</code> ）</li>
+<li>如果给定域不存在于哈希表中， 又或者给定的哈希表并不存在， 那么命令返回 nil 。</li>
+</ul>
+</li>
+<li>hgetall<ul>
+<li>格式：HGET hash （eg: <code>HGET image</code> ）</li>
+<li>返回哈希表key中，所有的域和值。</li>
+</ul>
+</li>
+<li>HSETNX 不存在就添加，存在就放弃操作<ul>
+<li>HSETNX hash field value</li>
+</ul>
+</li>
+<li>HEXISTS 检测是否存在域<ul>
+<li>HEXISTS hash field</li>
+</ul>
+</li>
+<li>HDEL 删除域<ul>
+<li>HDEL key field [field …]</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>LIST（列表）</p>
+<ul>
+<li>LPUSH    <code>LPUSH key value [value …]</code></li>
+<li>LPUSHX    <code>LPUSHX key value</code><ul>
+<li>将值 value 插入到列表 key 的表头，当且仅当 key 存在并且是一个列表。</li>
+</ul>
+</li>
+<li>RPUSH<ul>
+<li>将一个或多个值 value 插入到列表 key 的表尾(最右边)。</li>
+</ul>
+</li>
+<li>RPUSHX<ul>
+<li>将一个或多个值 value 插入到列表 key 的表尾(最右边)，当且仅当 key 存在并且是一个列表。</li>
+</ul>
+</li>
+<li>LPOP    <code>LPOP key</code><ul>
+<li>移除并返回列表 key 的头元素。</li>
+</ul>
+</li>
+<li>RPOP<ul>
+<li>移除并返回列表 key 的尾元素。</li>
+</ul>
+</li>
+<li>RPOPLPUSH    <code>RPOPLPUSH source destination</code><ul>
+<li>这个命令执行两个操作，将<code>source</code>的尾元素移动到<code>destination</code>列表</li>
+</ul>
+</li>
+<li>LREM <code>LREM key count value</code><ul>
+<li>根据参数 count 的值，移除列表中与参数 value 相等的元素。</li>
+<li>count &gt; 0 : 从表头开始向表尾搜索，移除与 value 相等的元素，数量为 count 。</li>
+<li>count &lt; 0 : 从表尾开始向表头搜索，移除与 value 相等的元素，数量为 count 的绝对值。</li>
+<li>count = 0 : 移除表中所有与 value 相等的值。</li>
+</ul>
+</li>
+<li>LLEN</li>
+<li>LINDEX    <code>LINDEX key index</code><ul>
+<li>返回列表 key 中，下标为 index 的元素。</li>
+</ul>
+</li>
+<li>LINSERT</li>
+<li>LSET</li>
+<li>LRANGE</li>
+<li>LTRIM</li>
+<li>BLPOP</li>
+<li>BRPOP</li>
+<li>BRPOPLPUSH    </li>
+</ul>
+</li>
+<li><p>集合（sets）</p>
+</li>
+<li><p>有序集合（sorted sets） zsets</p>
+</li>
+<li><p>bitmaps</p>
+</li>
+<li><p>hyperloglogs</p>
+</li>
+<li><p>地理空间（geospatial）</p>
+</li>
+</ul>
+<p><strong><em>用途</em></strong></p>
+<ol>
+<li><p>会话存储(Session)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET randomHash &quot;&#123;userId&#125;&quot; EX 60</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>全页面缓存</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET key &quot;&lt;html&gt;...&lt;/html&gt;&quot; EX 60</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>顺序排序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZADD sortedSet 1 &quot;one&quot;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>队列（电子邮件队列等）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HSET messages &lt;id&gt; &lt;message&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>pub/sub()</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUBLISH channel message;</span><br><span class="line">SUBSCRIBE channel;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>分布式锁</p>
+</li>
+</ol>
+<hr>
+<h3 id="2-5-在Windows上安装-Redis6"><a href="#2-5-在Windows上安装-Redis6" class="headerlink" title="2.5 在Windows上安装 Redis6"></a>2.5 在Windows上安装 Redis6</h3><p>通过Cygwin3工具可以在WIN模拟Linux环境。<a href="https://cygwin.com/setup-x86_64.exe" target="_blank" rel="noopener">下载地址</a></p>
+<ol>
+<li>一路默认选项即可，到一个页面有 User Url，添加<code>http://mirrors.aliyun.com/cygwin/</code>即可。</li>
+<li>Select Pacakage, 额外添加 make，gcc-core，gcc-g++ libgcc1 libgccpp1</li>
+<li>一路安装直至完成即可</li>
+</ol>
+<p><a href="https://redis.io/" target="_blank" rel="noopener">下载redis源码</a>,编译源码包</p>
+<ol>
+<li><p>把下好的源码包安装到<code>cygwin64\home\&lt;用户名&gt;</code>下，就可以通过<code>Cygwin.bat</code>访问模拟环境看到了</p>
+</li>
+<li><p>解压，编译</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tar -xvf redis-5.0.7.tar.gz</span><br><span class="line">make &amp; make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译完成后，会生成很多<code>.exe</code>文件，把<code>.exe</code>文件、<code>redis.conf</code>、<code>cygwin64\bin\cygwin1.dll</code>复制到新文件中</p>
+</li>
+<li><p>配置好redis.conf，即可获得一个可启动的客户端。</p>
+</li>
+</ol>
+<blockquote>
+<p><a href="http://blog.pluskid.org/?p=366" target="_blank" rel="noopener">Redis6 Windows 版本编译</a></p>
+</blockquote>
+<h3 id="可视化工具（支持Redis6）"><a href="#可视化工具（支持Redis6）" class="headerlink" title="可视化工具（支持Redis6）"></a>可视化工具（支持Redis6）</h3><p>QuickRedis是永久免费的Redis Desktop管理器。它支持直接连接，标记和群集模式，支持多种语言，支持数亿个键，并具有出色的UI。同时支持Windows，Mac OS X和Linux平台。</p>
+<p>相关资源：<br><a href="https://github.com/quick123official/quick_redis_blog/" target="_blank" rel="noopener">QuickOfficial</a><br><a href="https://github.com/quick123official/quick_redis_blog/" target="_blank" rel="noopener">QuickOfficial github</a></p>
+<h1 id="三、Jedis"><a href="#三、Jedis" class="headerlink" title="三、Jedis"></a>三、Jedis</h1><ol>
+<li><a href="https://mvnrepository.com/artifact/redis.clients/jedis/2.9.0" target="_blank" rel="noopener">下载</a></li>
+</ol>
+<ol start="2">
+<li>下载 <a href="http://mvnrepository.com/artifact/org.apache.commons/commons-pool2" target="_blank" rel="noopener">commons-poolx.x.x.jar  ——使用附加包</a> 连接的时候需开放端口或关闭防火墙(命令如下 sudo service iptables stop ,需要注释掉bind127.0.0.1 ，设置protected-mode为NO)</li>
+</ol>
+<ol start="3">
+<li><p>Maven使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https://mvnrepository.com/artifact/redis.clients/jedis --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;redis.clients&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;jedis&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;2.9.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><a href="http://xetorthio.github.io/jedis/" target="_blank" rel="noopener">相关api</a></p>
+</li>
+</ol>
+<h3 id="3-1-Jedis-使用"><a href="#3-1-Jedis-使用" class="headerlink" title="3.1 Jedis 使用"></a>3.1 Jedis 使用</h3><ol>
+<li>Jedis 连接池</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">import java.io.IOException;</span><br><span class="line">import java.io.InputStream;</span><br><span class="line">import java.util.Properties;</span><br><span class="line"></span><br><span class="line">import redis.clients.jedis.Jedis;</span><br><span class="line">import redis.clients.jedis.JedisPool;</span><br><span class="line">import redis.clients.jedis.JedisPoolConfig;</span><br><span class="line"></span><br><span class="line">public class JPool &#123;</span><br><span class="line">    //最大连接总数</span><br><span class="line">    private int maxTotal;</span><br><span class="line">    //最大空闲数</span><br><span class="line">    private int maxIdle;</span><br><span class="line">    //连接池配置</span><br><span class="line">    private JedisPoolConfig jpc;</span><br><span class="line">    //连接池</span><br><span class="line">    private JedisPool jp;</span><br><span class="line">    //连接</span><br><span class="line">    private Jedis j;</span><br><span class="line">	</span><br><span class="line">	//配置密码</span><br><span class="line">//		jedis.auth(&quot;password_value&quot;);</span><br><span class="line">	</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    public JPool() &#123;</span><br><span class="line">        // TODO 自动生成的构造函数存根</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public JPool(int maxTotal,int maxIdle) &#123;</span><br><span class="line">        // TODO 自动生成的构造函数存根</span><br><span class="line">        this.maxTotal = maxTotal;</span><br><span class="line">        this.maxIdle = maxIdle;</span><br><span class="line">        init();</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public void init() &#123;</span><br><span class="line">        jpc = new JedisPoolConfig();</span><br><span class="line">        jpc.setMaxTotal(this.maxTotal);</span><br><span class="line">        jpc.setMaxIdle(this.maxIdle);</span><br><span class="line">        initProFile();</span><br><span class="line">         </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    public void initProFile() &#123;</span><br><span class="line">        InputStream is = JPool.class.getClassLoader().getResourceAsStream(&quot;Redis.properties&quot;);</span><br><span class="line">        </span><br><span class="line">         Properties pro = new Properties();</span><br><span class="line">        </span><br><span class="line">        try &#123;</span><br><span class="line">            pro.load(is);</span><br><span class="line">  </span><br><span class="line">            String ip = pro.getProperty(&quot;IP&quot;);</span><br><span class="line">             </span><br><span class="line">            int port = Integer.parseInt(pro.getProperty(&quot;PORT&quot;));</span><br><span class="line">             </span><br><span class="line">            this.jp = new JedisPool(jpc,ip,port);</span><br><span class="line">            </span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            // TODO 自动生成的 catch 块</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public Jedis getLink() &#123;</span><br><span class="line">        return jp.getResource();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p>配置文件（Redis.properties）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IP = 127.0.0.1</span><br><span class="line">PORT = 6379</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import redis.clients.jedis.Jedis;</span><br><span class="line">import redis.clients.jedis.JedisPoolConfig;</span><br><span class="line"></span><br><span class="line">public class TJ &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        JPool jp = new JPool(30, 10);</span><br><span class="line">        Jedis jedis = jp.getLink();</span><br><span class="line">        //set 命令 保存</span><br><span class="line">        jedis.set(&quot;Test&quot;, &quot;This is a test&quot;);</span><br><span class="line">                </span><br><span class="line">        // get 命令 获取</span><br><span class="line">        System.out.println(jedis.get(&quot;Test&quot;)); </span><br><span class="line">        </span><br><span class="line">        jedis.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>单节点</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">public class JedisTest &#123;</span><br><span class="line"> </span><br><span class="line">	@Test</span><br><span class="line">	public void testJedisSingle() &#123;</span><br><span class="line">		//创建一个jedis的对象。</span><br><span class="line">		Jedis jedis = new Jedis(&quot;192.168.25.153&quot;, 6379);</span><br><span class="line">		//调用jedis对象的方法，方法名称和redis的命令一致。</span><br><span class="line">		jedis.set(&quot;key1&quot;, &quot;jedis test&quot;);</span><br><span class="line">		String string = jedis.get(&quot;key1&quot;);</span><br><span class="line">		System.out.println(string);</span><br><span class="line">		//关闭jedis。</span><br><span class="line">		jedis.close();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 使用连接池</span><br><span class="line">	 */</span><br><span class="line">	@Test</span><br><span class="line">	public void testJedisPool() &#123;</span><br><span class="line">		//创建jedis连接池</span><br><span class="line">		JedisPool pool = new JedisPool(&quot;192.168.25.153&quot;, 6379);</span><br><span class="line">		//从连接池中获得Jedis对象</span><br><span class="line">		Jedis jedis = pool.getResource();</span><br><span class="line">		String string = jedis.get(&quot;key1&quot;);</span><br><span class="line">		System.out.println(string);</span><br><span class="line">		//关闭jedis对象</span><br><span class="line">		jedis.close();</span><br><span class="line">		pool.close();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>集群</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">	public void testJedisCluster() &#123;</span><br><span class="line">		HashSet&lt;HostAndPort&gt; nodes = new HashSet&lt;&gt;();</span><br><span class="line">		nodes.add(new HostAndPort(&quot;192.168.25.153&quot;, 7001));</span><br><span class="line">		nodes.add(new HostAndPort(&quot;192.168.25.153&quot;, 7002));</span><br><span class="line">		nodes.add(new HostAndPort(&quot;192.168.25.153&quot;, 7003));</span><br><span class="line">		nodes.add(new HostAndPort(&quot;192.168.25.153&quot;, 7004));</span><br><span class="line">		nodes.add(new HostAndPort(&quot;192.168.25.153&quot;, 7005));</span><br><span class="line">		nodes.add(new HostAndPort(&quot;192.168.25.153&quot;, 7006));</span><br><span class="line">		</span><br><span class="line">		JedisCluster cluster = new JedisCluster(nodes);</span><br><span class="line">		</span><br><span class="line">		cluster.set(&quot;key1&quot;, &quot;1000&quot;);</span><br><span class="line">		String string = cluster.get(&quot;key1&quot;);</span><br><span class="line">		System.out.println(string);</span><br><span class="line">		</span><br><span class="line">		cluster.close();</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-Jedis-相关方法"><a href="#3-2-Jedis-相关方法" class="headerlink" title="3.2 Jedis 相关方法"></a>3.2 Jedis 相关方法</h3><p>Jedis 相关使用方法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;String&gt; keys = jedis.keys(&quot;*&quot;); //列出所有的key</span><br><span class="line"></span><br><span class="line">Set&lt;String&gt; keys = jedis.keys(&quot;key&quot;); //查找特定的key</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//移除给定的一个或多个key,如果key不存在,则忽略该命令. </span><br><span class="line"></span><br><span class="line">jedis.del(&quot;key1&quot;);</span><br><span class="line"></span><br><span class="line">jedis.del(&quot;key1&quot;,&quot;key2&quot;,&quot;key3&quot;,&quot;key4&quot;,&quot;key5&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//移除给定key的生存时间(设置这个key永不过期)</span><br><span class="line">jedis.persist(&quot;key1&quot;); </span><br><span class="line"></span><br><span class="line">//检查给定key是否存在</span><br><span class="line">jedis.exists(&quot;key1&quot;); </span><br><span class="line"></span><br><span class="line">//将key改名为newkey,当key和newkey相同或者key不存在时,返回一个错误</span><br><span class="line">jedis.rename(&quot;key1&quot;, &quot;key2&quot;);</span><br><span class="line"></span><br><span class="line">//返回key所储存的值的类型。 </span><br><span class="line">//none(key不存在),string(字符串),list(列表),set(集合),zset(有序集),hash(哈希表) </span><br><span class="line">jedis.type(&quot;key1&quot;);</span><br><span class="line"></span><br><span class="line">//设置key生存时间，当key过期时，它会被自动删除。 </span><br><span class="line">jedis.expire(&quot;key1&quot;, 5);//5秒过期 </span><br><span class="line"> </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//字符串值value关联到key。 </span><br><span class="line">jedis.set(&quot;key1&quot;, &quot;value1&quot;); </span><br><span class="line"></span><br><span class="line">//将值value关联到key，并将key的生存时间设为seconds(秒)。 </span><br><span class="line">jedis.setex(&quot;foo&quot;, 5, &quot;haha&quot;); </span><br><span class="line"></span><br><span class="line">//清空所有的key</span><br><span class="line">jedis.flushAll();</span><br><span class="line"></span><br><span class="line">//返回key的个数 </span><br><span class="line">jedis.dbSize();</span><br><span class="line"></span><br><span class="line">//哈希表key中的域field的值设为value。 </span><br><span class="line">jedis.hset(&quot;key1&quot;, &quot;field1&quot;, &quot;field1-value&quot;); </span><br><span class="line">jedis.hset(&quot;key1&quot;, &quot;field2&quot;, &quot;field2-value&quot;); </span><br><span class="line"></span><br><span class="line">Map map = new HashMap(); </span><br><span class="line">map.put(&quot;field1&quot;, &quot;field1-value&quot;); </span><br><span class="line">map.put(&quot;field2&quot;, &quot;field2-value&quot;); </span><br><span class="line">jedis.hmset(&quot;key1&quot;, map); </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//返回哈希表key中给定域field的值 </span><br><span class="line">jedis.hget(&quot;key1&quot;, &quot;field1&quot;);</span><br><span class="line"></span><br><span class="line">//返回哈希表key中给定域field的值(多个)</span><br><span class="line">List list = jedis.hmget(&quot;key1&quot;,&quot;field1&quot;,&quot;field2&quot;); </span><br><span class="line">for(int i=0;i&lt;list.size();i++)&#123; </span><br><span class="line">   System.out.println(list.get(i)); </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">//返回哈希表key中所有域和值</span><br><span class="line">Map&lt;String,String&gt; map = jedis.hgetAll(&quot;key1&quot;); </span><br><span class="line">for(Map.Entry entry: map.entrySet()) &#123; </span><br><span class="line">   System.out.print(entry.getKey() + &quot;:&quot; + entry.getValue() + &quot;\t&quot;); </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">//删除哈希表key中的一个或多个指定域</span><br><span class="line">jedis.hdel(&quot;key1&quot;, &quot;field1&quot;);</span><br><span class="line">jedis.hdel(&quot;key1&quot;, &quot;field1&quot;,&quot;field2&quot;);</span><br><span class="line"></span><br><span class="line">//查看哈希表key中，给定域field是否存在。 </span><br><span class="line">jedis.hexists(&quot;key1&quot;, &quot;field1&quot;);</span><br><span class="line"></span><br><span class="line">//返回哈希表key中的所有域</span><br><span class="line">jedis.hkeys(&quot;key1&quot;);</span><br><span class="line"></span><br><span class="line">//返回哈希表key中的所有值</span><br><span class="line">jedis.hvals(&quot;key1&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//将值value插入到列表key的表头。 </span><br><span class="line">jedis.lpush(&quot;key1&quot;, &quot;value1-0&quot;); </span><br><span class="line">jedis.lpush(&quot;key1&quot;, &quot;value1-1&quot;); </span><br><span class="line">jedis.lpush(&quot;key1&quot;, &quot;value1-2&quot;); </span><br><span class="line"></span><br><span class="line">//返回列表key中指定区间内的元素,区间以偏移量start和stop指定.</span><br><span class="line">//下标(index)参数start和stop从0开始;</span><br><span class="line">//负数下标代表从后开始(-1表示列表的最后一个元素,-2表示列表的倒数第二个元素,以此类推)</span><br><span class="line">List list = jedis.lrange(&quot;key1&quot;, 0, -1);//stop下标也在取值范围内(闭区间)</span><br><span class="line">for(int i=0;i&lt;list.size();i++)&#123; </span><br><span class="line">   System.out.println(list.get(i)); </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">//返回列表key的长度。 </span><br><span class="line">jedis.llen(&quot;key1&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//将member元素加入到集合key当中。 </span><br><span class="line">jedis.sadd(&quot;key1&quot;, &quot;value0&quot;); </span><br><span class="line">jedis.sadd(&quot;key1&quot;, &quot;value1&quot;); </span><br><span class="line"></span><br><span class="line">//移除集合中的member元素。 </span><br><span class="line">jedis.srem(&quot;key1&quot;, &quot;value1&quot;); </span><br><span class="line"></span><br><span class="line">//返回集合key中的所有成员。 </span><br><span class="line">Set set = jedis.smembers(&quot;key1&quot;); </span><br><span class="line"></span><br><span class="line">//判断元素是否是集合key的成员</span><br><span class="line">jedis.sismember(&quot;key1&quot;, &quot;value2&quot;)); </span><br><span class="line"></span><br><span class="line">//返回集合key的元素的数量</span><br><span class="line">jedis.scard(&quot;key1&quot;);</span><br><span class="line"> </span><br><span class="line">//返回一个集合的全部成员，该集合是所有给定集合的交集</span><br><span class="line">jedis.sinter(&quot;key1&quot;,&quot;key2&quot;)</span><br><span class="line"> </span><br><span class="line">//返回一个集合的全部成员，该集合是所有给定集合的并集</span><br><span class="line">jedis.sunion(&quot;key1&quot;,&quot;key2&quot;)</span><br><span class="line"></span><br><span class="line">//返回一个集合的全部成员，该集合是所有给定集合的差集</span><br><span class="line">jedis.sdiff(&quot;key1&quot;,&quot;key2&quot;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2020/09/24/redis-1/">http://zws6672.top/2020/09/24/redis-1/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/Redis/">Redis</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/09/24/redis-2/" class="pre">redis（二）初始化</a><a href="/2020/09/18/leetcode-20200914-20200917/" class="next">leetcode-20200914-20200917</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、基础"><span class="toc-text">一、基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-衡量Redis优劣"><span class="toc-text">1.1 衡量Redis优劣</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#二、使用"><span class="toc-text">二、使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-通过Vagrant载Redis"><span class="toc-text">2.1 通过Vagrant载Redis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Redis配置与使用"><span class="toc-text">2.2 Redis配置与使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-Linux中下载与安装"><span class="toc-text">2.3 Linux中下载与安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-数据结构"><span class="toc-text">2.4 数据结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-在Windows上安装-Redis6"><span class="toc-text">2.5 在Windows上安装 Redis6</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可视化工具（支持Redis6）"><span class="toc-text">可视化工具（支持Redis6）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、Jedis"><span class="toc-text">三、Jedis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Jedis-使用"><span class="toc-text">3.1 Jedis 使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Jedis-相关方法"><span class="toc-text">3.2 Jedis 相关方法</span></a></li></ol></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/vue_add_method/">vue_add_method</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/test/">test</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/14/jdk-classesFileStruct/">深入理解Java虚拟机——类文件结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/04/springboot-aop/">SpringBoot 使用 AOP（面向切面编程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/30/mysql-lock/">mysql 引擎的行锁与表锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/29/design-structure-eg/">结构型模式——实例</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
