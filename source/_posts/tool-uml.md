@@ -1,5 +1,5 @@
 ---
-title: UML中关系
+title: UML中类的关系
 date: 2021-05-16 13:42:35
 tags: [soft-skills]
 ---
