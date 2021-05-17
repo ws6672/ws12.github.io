@@ -249,6 +249,64 @@ dsg 中包含以json格式定义的序列化图形（协同仿真图的一种表
 	}
 ```
 
+### Matryoshka FMU
+
+1. Matryoshka FMU 模块
+
+与FMI 2.0标准兼容的FMU。它封装了DACCOSIM（我们的分布式并行并行主体系结构）及其控制的FMU。 Matryoshka 自动调整其内部时间步长，以确保在由外部FMU兼容模拟器控制下所需的精度。使用的Java FMI工具和DACCOSIM中间件构建，应用于现实生活中的分布式能源系统场景。对于在Dymola中运行的仿真Modelica系统，在保持性能仿真准确性并增强其集成能力的同时，可将计算性能提高250％。Matryoshka FMU 的目标是将 DACCOSIM 协同仿真封装到FMU中，FMU包含一个独立的求解器，可以离开Daccosim这个软件进行求解。
+
+2. DACCOSIM软件
+
+
+daccosim的组成：
++	简单易用的GUI界面
++	并行和分布式的执行架构
+
+daccosim的局限性：
++	仅支持符合FMI 2.0的协同仿真标准的FMU
++	不能集成到可导入FMU的特定领域工具中
+
+
+为了突破这个局限性，可以使用以下两个方式：
++	为DACCOSIM设计特定的控制API以满足这些需求
++	将其全部封装到Matryoshka FMU中（可以满足其中的更多要求）
+	+	FMU可以导入到任何FMI兼容的仿真工具或平台中。这开辟了新的使用场景，因为其中一些工具可能会很好地处理DACCOSIM无法直接交互的非FMI组件
+	+	DACCOSIM的优势多线程、步长控制等解决方案可帮助传统的单线程仿真工具更快地仿真更大的模型。对于很少有并行求解器的域，这特别有意义
+	+	在Matryoshka中，借助DACCOSIM 通用的协同初始化算法，可以完成复杂图形的初始化
+	+	复杂的仿真图可以直接重用，无需重写也可以保护知识产权
+	+	可以对协同仿真过程进行微调：当求解器通常仅对整个模型使用一个精度目标时，DACCOSIM允许用户为每个FMU的每个输出和内部变量定义不同的公差值
+
+3. JavaFMI工具包
+
+java.fmi 致力于生成和执行FMU。JavaFMI是一个软件项目，该工具包允许根据FMI-CS（FMI CO-Simulation） 1.0和2.0规范向Java导入或从Java导出 功能模型单元（FMU）。该项目由SIANI3大学研究所开发，许可证为LGPL。该项目的主要贡献者是EDF Lab，EIFER和Cen-traleSupélec。该项目由两个主要工具组成：
+
+3.1 包装器（Wrapper）
+
+FMI包装器允许将FMU导入到支持主算法的Java应用程序。它提供两种类型的接口：
++	模拟（简化接口）接口：提供了对FMU的非常简化的访问，用户无需了解FMI标准，因为它提供了相关方法（init、doStep、terminate,、read、write variable、getSimulationTime,、is-Terminated 以及reset）
++	访问（完整接口）接口：提供完整接口，需要了解FMI标准，可以进行更细粒度的调整
+
+3.2 构建器(Builder)
+
+FMI构建器允许基于Java应用程序或可以由简单Java代码控制的任何程序创建FMU。也就是说，任何Java模拟都可以导出到FMU。该工具提供了一种自动化解决方案来创建FMU，该FMU涵盖了动态库的开发、模型描述文件的生成以及所需资源的打包。
+
+构建器提供了将Java仿真转换为FMU的框架，需要扩展 FmiSimulation 类，其中至少应实现以下方法：
++	define方法：返回一个模型，包含了要在 modelDescription.xml文件中呈现的信息
++	init方法：在FMU的实例化过程中调用它，该方法需要注册所有输入和输出变量以及对应的getter和/或setter方法，以便框架以后可以在初始化和仿真阶段获取并设置FMU变量
++	doStep方法：它根据给定的步长推进仿真
++	reset方法：它将模拟重置为其初始状态
++	terminate方法：如果需要的话，应填写终止码
+
+一旦实现了这些方法，FmiSimulation类将打包到JAR（Java ARchive）文件中，并由构建器进行处理，以便创建FMU。生成器将创建一个FMU文件，其中包含：
+
++	binaries 文件夹：dll 以及 so
++	modelDescription.xml文件
+	+	resources文件夹：
+	+	JAR文件（在daccosim中是Matryoshka.jar）
+	+	其他FMU资源（由用户定义）
+
+
+
 ### daccosim 实例
 
 [下载daccosim 实例](https://bitbucket.org/simulage/daccosim/downloads/) ： daccosim-use-cases-windows-20201212.zip。其中，例子“1-coinit-only/1-equationsPair”就是以下两条算式：
@@ -259,3 +317,7 @@ dsg 中包含以json格式定义的序列化图形（协同仿真图的一种表
 每条算式是一个顶点，通过协同合作，两个未知数由零开始递增，最终获得一个近似值。
 
 Equation1.x2取决于Equation2.x1，而Equation2.x2取决于Equation1。 二者形成一个代数环路，其中对 Equation1.x1的修改会影响Equation1.x2，而对Equation2.x2的修改会影响Equation2.x1。 协同仿真程序将计算该图（为所有变量提供一致的初始值），程序将检测到一个SCC，并且在多次迭代后，x1和x2将达到以下值（x1 = 4.56，x2 = 0.09）。
+
+# 三、参考文章
+> [Experimenting with Matryoshka Co-Simulation: Building Parallel and Hierarchical FMUs](https://www.researchgate.net/publication/317015220_Experimenting_with_Matryoshka_Co-Simulation_Building_Parallel_and_Hierarchical_FMUs)
+
