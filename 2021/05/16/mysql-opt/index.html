@@ -1,0 +1,531 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>MySQL 优化(一)设计与功能优化 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">MySQL 优化(一)设计与功能优化</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">MySQL 优化(一)设计与功能优化</h1><div class="post-meta"><a href="/2021/05/16/mysql-opt/#comments" class="comment-count"></a><p><span class="date">May 16, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>MYSQL优化包括设计、功能、架构与高性能SQL几个方面。Mysql优化，一方面是找出系统的瓶颈，提高mysql数据库整体的性能，另外一个方面需要合理的结构设计和参数调整，以提高用户操作响应的速度。同时还要尽可能节省系统资源，以便系统可以提供更大负荷的服务。mysql数据库优化是多方面的，原则是减少系统的瓶颈，减少资源的占用，增加系统反应的速度。</p>
+<ul>
+<li>设计：存储引擎，字段类型，范式与逆范式</li>
+<li>功能：索引，缓存，分区分表</li>
+<li>高性能SQL：SQL优化、explain</li>
+<li>架构：主从复制，读写分离，负载均衡。</li>
+</ul>
+<h1 id="一、设计优化"><a href="#一、设计优化" class="headerlink" title="一、设计优化"></a>一、设计优化</h1><h3 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h3><p>存储引擎是一种用来存储MySQL中对象（记录和索引）的一种特定的结构（文件结构），处于MySQL服务器的最底层，直接存储数据</p>
+<p>指定存储引擎：<code>Create table tableName () engine=myisam|innodb</code></p>
+<ol>
+<li>查询支持的引擎</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">show engines;</span><br><span class="line">`</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">Engine</th>
+<th align="left">Support</th>
+<th align="left">Comment</th>
+<th align="left">Transactions</th>
+<th align="left">XA</th>
+<th align="left">Savepoints</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">MEMORY</td>
+<td align="left">YES</td>
+<td align="left">基于哈希的，存储在内存中，对临时表有用</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+<tr>
+<td align="left">MRG_MYISAM</td>
+<td align="left">YES</td>
+<td align="left">与MyISAM表相同的集合</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+<tr>
+<td align="left">CSV</td>
+<td align="left">YES</td>
+<td align="left">CSV存储引擎</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+<tr>
+<td align="left">FEDERATED</td>
+<td align="left">NO</td>
+<td align="left">联合MySQL存储引擎</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">PERFORMANCE_SCHEMA</td>
+<td align="left">YES</td>
+<td align="left">性能模式</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+<tr>
+<td align="left">MyISAM</td>
+<td align="left">YES</td>
+<td align="left">MyISAM存储引擎</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+<tr>
+<td align="left">InnoDB</td>
+<td align="left">DEFAULT</td>
+<td align="left">支持事务、行级锁定和外键</td>
+<td align="left">YES</td>
+<td align="left">YES</td>
+<td align="left">YES</td>
+</tr>
+<tr>
+<td align="left">BLACKHOLE</td>
+<td align="left">YES</td>
+<td align="left">/dev/null存储引擎（您向其写入的任何内容都将消失）</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+<tr>
+<td align="left">ARCHIVE</td>
+<td align="left">YES</td>
+<td align="left">存档存储引擎</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+<td align="left">NO</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注：engine：引擎名称<br>suppot：MySQL数据库是否支持<br>comment：说明<br>transactions：是够支持事务<br>xa：是否支持XA事务（分布式事务）<br>savepoints：是否支持保存savepoints之间的内容</p>
+</blockquote>
+<ol start="2">
+<li>InnoDB存储引擎</li>
+</ol>
+<p>Mysql版本&gt;=5.5 默认的存储引擎，MySQL推荐使用的存储引擎。支持事务，行级锁定，外键约束。事务安全型存储引擎。更加注重数据的完整性和安全性。innodb擅长事务、数据的完整性及高并发处理，不擅长快速插入（插入前要排序，消耗时间）和检索</p>
+<p>创建数据库表后生成如下文件：</p>
+<ul>
+<li>db.opt存放了数据库的配置信息，比如数据库的字符集还有编码格式</li>
+<li>XX.frm是表结构文件，仅存储了表的结构、元数据(meta)，包括表结构定义信息等；表引擎都会有一个frm文件。</li>
+<li>XX.ibd是表索引文件，包括了单独一个表的数据及索引内容。</li>
+</ul>
+<p>共享表空间<br>    +    Innodb的所有数据保存在一个单独的表空间里面，而这个表空间可以由很多个文件组成，一个表可以跨多个文件存在，所以其大小限制不再是文件大小的限制，而是其自身的限制。其表空间的最大限制为64TB，也就是说，Innodb的单表限制基本上也在64TB左右。<br>    +    优点：表空间可以分成多个文件存放到各个磁盘，所以表也就可以分成多个文件存放在磁盘上，表的大小不受磁盘大小的限制<br>    +    缺点：所有的数据和索引存放到一个文件，虽然可以把一个大文件分成多个小文件，但是多个表及索引在表空间中混合存储，当数据量非常大的时候，表做了大量删除操作后表空间中将会有大量的空隙，特别是对于统计分析，对于经常删除操作的这类应用最不适合用共享表空间；共享表空间分配后不能回缩：当出现临时建索引或是创建一个临时表的操作表空间扩大后，就是删除相关的表也没办法回缩那部分空间了。<br>独立表空间<br>    +    独立表空间是把每个表的数据和表文件放在一起，每表对应一个 idb文件<br>    +    优点：每个表都有自已独立的表空间，每个表的数据和索引都会存在自已的表空间中，可以实现单表在不同的数据库中移动。<br>    +    缺点：单表增加过大，当单表占用空间过大时，存储空间不足，只能从操作系统层面思考解决方法</p>
+<p>InnoDB采用按表空间（tablespace)的方式进行存储数据, 默认配置情况下会有一个初始大小为10MB， 名字为ibdata1的文件， 该文件就是默认的表空间文件（tablespce file），用户可以通过参数innodb_data_file_path对其进行设置，可以有多个数据文件，如果没有设置innodb_file_per_table的话， 那些Innodb存储类型的表的数据都放在这个共享表空间中，而系统变量innodb_file_per_table=1的话，那么InnoDB存储引擎类型的表就会产生一个独立表空间，独立表空间的命名规则为：表名.idb. 这些单独的表空间文件仅存储该表的数据、索引和插入缓冲BITMAP等信息，其它信息还是存放在共享表空间中。</p>
+<p>查看是否开启独立表空间：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">show variables like &apos;innodb_file_per_table&apos;</span><br><span class="line">innodb_file_per_table	ON  </span><br><span class="line">	OFF 代表mysql是共享表空间，也就是所有库的数据都存放在一个ibdate1文件中</span><br><span class="line">	ON 表示mysql是独立表空间</span><br></pre></td></tr></table></figure>
+
+<p>开启：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">在my.conf文件中[mysqld] 顶点下添加innodb_file_per_table=1</span><br><span class="line"></span><br><span class="line">或者通过命令：set global innodb_file_per_table=1;</span><br><span class="line">	innodb_file_per_table=1 为使用独占表空间</span><br><span class="line">	innodb_file_per_table=0 为使用共享表空间</span><br><span class="line">	innodb_data_home_dir = &quot;C:\mysql\data\&quot;</span><br><span class="line"></span><br><span class="line">show variables like &apos;innodb_data_home_dir&apos; --数据库文件所存放的目录</span><br><span class="line">show variables like &apos;innodb_log_group_home_dir&apos; --日志存放目录</span><br><span class="line">show variables like &apos;innodb_data_file_path&apos; --指定innodb 共享 表空间文件</span><br><span class="line">	innodb_data_file_path	ibdata1:12M:autoextend（存储到 ibdata1 初始大小为12M 自动扩容）</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：InnoDB不创建目录，所以在启动服务器之前请确认”所配置的路径目录”的确存在。这对你配置的任何日志文件目录来说也是真实的。使用Unix或DOS的mkdir命令来创建任何必需的目录。通过把innodb_data_home_dir的值原原本本地部署到数据文件名，并在需要的地方添加斜杠或反斜杠，InnoDB为每个数据文件形成目录路径</p>
+</blockquote>
+<ol start="3">
+<li>MyISAM 存储引擎<br>MySQL&lt;= 5.5 MySQL默认的存储引擎；擅长与处理，高速读与写。<br>特点：</li>
+</ol>
+<ul>
+<li>数据和索引分别存储于不同的文件中。</li>
+<li>数据的存储顺序为插入顺序（没有经过排序、插入速度快，空间占用量小）</li>
+<li>功能<ul>
+<li>全文索引支持</li>
+<li>数据的压缩存储（myisamPack）</li>
+<li>并发性<ul>
+<li>仅仅支持表级锁定，不支持高并发。</li>
+<li>支持并发插入。写操作中的插入操作，不会阻塞读操作（其他操作）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Innodb 和 MyISAM 比较：</p>
+<ul>
+<li>Innodb ：数据完整性，并发性处理，擅长更新，删除。</li>
+<li>myisam：高速查询及插入。擅长插入和查询。</li>
+</ul>
+<p>其他存储引擎：</p>
+<ul>
+<li>Archive：存档型，仅提供插入和查询操作。非常高效阻塞的插入和查询。</li>
+<li>Memory：内存型，数据存储于内存中，存储引擎。缓存型存储引擎。</li>
+<li>插件式存储引擎：用C和C++开发的存储引擎。</li>
+</ul>
+<ol start="4">
+<li>数据库锁</li>
+</ol>
+<p>当客户端操作表（记录）时，为了保证操作的隔离性（多个客户端操作不能互相影响），通过加锁来处理。</p>
+<h3 id="字段类型选择"><a href="#字段类型选择" class="headerlink" title="字段类型选择"></a>字段类型选择</h3><p>类型取值如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">类型</th>
+<th align="left">大小</th>
+<th align="left">范围（有符号）</th>
+<th align="left">范围（无符号）</th>
+<th align="left">用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">数值类型<br></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">TINYINT</td>
+<td align="left">1 byte</td>
+<td align="left">(-128，127)</td>
+<td align="left">(0，255)</td>
+<td align="left">小整数值</td>
+</tr>
+<tr>
+<td align="left">SMALLINT</td>
+<td align="left">2 bytes</td>
+<td align="left">(-32 768，32 767)</td>
+<td align="left">(0，65 535)</td>
+<td align="left">大整数值</td>
+</tr>
+<tr>
+<td align="left">MEDIUMINT</td>
+<td align="left">3 bytes</td>
+<td align="left">(-8 388 608，8 388 607)</td>
+<td align="left">(0，16 777 215)</td>
+<td align="left">大整数值</td>
+</tr>
+<tr>
+<td align="left">INT或INTEGER</td>
+<td align="left">4 bytes</td>
+<td align="left">(-2 147 483 648，2 147 483 647)</td>
+<td align="left">(0，4 294 967 295)</td>
+<td align="left">大整数值</td>
+</tr>
+<tr>
+<td align="left">BIGINT</td>
+<td align="left">8 bytes</td>
+<td align="left">(-9,223,372,036,854,775,808，9 223 372 036 854 775 807)</td>
+<td align="left">(0，18 446 744 073 709 551 615)</td>
+<td align="left">极大整数值</td>
+</tr>
+<tr>
+<td align="left">FLOAT</td>
+<td align="left">4 bytes</td>
+<td align="left">(-3.402 823 466 E+38，-1.175 494 351 E-38)，0，(1.175 494 351 E-38，3.402 823 466 351 E+38)</td>
+<td align="left">0，(1.175 494 351 E-38，3.402 823 466 E+38)</td>
+<td align="left">单精度</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">浮点数值</td>
+</tr>
+<tr>
+<td align="left">DOUBLE</td>
+<td align="left">8 bytes</td>
+<td align="left">(-1.797 693 134 862 315 7 E+308，-2.225 073 858 507 201 4 E-308)，0，(2.225 073 858 507 201 4 E-308，1.797 693 134 862 315 7 E+308)</td>
+<td align="left">0，(2.225 073 858 507 201 4 E-308，1.797 693 134 862 315 7 E+308)</td>
+<td align="left">双精度</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">浮点数值</td>
+</tr>
+<tr>
+<td align="left">DECIMAL</td>
+<td align="left">对DECIMAL(M,D) ，如果M&gt;D，为M+2否则为D+2</td>
+<td align="left">依赖于M和D的值</td>
+<td align="left">依赖于M和D的值</td>
+<td align="left">小数值</td>
+</tr>
+<tr>
+<td align="left">日期和时间类型<br></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">DATE</td>
+<td align="left">3</td>
+<td align="left">1000-01-01/9999-12-31</td>
+<td align="left">YYYY-MM-DD</td>
+<td align="left">日期值</td>
+</tr>
+<tr>
+<td align="left">TIME</td>
+<td align="left">3</td>
+<td align="left">‘-838:59:59’/‘838:59:59’</td>
+<td align="left">HH:MM:SS</td>
+<td align="left">时间值或持续时间</td>
+</tr>
+<tr>
+<td align="left">YEAR</td>
+<td align="left">1</td>
+<td align="left">1901/2155</td>
+<td align="left">YYYY</td>
+<td align="left">年份值</td>
+</tr>
+<tr>
+<td align="left">DATETIME</td>
+<td align="left">8</td>
+<td align="left">1000-01-01 00:00:00/9999-12-31 23:59:59</td>
+<td align="left">YYYY-MM-DD HH:MM:SS</td>
+<td align="left">混合日期和时间值</td>
+</tr>
+<tr>
+<td align="left">TIMESTAMP</td>
+<td align="left">4</td>
+<td align="left">1970-01-01 00:00:00/2038</td>
+<td align="left">YYYYMMDD HHMMSS</td>
+<td align="left">混合日期和时间值，时间戳</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">结束时间是第 2147483647 秒，北京时间 2038-1-19 11:14:07，格林尼治时间 2038年1月19日 凌晨 03:14:07</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">字符串类型<br></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">CHAR</td>
+<td align="left">0-255 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">定长字符串</td>
+</tr>
+<tr>
+<td align="left">VARCHAR</td>
+<td align="left">0-65535 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">变长字符串</td>
+</tr>
+<tr>
+<td align="left">TINYBLOB</td>
+<td align="left">0-255 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">不超过 255 个字符的二进制字符串</td>
+</tr>
+<tr>
+<td align="left">TINYTEXT</td>
+<td align="left">0-255 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">短文本字符串</td>
+</tr>
+<tr>
+<td align="left">BLOB</td>
+<td align="left">0-65 535 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">二进制形式的长文本数据</td>
+</tr>
+<tr>
+<td align="left">TEXT</td>
+<td align="left">0-65 535 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">长文本数据</td>
+</tr>
+<tr>
+<td align="left">MEDIUMBLOB</td>
+<td align="left">0-16 777 215 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">二进制形式的中等长度文本数据</td>
+</tr>
+<tr>
+<td align="left">MEDIUMTEXT</td>
+<td align="left">0-16 777 215 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">中等长度文本数据</td>
+</tr>
+<tr>
+<td align="left">LONGBLOB</td>
+<td align="left">0-4 294 967 295 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">二进制形式的极大文本数据</td>
+</tr>
+<tr>
+<td align="left">LONGTEXT</td>
+<td align="left">0-4 294 967 295 bytes</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">极大文本数据</td>
+</tr>
+</tbody></table>
+<p>选择优化的数据类型原则：</p>
+<ul>
+<li>更小的通常更好</li>
+<li>简单数据类型需要更少的CPU周期（用MySQL内建的类型(date, time, datetime)来存储时间和日期、使用整型存储IP地址）</li>
+<li>指定列为NOT NULL（可为NULL的列使得索引、索引统计和值比较都更复杂）</li>
+</ul>
+<p>分类：</p>
+<ul>
+<li>整数类型<ul>
+<li>TINYINT、SMALLINT、MEDIUMINT、INT、BIGINT分别使用8,16,24,32,64位存储空间。它们可以存储的值得范围从-2(N-1)到2(N-1)-1，如果是UNSIGNED，表示不允许负值，那正数的上限提高一倍</li>
+</ul>
+</li>
+<li>浮点类型<ul>
+<li>FLOAT、DOUBLE、DECIMAL（高精度） 分别使用4字节、8字节、可变个字节存储</li>
+</ul>
+</li>
+<li>字符串类型<ul>
+<li>VARCHAR比CHAR更节省空间，VARCHAR会使用1或2个额外的字节记录字符串的长度。如果使用UTF8字符集，应该选择VARCHAR类型。CHAR适合存储很短的字符串，或者所有值都接近同一个长度。比如MD5加密后的值。对于经常变更的数据，CHAR比VARCHAR更好，因为CHAR类型不易产生碎片</li>
+</ul>
+</li>
+<li>日期和时间类型<ul>
+<li>DATETIME使用8个字节的存储空间，TIMESTAMP使用4个字节，一般情况下尽量选择TIMESTAMP类型</li>
+</ul>
+</li>
+</ul>
+<p>TIMESTAMP 特点：</p>
+<ul>
+<li>当更新一条数据的时候，设置此类型根据当前系统更新可自动更新时间</li>
+<li>如果插入一条NULL，也会自动插入当前系统时间</li>
+<li>创建时，自动设置默认值</li>
+<li>会根据当前时区来存储和查询时间，存储时对当前时区进行转换，查询时再转换为当前的时区</li>
+</ul>
+<h3 id="范式与逆范式"><a href="#范式与逆范式" class="headerlink" title="范式与逆范式"></a>范式与逆范式</h3><p>为了建立冗余较小、结构合理的数据库，设计数据库时必须遵循一定的规则。在关系型数据库中这种规则就称为范式。范式是符合某一种设计要求的总结。要想设计一个结构合理的关系型数据库，必须满足一定的范式。逆范式是指打破范式，通过增加冗余或重复的数据来提高数据库的性能。</p>
+<p>三大范式：</p>
+<ul>
+<li>第一范式1NF，原子性；段值都是不可分解</li>
+<li>第二范式2NF，消除部分依赖；表中的每列都和主键相关</li>
+<li>第三范式3NF，消除传递依赖；表中非主键列不依赖于其它非主键列</li>
+<li>优点<ul>
+<li>范式可以避免数据冗余，减少数据库的空间，减轻维护数据完整性的麻烦。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>所用的范式越高，对数据操作的性能越低。所以我们在利用范式设计表的时候，要根据具体的需求再去权衡是否使用更高范式去设计表。</li>
+</ul>
+</li>
+</ul>
+<h1 id="二、功能优化"><a href="#二、功能优化" class="headerlink" title="二、功能优化"></a>二、功能优化</h1><p>功能优化包含索引，缓存，分区分表等部分。</p>
+<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><p>在关系数据库中，索引是一种单独的、物理的对数据库表中一列或多列的值进行排序的一种存储结构，它是某个表中一列或若干列值的集合和相应的指向表中物理标识这些值的数据页的逻辑指针清单。索引的关键字一定是排序的。索引本质上是表字段的有序子集，类似于一个目录，通过它可以快速定位数据。</p>
+<ol>
+<li>分类</li>
+</ol>
+<ul>
+<li>种类<ul>
+<li>聚集索引(clustered index)：子顶点存储行记录，有且只有一个聚焦索引。存在主键，则主键是聚焦索引；否则第一个not NULL unique列是聚集索引；否则，InnoDB会创建一个隐藏的row-id作为聚集索引。</li>
+<li>普通索引(secondary index)</li>
+</ul>
+</li>
+<li>类型<ul>
+<li>主键索引,primary key：要求关键字不能重复，也不能为NULL。同时增加主键约束</li>
+<li>唯一索引,unique index：要求关键字不能重复。同时增加唯一约束</li>
+<li>普通索引(secondary index)</li>
+<li>普通索引,index：对关键字没有要求</li>
+<li>全文索引,fulltext key：关键字的来源不是所有字段的数据，而是从字段中提取的特别关键词。该类型的索引特殊在：关键字的创建上。是为了解决 like&lsquo;%keyword%&rsquo;这类查询的匹配问题。（mysql的全文索引几乎不用，因为它不支持中文，应该使用<code>sphinx全文索引</code>）。</li>
+</ul>
+</li>
+</ul>
+<pre><code>+    复合索引：如果一个索引通过在多个字段上提取的关键字，称之为复合索引</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">-- 主键索引</span><br><span class="line">ALTER TABLE student ADD PRIMARY KEY  (id);</span><br><span class="line">-- 普通索引</span><br><span class="line">ALTER TABLE student ADD INDEX index_stu (`name`);</span><br><span class="line">-- 删除普通索引</span><br><span class="line">ALTER TABLE student drop INDEX index_stu;</span><br><span class="line">-- 唯一索引</span><br><span class="line">ALTER TABLE student  ADD UNIQUE idx_uq_name (`name`)</span><br><span class="line">-- 全文索引</span><br><span class="line">ALTER TABLE student ADD FULLTEXT idx_ft_name (`name`)</span><br><span class="line">-- 复合索引</span><br><span class="line">ALTER TABLE student ADD INDEX idx_fh ( `name`,school_id)</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>最左匹配原则</li>
+</ol>
+<p>最左匹配原则都是针对联合索引来说的，构建一颗 B+ 树只能根据一个值来构建，因此数据库依据联合索引最左的字段来构建 B+ 树。在 InnoDB 中联合索引只有先确定了前一个（左侧的值）后，才能确定下一个值。如果有范围查询的话，那么联合索引中使用范围查询的字段后的索引在该条 SQL 中都不会起作用。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">-- 定义 a b c 的联合索引</span><br><span class="line">-- a. 生效的例子</span><br><span class="line">-- eg1</span><br><span class="line">select * from t where a=1 and b=1 and c=1;</span><br><span class="line"></span><br><span class="line">-- eg2</span><br><span class="line">select * from t where a=1 and c=1 and b=1;</span><br><span class="line">==经过优化器转换==&gt; </span><br><span class="line">select * from t where a=1 and b=1 and c=1;</span><br><span class="line"></span><br><span class="line">-- eg3</span><br><span class="line">select * from t where a=1 and b=1 and c&gt;1;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-- b. 未生效的例子</span><br><span class="line">-- eg1</span><br><span class="line">select * from t where a=1 and b&gt;1 and c=1;（只有ab用上索引）</span><br><span class="line"></span><br><span class="line">-- eg2</span><br><span class="line">select * from t where a=1 and c=1;（只有a用上索引）</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：mysql的执行计划和查询的实际执行过程并不完全吻合，所以参数的查询也会经过优化。</p>
+</blockquote>
+<ol start="3">
+<li>使用OR<br>必须要保证 OR 两端的条件都存在可以用的索引，该查询才可以使用索引。</li>
+</ol>
+<ol start="4">
+<li>索引覆盖<br>索引拥有的关键字内容，覆盖了查询所需要的全部数据。此时，就不需要在数据区获取数据，仅仅在索引区即可。覆盖就是直接在索引区获取内容，而不需要在数据区获取。explain的输出结果Extra字段为Using index时，能够触发索引覆盖。即查询字段都为索引字段，通过索引直接就可以获取数据，而不需要再查询表。</li>
+</ol>
+<p>使用场景：</p>
+<ul>
+<li>全表count查询优化</li>
+<li>列查询回表优化（建立联合索引（name+sex），<code>select id,name,sex ... where name=&#39;shenjian&#39;</code>）</li>
+<li>分页查询</li>
+</ul>
+<h3 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h3><p>MySQL 缓存机制就是缓存sql 文本及缓存结果，用KV形式保存再服务器内存中，如果运行相同的sql,服务器直接从缓存中去获取结果，不需要在再去解析、优化、执行sql。如果表修改了（如insert,update,delete,truncate,alter table,drop table或者是drop database 等命令），那么该表的所有索引都不会生效，查询缓存值得相关条目将被清空。对于更新频繁的表，查询缓存并不合适；对于不变的数据以及查询sql大都相似的表，查询缓存会提高很大性能。</p>
+<ol>
+<li>命中条件</li>
+</ol>
+<p>缓存存在于一个hash表中，通过查询SQL，查询数据库，客户端协议等作为key,在判断命中前，mysql不会解析SQL，而是使用SQL去查询缓存，SQL上的任何字符的不同，如空格、注释，都会导致缓存不命中。如果查询有不确定的数据like now(),current_date()，那么查询完成后结果者不会被缓存，包含不确定的数的是不会放置到缓存中。</p>
+<ol start="2">
+<li>工作流程</li>
+</ol>
+<ul>
+<li>服务器接收SQL，如果涉及表的库有启动缓存，根据SQL及其他条件查找缓存表；</li>
+<li>如果找到了缓存，则直接返回缓存；</li>
+<li>如果没有找到缓存，则执行SQL查询，包括原来的SQL解析，优化等；</li>
+<li>执行完SQL查询结果以后，将SQL查询结果缓存入缓存表。</li>
+</ul>
+<ol start="3">
+<li>缓存失败</li>
+</ol>
+<p>当某个表正在写入数据，则这个表的缓存（命中缓存，缓存写入等）将会处于失效状态，在Innodb中，如果某个事务修改了这张表，则这个表的缓存在事务提交前都会处于失效状态，在这个事务提交前，这个表的相关查询都无法被缓存。</p>
+<ol start="4">
+<li>缓存参数配置</li>
+</ol>
+<ul>
+<li>query_cache_type: 是否打开缓存<ul>
+<li>OFF: 关闭</li>
+<li>ON: 总是打开</li>
+<li>DEMAND: 只有明确写了SQL_CACHE的查询才会吸入缓存</li>
+</ul>
+</li>
+<li>query_cache_size: 缓存使用的总内存空间大小,单位是字节,这个值必须是1024的整数倍,否则MySQL实际分配可能跟这个数值不同(感觉这个应该跟文件系统的blcok大小有关)</li>
+<li>query_cache_min_res_unit: 分配内存块时的最小单位大小</li>
+<li>query_cache_limit: MySQL能够缓存的最大结果,如果超出,则增加 Qcache_not_cached的值,并删除查询结果</li>
+<li>query_cache_wlock_invalidate: 如果某个数据表被锁住,是否仍然从缓存中返回数据,默认是OFF,表示仍然可以返回</li>
+</ul>
+<blockquote>
+<p>注：这里的缓存仅当数据表的记录改变时，缓存才会被删除，而不是依靠过期时间的。如果存在不想使用缓存的SQL执行，则可以使用 SQL_NO_CACHE语法</p>
+</blockquote>
+<h3 id="分区分表"><a href="#分区分表" class="headerlink" title="分区分表"></a>分区分表</h3><p>日常开发中经常会遇到大表的情况，所谓的大表是指存储了百万级乃至千万级条记录的表。这样的表过于庞大，导致数据库在查询和插入的时候耗时太长，性能低下，如果涉及联合查询的情况，性能会更加糟糕。分表和表分区的目的就是减少数据库的负担，提高数据库的效率，通常点来讲就是提高表的增删改查效率。</p>
+<ol>
+<li>分区</li>
+</ol>
+<p>分区，partition，分区是将数据分段划分在多个位置存放，可以是同一块磁盘也可以在不同的机器。分区后，表面上还是一张表，但数据散列到多个位置了。app读写的时候操作的还是大表名字，db自动去组织分区的数据。</p>
+<p>MySQL提供4种分区算法：</p>
+<ul>
+<li>取余<ul>
+<li>Key</li>
+<li>hash </li>
+</ul>
+</li>
+<li>条件<ul>
+<li>List</li>
+<li>range</li>
+</ul>
+</li>
+</ul>
+<p>实例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">-- 查看是否支持分区</span><br><span class="line">show VARIABLES like &apos;have_partitioning&apos;</span><br><span class="line"></span><br><span class="line">-- 取余：Key</span><br><span class="line">CREATE TABLE partition_1 (</span><br><span class="line">	id  int PRIMARY key AUTO_INCREMENT,</span><br><span class="line">	title VARCHAR(255)</span><br><span class="line">)</span><br><span class="line">partition by key(id) PARTITIONS 3;</span><br><span class="line"></span><br><span class="line">分区会生成以下三个文件：</span><br><span class="line">	partition_1#p#p0.ibd</span><br><span class="line">	partition_1#p#p1.ibd</span><br><span class="line">	partition_1#p#p2.ibd</span><br><span class="line">分区与存储引擎无关，是MySQL逻辑层完成的。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-- 取余：hash;，按照某个表达式的值进行取余</span><br><span class="line">CREATE TABLE partition_2 (</span><br><span class="line">	id int UNSIGNED  AUTO_INCREMENT,</span><br><span class="line">	birthday date,</span><br><span class="line">	pname VARCHAR(255),</span><br><span class="line">	PRIMARY KEY 	(id, birthday)</span><br><span class="line">)</span><br><span class="line">partition by hash(month(birthday)) PARTITIONS 12;</span><br><span class="line"></span><br><span class="line">-- 条件：List</span><br><span class="line">CREATE TABLE partition_4 (</span><br><span class="line">	id int UNSIGNED  AUTO_INCREMENT,</span><br><span class="line">	birthday date,</span><br><span class="line">	pname VARCHAR(255),</span><br><span class="line">	PRIMARY KEY 	(id, birthday)</span><br><span class="line">)</span><br><span class="line">partition by list(month(birthday)) (</span><br><span class="line">	partition spring VALUES IN(3, 4, 5),</span><br><span class="line">	partition summer VALUES IN(6, 7, 8),</span><br><span class="line">	partition autumn VALUES IN(9, 10, 11),</span><br><span class="line">	partition winter VALUES IN(12, 1, 2)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-- 条件：range</span><br><span class="line"></span><br><span class="line">CREATE TABLE partition_5 (</span><br><span class="line">	id int UNSIGNED  AUTO_INCREMENT,</span><br><span class="line">	birthday date,</span><br><span class="line">	pname VARCHAR(255),</span><br><span class="line">	PRIMARY KEY 	(id, birthday)</span><br><span class="line">)</span><br><span class="line">partition by range(year(birthday)) (</span><br><span class="line">	partition p_90 VALUES LESS THAN (2000),</span><br><span class="line">	partition p_00 VALUES LESS THAN (2010),</span><br><span class="line">	partition P_10 VALUES LESS THAN (2020),</span><br><span class="line">	partition p_20 VALUES LESS THAN MAXVALUE</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>1.2. 其它语法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">-- 取余</span><br><span class="line">-- 增加分区数量</span><br><span class="line">Alter TABLE TABLE_NAME add partition partitions N</span><br><span class="line">-- 减少分区数量</span><br><span class="line">Alter TABLE TABLE_NAME COALESCE partition N</span><br><span class="line"></span><br><span class="line">-- 条件</span><br><span class="line">-- 添加分区</span><br><span class="line">Alter TABLE TABLE_NAME add partition (</span><br><span class="line">partition P_10 VALUES LESS THAN (2020)</span><br><span class="line">)</span><br><span class="line">-- 删除</span><br><span class="line">Alter TABLE TABLE_NAME drop partition P_10</span><br><span class="line"></span><br><span class="line">删除条件算法的分区，会导致分区数据丢失。添加分区不会。</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>分表<br>分表是将一个大表按照一定的规则分解成多张具有独立存储空间的实体表，我们可以称为子表，每个表都对应三个文件，MYD数据文件，.MYI索引文件，.frm表结构文件。这些子表可以分布在同一块磁盘上，也可以在不同的机器上。app读写的时候根据事先定义好的规则得到对应的子表名，然后去操作它。分表技术是比较麻烦的，需要手动去创建子表，app服务端读写时候需要计算子表名。采用merge好一些，但也要创建子表和配置子表间的union关系。（需要手动分表）</li>
+</ol>
+<ul>
+<li>水平分表：通过结构相同的N个表存储数据，MySQL提供了一个可以将多个结构相同的myisam表合并到一起的存储引擎mrg_myisam。</li>
+<li>垂直分表：一张表中存在多个字段。这些字段可以分为常用字段和非常用字段，为了提高查表速度，我们可以把这两类字段分开来存储。主要目的，减少每条记录的长度</li>
+</ul>
+<blockquote>
+<p><a href="https://www.cnblogs.com/kerrycode/p/9515200.html" target="_blank" rel="noopener">MySQL如何判别InnoDB表是独立表空间还是共享表空间</a><br><a href="https://blog.csdn.net/qzqanzc/article/details/80418125" target="_blank" rel="noopener">mysql 缓存机制</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/05/16/mysql-opt/">http://zws6672.top/2021/05/16/mysql-opt/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/mysql/">mysql</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/05/16/tool-uml/" class="next">UML中关系</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、设计优化"><span class="toc-text">一、设计优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#存储引擎"><span class="toc-text">存储引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字段类型选择"><span class="toc-text">字段类型选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#范式与逆范式"><span class="toc-text">范式与逆范式</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#二、功能优化"><span class="toc-text">二、功能优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#索引"><span class="toc-text">索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缓存"><span class="toc-text">缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分区分表"><span class="toc-text">分区分表</span></a></li></ol></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/16/mysql-opt/">MySQL 优化(一)设计与功能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/16/tool-uml/">UML中关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/16/fmi-ssp-dcp/">了解fmi、ssp与dcp</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/16/hexo-sync/">多PC同步hexo</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/13/jdk-backend-compile/">后端编译与优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/13/jdk-front-compile/">前端编译与优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/soft-skills/" style="font-size: 15px;">soft-skills</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

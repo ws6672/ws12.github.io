@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>了解fmi、ssp与dcp | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">了解fmi、ssp与dcp</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">了解fmi、ssp与dcp</h1><div class="post-meta"><a href="/2021/05/16/fmi-ssp-dcp/#comments" class="comment-count"></a><p><span class="date">May 16, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="一、fmi、ssp与dcp"><a href="#一、fmi、ssp与dcp" class="headerlink" title="一、fmi、ssp与dcp"></a>一、fmi、ssp与dcp</h1><h3 id="FMI"><a href="#FMI" class="headerlink" title="FMI"></a>FMI</h3><ol>
+<li>为什么需要FMI</li>
+</ol>
+<p>仿真软件面临的难题：</p>
+<ul>
+<li>模型是多来源且异构的</li>
+<li>工具之间的接口不统一，难以实现多工具的联合仿真</li>
+<li>封装模型传递过程中无法有效利用已确定的仿真参数和架构信息或数据，需要二次设置参数和重新拖拽连接模型</li>
+<li>数据交互的通信协议和接口不统一</li>
+<li>代表非实时、软实时和硬实时系统之间的软硬件工具的联合仿真通信方法有待完善，简化应用配置工作，降低应用门槛</li>
+</ul>
+<p>仿真工作可以分为系统级以及部件级，系统级相当于制造汽车，而部件级表示制造汽车过程中涉及的架构、零件等设计流程。在这个研发过程中，会使用到不同供应商提供的软件。这些软件接口不一，模型不一致，很难进行协同研发。在这种情况下，FMI应运而生。</p>
+<blockquote>
+<p>FMI标准的诞生来自于欧盟Modelisar项目，最初由Daimler AG发起、组织和领导，有28个欧洲伙伴参与，这包括工具供应商、工业用户和科研机构。Modelisar项目于2008年启动，第一期项目到2011年结束，第一期项目共投入经费超过3千万欧元，制定了FMI1.0标准。2012年，FMI2.0标准的制定纳入到Modelica协会管理下（Modelica协会是Modelica语义制定和维护的非营利组织），并在2014年初推出了FMI2.0的成熟标准。</p>
+</blockquote>
+<ol start="2">
+<li>FMI的主要设计思想</li>
+</ol>
+<p>FMI为针对功能和性能模型重用的接口标准，通过FMI标准导出的文件是一个压缩包，文件的扩展名为“.fmu”，故称依据FMI标准导出的用于模型重用的文件为FMU文件，即Functional Mock-up Unit。</p>
+<p>FMU的压缩包文件里包含了：</p>
+<ul>
+<li>描述模型接口信息和数据的“.xml”文件（modelDescription.xml）</li>
+<li>实现模型动态行为功能的文件(C代码或二进制文件)</li>
+<li>其他用户希望包含在FMU中的文件和数据</li>
+</ul>
+<p>FMI规范：</p>
+<ul>
+<li>模型重用<ul>
+<li>模型交换（不包含求解模型方程的求解器）</li>
+<li>联合仿真（依据Co-Simulation方法导出，包含求解器）</li>
+</ul>
+</li>
+<li>模型导出加密（知识产权保护）</li>
+</ul>
+<p>2.1 Model Exchange（模型交换）</p>
+<p>此方法导出的FMU文件不包含求解器，其只包括输入/输出接口和描述物理动态行为的微分代数方程、时间、状态和离散事件等信息。FMU的求解使用导入它的工具的求解器，并与其他模型一起求解，由于使用一个求解器，提高了求解的效率和精度，此方法特别适合大规模模型集成的应用情况，同时其求解占用的系统开销很小，也适合嵌入式系统的应用。FMI标准的专家推荐模型集成和重用优选Model Exchange方法。</p>
+<p>2.2  Co-Simulation方法</p>
+<p>Co-Simulation即为联合仿真方法，此方法并不是FMI标准首创，而是在FMI标准的Co-Simulation方法制定之前既已存在。它基于传统的联合仿真方法，并进行了优化和丰富：</p>
+<ul>
+<li>支持主/从架构</li>
+<li>考虑不同能力的仿真工具</li>
+<li>支持简单和复杂的耦合算法：<ul>
+<li>迭代和直接反馈算法</li>
+<li>固定和变化的通信步长</li>
+</ul>
+</li>
+<li>允许(高阶)连续输入的插值</li>
+<li>支持本地和分布式联合仿真方案</li>
+</ul>
+<p>按照使用场景，分为以下三种模式：</p>
+<ul>
+<li>代码导出方式的Co-Simulation（不依赖工具，可独立运行）</li>
+<li>工具耦合方式的Co-Simulation（依赖指定软件，同一平台多线程）</li>
+<li>分布式方式的Co-Simulation（依赖指定软件，分布于不同平台中）</li>
+</ul>
+<p>FMI标准虽然提供了模型交换和联合仿真的功能，但是还无法描述结构相对复杂的模型。</p>
+<ol start="3">
+<li>文件结构</li>
+</ol>
+<p>3.1 modelDescription.xml</p>
+<p>信息描述文件采用XML格式，其中包含模型的所有变量信息，下表列出了变量信息的属性及其意义。</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性名</th>
+<th align="left">描述信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">name</td>
+<td align="left">变量的名字。在一个FMU中，变量名字是一个变量的唯一标识，即在同一个FMU中不允许出现两个名字一样的变量。</td>
+</tr>
+<tr>
+<td align="left">valueReference</td>
+<td align="left"><br>一个变量的操作编号，用于FMU操作函数中对变量的操作。在一个FMU中，其值对于任何一种数据类型(下表中的declaredType)数据是唯一的，即数据类型和 valueReference可以在FMU操作函数中唯一标识一个变量。</td>
+</tr>
+<tr>
+<td align="left">description</td>
+<td align="left">一个可选的信息用于描述变量的作用或其它。<br></td>
+</tr>
+<tr>
+<td align="left">variability</td>
+<td align="left">定义该变量值的可改变性。可以取以下值：<br><br>constant:变量的值是不可改变的；<br>parameter:被看作是模型的参数，变量的值在初始化(初始化函数见下文)之后就不能再修改了；<br>discrete:变量值仅在初始化和触发事件时可以被更改；<br>continues:任何时间都可以修改变量值，但只有当变量的类型为Real时才可用。</td>
+</tr>
+<tr>
+<td align="left">causality</td>
+<td align="left">定义变量与外界交互时出现的形态，当FMU需要与其它模型相关联时才能发挥作用，其可取值如下（默认状态下，其值为internal。）：<br><br>input:表明变量可以从外界获得输入值，用于FMU自身的求解，默认状态下，其初始值为下表中”start”的值；<br>output:为其它FMU提供输入结果，使本FMU的计算结果可以影响到其它模型；<br>internal:FMU的内部变量，在初始化工作结束后提供数据值，不能用于模型间的连接操作，在初始化之前，其值为”start”的值；<br>none:不影响模型运算的变量，用于标记一些环境相关的值，用的不多。<br></td>
+</tr>
+<tr>
+<td align="left">alias</td>
+<td align="left">可选属性。定义变量是否为一个别名变量，其可取值如下（默认值为noAlias）：<br><br>noAlias:表明变量不是一个别名变量；<br>alias:表明变量是一个别名变量，真实值可以通过其进行读写操作；<br>negatedAlias:是一个别名变量，但其值和真实值的符号总是相反。</td>
+</tr>
+<tr>
+<td align="left">declaredType</td>
+<td align="left">变量的类型，FMI1.0  标准提供的变量类型为 Real、Integer、Boolean、String和Enumeration五种，针对各自类型，FMI提供对应的读写函数<br></td>
+</tr>
+<tr>
+<td align="left">start</td>
+<td align="left">变量的初始值，如果一个变量的causality=”input”，则其必须拥有start属性。</td>
+</tr>
+<tr>
+<td align="left">fixed</td>
+<td align="left">用来定义”start”属性的含义，如果fixed=true, start属性值将会被直接初始化到变量的值，否则，会经过迭代计算获得，默认值为true。<br></td>
+</tr>
+</tbody></table>
+<p>3.2 DLL</p>
+<p>执行库文件，以动态链接库的形式(.dll)存在，其中包含FMU求解所需要的所有函数接口，默认采用C语言格式编写，可以提供源码或二进制形式的文件，能够被其它不同平台所调用</p>
+<p>3.3 其它文件</p>
+<p>模型其它相关信息，如图标、文档等，该部分不参与模型的运行，作为辅助信息提供给模型使用者。</p>
+<h3 id="SSP"><a href="#SSP" class="headerlink" title="SSP"></a>SSP</h3><p>SSP（SystemStructure and Parameterization）是一种与工具无关的格式，用于描述、打包和交换系统的结构及其参数化。该标准由一组基于XML格式的文件组成，这些XML使用信号流和参数化的方法描述了一个组件模型网络。该标准的XML描述文件是工具中立的，主要用于不同工具之间被仿真系统的信息交换。</p>
+<p>“*.SPP”压缩包格式：</p>
+<ul>
+<li><code>*.fmu</code>：Functional Mock-up Unit</li>
+<li><code>*.ssm</code>：SystemStructure Parameter Mapping</li>
+<li><code>*.ssv</code>：SystemStructure Parameter Values</li>
+<li><code>*.ssd</code>：SystemStructure Definition</li>
+<li><code>*.ssb</code>：SystemStructure Signal Dictionaries</li>
+</ul>
+<p>SSP标准的主要目的是：</p>
+<ul>
+<li>为组件网络（特别是FMUs）的连接结构定义标准化格式。</li>
+<li>定义一种标准化的方法来存储和应用这些组件的参数。</li>
+<li>所开发的标准/APIs在开发过程的所有阶段都可用（架构定义、集成、仿真、MiL、SiL、HiL中的测试）。</li>
+<li>视作FMI2.0标准的拓展，与FMI在功能上有效互补</li>
+</ul>
+<h3 id="DCP"><a href="#DCP" class="headerlink" title="DCP"></a>DCP</h3><p>DCP（DistributedCo-Simulation Protocol），即分布式联合仿真协议。它是一种应用层通信协议，旨在将模型或实时系统集成到仿真环境中。它支持使用底层传输协议(如UDP、TCP或CAN)交换与仿真相关的配置信息和数据。同时，DCP支持集成来自不同供应商的工具和实时系统。DCP旨在提高基于工作流仿真的效率，并减少系统集成中的调试工作量。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>FMI、SSP、DCP犹如系统仿真技术在复杂系统模型集成和仿真应用时的利器：FMI提供了统一的接口实现模型交换（ME）和联合仿真（CO）两种工作模式；SSP有效补充了基于FMI标准进行模型重用时的参数和架构信息与数据；DCP规范了通信，将FMI应用范围推广到实时应用领域，且实现了V流程下MiL、SiL、HiL模型的连续传递重用，实现了非实时、软实时和硬实时系统的通信联合仿真。</p>
+<h1 id="二、参考资料"><a href="#二、参考资料" class="headerlink" title="二、参考资料"></a>二、参考资料</h1><blockquote>
+<p><a href="https://mp.weixin.qq.com/s/pS7zT4kardJAD8xVjXvXpg" target="_blank" rel="noopener">FMI、SSP、DCP简介</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/05/16/fmi-ssp-dcp/">http://zws6672.top/2021/05/16/fmi-ssp-dcp/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/fmi/">fmi</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/05/16/tool-uml/" class="pre">UML中关系</a><a href="/2021/05/16/hexo-sync/" class="next">多PC同步hexo</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、fmi、ssp与dcp"><span class="toc-text">一、fmi、ssp与dcp</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#FMI"><span class="toc-text">FMI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSP"><span class="toc-text">SSP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DCP"><span class="toc-text">DCP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#二、参考资料"><span class="toc-text">二、参考资料</span></a></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/16/mysql-opt/">MySQL 优化(一)设计与功能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/16/tool-uml/">UML中关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/16/fmi-ssp-dcp/">了解fmi、ssp与dcp</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/16/hexo-sync/">多PC同步hexo</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/fmi-daccosim/">基于FMI标准的仿真软件————Daccosim</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/15/springboot-1/">springboot（一）入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/13/jdk-backend-compile/">后端编译与优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/13/jdk-front-compile/">前端编译与优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/26/jdk-bytecodeEngine/">虚拟机字节码执行引擎</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/04/15/jdk-cload/">虚拟机类加载机制</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/fmi/" style="font-size: 15px;">fmi</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/soft-skills/" style="font-size: 15px;">soft-skills</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
