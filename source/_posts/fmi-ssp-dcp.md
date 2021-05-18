@@ -1,7 +1,7 @@
 ---
 title: 了解fmi、ssp与dcp
 date: 2021-05-16 13:18:20
-tags: [fmi]
+tags: [co-simulate]
 ---
 
 
