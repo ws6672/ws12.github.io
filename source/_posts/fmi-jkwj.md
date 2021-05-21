@@ -190,15 +190,18 @@ fmi2Status fmi2GetDirectionalDerivative(fmi2Component c,
 
 ```
 
-XML文件的第一行（例如modelDescription.xml）必须包含XML文件的编码方案,要求编码方案始终为UTF-8：
+XML文件的第一行（如modelDescription.xml）必须包含XML文件的编码方案,要求编码方案始终为UTF8，需要如下定义：
 ```
 	<?xml version="1.0" encoding="UTF-8"?>
 ```
 
 
-如下是根级别的架构文件，包含以下定义（下图包含架构文件中的所有元素，数据由这些元素的属性定义）：
+
+以下是根级别的架构文件，包含架构文件中的所有元素，而数据由这些元素的属性定义：
 
 ![元素架构](/image/co-simulation/fmi-md.png)
+
+***
 
 1. fmiModelDescription（fmi模型描述）
 
@@ -232,6 +235,7 @@ XML文件的第一行（例如modelDescription.xml）必须包含XML文件的编
 		+	ModelStructure：定义模型的结构，包括输出，连续时间状态和初始未知数
 
 
+***
 
 2. UnitDefinitions （变量单位）
 
@@ -286,7 +290,7 @@ DisplayUnit_value = factor*Unit_value + offset
 <Unit name="Euro/PersonYear"/> // no mapping to BaseUnit defined
 ```
 
-
+***
 
 3. TypeDefinitions（类型定义）
 
@@ -337,6 +341,9 @@ DisplayUnit_value = factor*Unit_value + offset
 				+	start
 				+	Items
 
+***
+
+
 4. LogCategories（日志类别）
 
 LogCategories定义了一组无序字符串，可用于通过函数“ logger”定义日志输出。“名称”属性对于LogCategories列表的所有其他元素必须是唯一的
@@ -349,6 +356,9 @@ LogCategories定义了一组无序字符串，可用于通过函数“ logger”
 	+	Category(多个、分类)
 		+	name(在日志列表中唯一)
 		+	description
+
+***
+
 
 5. DefaultExperiment（默认设置）
 
@@ -365,6 +375,8 @@ DefaultExperiment提供积分器的默认设置，例如开始时间、停止时
 	+	stopTime：结束时间
 	+	stepSize：步长大小（决定最小采样周期）
 
+***
+
 6. VendorAnnotations（附加信息）
 
 VendorAnnotations由一组有序的注释组成，这些注释由可以解释“ any”元素的工具名称标识。
@@ -377,6 +389,9 @@ VendorAnnotations由一组有序的注释组成，这些注释由可以解释“
 	+	Tool（多个）
 		+	name（必须、唯一）
 		+	#any：是可以由工具定义的任意XML数据结构（例如javafmi中的v2.Tool类中定义的HybridCoSim）
+
+***
+
 
 7. ModelVariables（模型变量）
 
@@ -434,6 +449,9 @@ ScalarVariable 标签的几个属性存在关联，如下所示
 
 > 代数环（algebraic loop）：代数环（algebraic loop)发生在两个或多个模块在输入端口具有信号直接传递而形成反馈的情况时，直接传递的模块在不知输入端口的值的情况下无法计算出输出端的值，也就是现在时刻的输出是依赖现在时刻的输入值来计算的。当这种情况出现时simulink会在每一次迭代言算完成时，去决定它是否会有解。代数回路会减缓方真执行的速度并可能会没有解。
 为简单起见，此版本的模式文件中仅支持标量变量，并且必须将结构化实体（如数组或记录）映射到标量。
+
+***
+
 
 8. ModelStructure（模型结构）
 
@@ -495,6 +513,8 @@ ScalarVariable 标签的几个属性存在关联，如下所示
 	</InitialUnknowns>
 </ModelStructure>
 ```
+
+***
 
 # 三、参考资料
 > 《Functional Mock-up Interface forModel Exchange and Co-Simulation v2.0》
