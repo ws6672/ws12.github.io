@@ -1,30 +1,11 @@
-雅可比矩阵
-在向量微积分中，雅可比矩阵是一阶偏导数以一定方式排列成的矩阵，其行列式称为雅可比行列式。雅可比矩阵的重要性在于它体现了一个可微方程与给出点的最优线性逼近。因此，雅可比矩阵类似于多元函数的导数。 
-
-残差在数理统计中是指实际观察值与估计值（拟合值）之间的差。“残差”蕴含了有关模型基本假设的重要信息。
-
-
-对于非循环图，协同初始化是没有必要的，因为它能够将输入从根传播到叶子作为输出。但是，最常见情况是图中混合了无环和强连通分量（SCC）。为了提高效率，所有SCC都应以并行方式解决。
+---
+title: FMI2.0 ———— 接口与文件
+date: 2021-05-21 14:51:08
+tags: [co-simulation]
+---
 
 
-基于雅可比矩阵计算的牛顿-拉夫森算法（NR）：
-+	计算输入迭代残差
-+	生成雅可比矩阵
-+	解答雅可比矩阵
-+	应用修正参数到输入
-+	直到满足给定的公差
-
-新的迭代传播算法（IP）的运行方式与Newton Raphson相同，唯一的区别是不计算Jacobian矩阵，而是用恒等矩阵代替。因为避免了雅可比计算，IP比NR快得多，但通用性却比NR差。但是，它合适于某种特定场景，特别是在配电网络（无网格的电网）中的潮流计算（电网中的FMU交换电压和流动电流）
-
-
-Github Actions 核心概念
-Runner 用来跑 CI/CD build 的服务器
-Github Hosted Runner Github 官方提供的 Runner
-Self-Hosted Runner 自定义Runner
-Workflow 定义CI/CD的流程
-
-
-本文档定义了功能模拟接口（FMI）2.0版。 FMI是一种独立于工具的标准，可以使用xml文件和C代码（在DLL /共享库中编译或在源代码中编译）的组合来支持模型交换和动态模型的共同仿真。
+本文描述了FMI2.0规范FMI模型交换和协同仿真，包括了程序接口以及模型描述文件两部分。
 
 # 一、FMI程序接口
 
@@ -412,13 +393,13 @@ fmiModelDescription的“ ModelVariables”元素是模型描述的核心部分�
 			+	name（必需、唯一）：变量标识符
 			+	valueReference：变量值的标识符
 			+	description
-			+	causality（定义变量因果关系）
+			+	causality（变量关系）
 				+	parameter：独立参数 
 				+	calculatedParameter：计算参数
 				+	input/output：可用于连接
 				+	local：从其他变量计算出的变量
 				+	independent：自变量
-			+	variability（定义时间依赖性）
+			+	variability（时间依赖性）
 				+	constant：固定值
 				+	fixed：变量在初始化后可调
 				+	tunable：变量在外在事件间是恒定的
@@ -514,3 +495,6 @@ ScalarVariable 标签的几个属性存在关联，如下所示
 	</InitialUnknowns>
 </ModelStructure>
 ```
+
+# 三、参考资料
+> 《Functional Mock-up Interface forModel Exchange and Co-Simulation v2.0》
