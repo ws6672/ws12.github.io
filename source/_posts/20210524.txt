@@ -1,0 +1,365 @@
+判断一个系统的存储方式是大端还是小端
+
++	大端模式，是指 数据的高位保存在内存的低地址 中，而 数据的低位保存在内存的高地址 中，这样的存储模式有点儿类似于把数据当作字符串顺序处理：地址由小向大增加，而数据从高位往低位放；
++	小端模式，是指数据的高位保存在内存的高 地址中，而数据的低位保存在内存的低地址中，这种存储模式将地址的高低和 数据位权有效地结合起来，高地址部分权值高，低地址部分权值低，和我们的逻辑方法一致。
+
+从内存地址增加的方向来说，大端就是先存放高序字节，小端就是先存放低序字节。
+
+***
+---------------------------------------------------------------------------
+
+编码问题，字段
+
+
+author
+	id
+	name
+	desc
+	create_date
+	update_date
+
+poetry
+	author
+	id
+	title
+	paragraphs
+	create_date
+	update_date
+	
+诗按音律分，可分为古体诗和近体诗两类。古体诗和近体诗是唐代形成的概念，是从诗的音律角度来划分的
+
+Windows 平台安装 MongoDB
+MongoDB 提供了可用于 32 位和 64 位系统的预编译二进制包，你可以从MongoDB官网下载安装，[MongoDB 预编译二进制包下载地址](https://www.mongodb.com/download-center/community)
+
++	MongoDB for Windows 64-bit 适合 64 位的 Windows Server 2008 R2, Windows 7 , 及最新版本的 Window 系统。
++	MongoDB for Windows 32-bit 适合 32 位的 Window 系统及最新的 Windows Vista。 32 位系统上 MongoDB 的数据库最大为 2GB。
++	MongoDB for Windows 64-bit Legacy 适合 64 位的 Windows Vista, Windows Server 2003, 及 Windows Server 2008 
+
+1. 默认设置安装即可，也可以自定义安装（Custom）。
+2. 配置环境变量
+```
+-- 设置
+Path C:\Program Files\MongoDB\Server\4.4\bin
+-- 刷新
+set Path=C: // 退出cmd，重入
+echo %Path%
+```
+
+
+[下载MongoDB Database Tools](https://www.mongodb.com/try/download/database-tools?tck=docs_databasetools)，解压到路径（C:\Program Files\MongoDB\Server\XXX\bin）.
+
+$ mongoimport -db git --collection Chinese-poetry --file ./json/*.json
+
+
+ DIR *.json  ./
+
+
+
+
+-------------------------------------------------
+
+
+JNA （Java Native Access）
+
+
+1. 什么是JNA
+
+JNA(Java Native Access)框架是一个开源的Java框架，是SUN公司主导开发的，建立在经典的JNI的基础之上的一个框架。JNA提供一组Java工具类用于在运行期动态访问系统本地共享类库而不需要编写任何Native/JNI代码。开发人员只要在一个java接口中描述目标native library的函数与结构，JNA将自动实现Java接口到native function的映射，大大降低了Java调用本体共享库的开发难度。
+
+JNI是Java调用原生函数的唯一途径，而JNA就是基于JNI的开发的工具包。使用JNI访问动态链接库过于复杂，而JNA简化了操作，提供了一个动态的C语言编写的转发器（实际上也是一个动态链接库，在Linux-i386中文件名是：libjnidispatch.so）可以自动实现Java与C之间的数据类型映射。从性能上会比JNI技术调用动态链接库要低。
+
+Java Native Access（Java本地访问）具有一个单独的组件jna.jar；支持的Native库（jnidispatch）包含在jar文件中。 JNA能够自行提取和加载Native库，因此不需要其他配置。如果Native库尚未安装在通过`System.loadLibrary`可以访问的本地系统上，则JNA会退出提取。
+
+首先下载最新版本的JNA，然后在项目的CLASSPATH中引用jna.jar；或者通过Maven导入
+```
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>4.1.0</version>
+    </dependency>
+```
+
+
+2. 如下所示，示例会将标准C库映射并调用printf函数
+
+```
+public class Test {
+	// 通过扩展Library接口，声明一个Java接口来保存Native库方法
+    interface CLibrary extends Library {
+        CLibrary INSTANCE = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "msvcrt" : "c"), CLibrary.class);
+
+        void printf(String format, Object... args);
+    }
+
+    public static void main(String[] args) {
+        CLibrary.INSTANCE.printf("Hello, World\n");
+        for (int i = 0; i < args.length; i++) {
+            CLibrary.INSTANCE.printf("Argument %d: %s\n", i, args[i]);
+        }
+    }
+
+}
+```
+
+标识要使用的Native目标库，这可以是具有导出功能的任何共享库。在平台软件包中可以找到许多常见系统库的映射示例，尤其是在Windows上。
+
+在Java程序中使用C库，有多种方法：
++	首选方法是将jna.library.path系统属性设置为目标库的路径。此属性类似于java.library.path，但仅适用于JNA加载的库。
++	启动VM之前，请更改适当的库访问环境变量（在Windows上是PATH、在Linux上是LD_LIBRARY_PATH、在OSX上是DYLD_LIBRARY_PATH）
++	使您的Native库在类路径下{OS}-{ARCH} / {LIBRARY}下可用，其中{OS}-{ARCH}是JNANative库的规范前缀（例如win32-x86，linux-amd64）；如果资源在jar文件中，则在加载时将自动提取该资源。
+
+
+我们可以通过设置类似于SYNC_INSTANCE的变量，来将库加载到局部变量中：
+```
+    interface CLibrary extends Library {
+        CLibrary INSTANCE = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "msvcrt" : "c"), CLibrary.class);
+//        确保单次使用
+        CLibrary SYNC_INSTANCE = (CLibrary)
+                Native.synchronizedLibrary(INSTANCE);
+        void printf(String format, Object... args);
+    }
+```
+
+3. 结构体
+
+C/C++里有结构体struct,甚至C#中也具有，而java中并没有结构体这个概念。当调用动态库.so和.dll时，函数接口上很多数据都是结构体，而Java通过定义一个类似于结构体的实体类来表示结构体对象。而jna提供了Structure类，用于定义结构体。
+
+例如：
+```
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.Platform;
+import com.sun.jna.Structure;
+import com.sun.jna.win32.StdCallLibrary;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Test {
+	// 这是一个标准库的Java接口
+    interface Kernel32 extends StdCallLibrary {
+        // 方法声明，常量和结构定义在此处
+        void GetSystemTime(SYSTEMTIME result);
+		// 定义结构体
+        static class SYSTEMTIME extends Structure {
+            public short wYear;
+            public short wMonth;
+            public short wDayOfWeek;
+            public short wDay;
+            public short wHour;
+            public short wMinute;
+            public short wSecond;
+            public short wMilliseconds;
+			// 返回字段,需要与结构体保持一致
+            @Override
+            protected List getFieldOrder() {
+                return Arrays.asList("wYear", "wMonth", "wDayOfWeek", "wDay", "wHour", "wMinute", "wSecond", "wMilliseconds");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Kernel32 lib = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class);
+        Kernel32.SYSTEMTIME time = new Kernel32.SYSTEMTIME();
+        lib.GetSystemTime(time);
+        System.out.println(time.wYear + "年" +time.wMonth+ "月" + time.wDay +"日");
+    }
+
+
+}
+
+```
+
+如果需要映射结构体，我们可以定义一个从Structure库接口定义中派生的公共静态类。它允许将结构共享为库接口定义的任何选项（如自定义类型映射），但是必须按顺序在FieldOrder注解或getFieldOrder()方法返回的列表中包括每个声明的字段名称。
+
+如果代码的结构特别长或复杂，则可以考虑使用由Olivier Chafik编写的[JNAerator](https://code.google.com/p/jnaerator/) 工具，该工具可以为您生成JNA映射。
+
+
+
+
+4. 函数描述
+
+通过`Native.loadLibrary()`实例化Native库接口时，JNA将创建一个代理。该代理通过的`invoke`函数路由所有方法来调用 `Library.Handler`。此方法会查找一个适当的 `Function`对象，该对象表示由Native库导出的函数。代理处理程序可以执行一些初始名称转换，借此从调用的代理函数中获取实际的Native库函数名称。
+
+找到 `Function` 对象后，可以通过`invoke` 函数与所有可用参数来调用通用方法。代理函数的方法签名用于确定传入参数的类型和所需的返回类型。Function对象执行参数的转换，可以将`NativeMapped`类型转换为它们的Native表示形式，或将`TypeMapper`应用于任何传入类型，然后在函数返回时执行类似的转换。默认情况下，所有Structure对象的Java字段均会在调用Native函数之前复制到其Native内存中，并在调用后复制回去。
+
+所有函数调用均基于其返回类型通过不同的Native方法进行路由，但所有这些Native方法均通过native / dispatch.c中的同一分派调用分派。该函数在构建供`libffi`使用的函数调用描述之前，会将Java对象最终转换为Native表示形式。libffi库需要描述目标函数的参数和返回类型，以便执行适合最终本地调用调用的特定于平台的堆栈结构。一旦libffi执行了本地调用 (via ffi_call()),它将结果复制到JNA提供的缓冲区中，然后将其转换回适当的Java对象。
+
+
+5. 数据类型的使用
+
+C语言中的数据类型与java数据类型可以通过JNA相互转换，Java基本类型（及其对等对象）可以直接映射到相同大小的NativeC类型：
+
+|原生类型|Size|Java 类型|WINDOWS类型|
+|:--|:--|:--|:--|
+|char|8-bit integer|byte|BYTE, TCHAR|
+|short|16-bit integer|short|WORD|
+|wchar_t|16/32-bit character|char|TCHAR|
+|int|32-bit integer|int|DWORD|
+|int|boolean value|boolean|BOOL|
+|long|32/64-bit integer|NativeLong|LONG|
+|long long|64-bit integer|long|__int64|
+|float|32-bit FP|float||
+|double|64-bit FP|double||
+|char*|C string|String|LPCSTR|
+|void*|pointer|Pointer|LPVOID, HANDLE, LPXXX|
+
+无符号类型使用与有符号类型相同的映射。 C枚举通常可以与“ int”互换。
+
+
+6. 指针和数组
+
+原始数组参数（包括结构）由其对应的Java类型表示。例如：
+
+```
+//原始C声明
+void  fill_buffer（ int * buf， int len）;
+void  fill_buffer（ int buf []， int len）; //与数组语法相同
+//等效的JNA映射
+void fill_buffer（ int [] buf， int len）;
+```
+
+> 注意：如果参数由函数调用范围之外的Native函数使用，则必须使用内存或NIO直接缓冲区。Java基本数组提供的内存仅在函数调用期间有效，以供Native代码使用。
+
+
+[官网文档](https://github.com/java-native-access/jna/blob/master/www/GettingStarted.md)
+
+
+
+--------------------------
+
+线程安全与锁优化
+
+并发处理的广泛应用是Amdahl定律代替摩尔定律成为计算机性能发展源动力的根本原因，也是人类压榨计算机运算能力的最有力武器。
+
+在软件业发展的初期，程序编写都是以算法为核心的，程序员会把数据和过程分别作为独立的部分来考虑，数据代表问题空间中的客体，程序代码则用于处理这些数据，这种思维方式直接站在计算机的角度去抽象问题和解决问题，被称为面向过程的编程思想。与此相对，面向对象的编程思想则站在现实世界的角度去抽象和解决问题，它把数据和行为都看作对象的一部分，这样可以让程序员能以符合现实世界的思维方式来编写和组织程序。
+
+# 一、线程安全
+
+当多个线程同时访问一个对象时，如果不用考虑这些线程在运行时环境下的调度和交替执行，也不需要进行额外的同步，或者在调用方进行任何其他的协调操作，调用这个对象的行为都可以获得正确的结果，那就称这个对象是线程安全的。
+
+这就要求线程安全的代码都必须具备一个共同特征：代码本身封装了所有必要的正确性保障手段（如互斥同步等），令调用者无须关心多线程下的调用问题，更无须自己实现任何措施来保证多线程环境下的正确调用。
+
+1. Java语言中的线程安全
+
+可以将Java语言中各种操作共享的数据分为以下五类：
+
+a. 不可变
+
+不可变（Immutable）的对象一定是线程安全的，无论是对象的方法实现还是方法的调用者，都不需要再对任何线程增加安全保障措施。
+
+Java语言中，如果多线程共享的数据是一个基本数据类型，那么只要在定义时使用final关键字修饰它就可以保证它是不可变的。如果共享数据是一个对象，由于Java语言目前暂时还没有提供值类型的支持，那就需要对象自行保证其行为不会对其状态产生任何影响才行。
+
+保证对象行为不影响自己状态的途径有很多种，最简单的一种就是把对象里面带有状态的变量都声明为final，这样在构造函数结束之后，它就是不可变的。
+
+b. 绝对线程安全
+
+在Java API中标注自己是线程安全的类，大多数都不是绝对的线程安全。例如号称线程安全的容器类Vector，相关例子如下
+
+```
+private static Vector<Integer> vector = new Vector<Integer>();
+	public static void main(String[] args) {
+		while (true) {
+			for (int i = 0; i < 10; i++) {
+				vector.add(i);
+			}
+			Thread removeThread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					for (int i = 0; i < vector.size(); i++) {
+						vector.remove(i);
+					}
+				}
+			});
+				
+			Thread printThread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					for (int i = 0; i < vector.size(); i++) {
+						System.out.println((vector.get(i)));
+					}
+				}
+			});
+		removeThread.start();
+		printThread.start();
+		//不要同时产生过多的线程，否则会导致操作系统假死
+		while (Thread.activeCount() > 20);
+		}
+	}
+}
+```
+
+一个线程删除，另外一个线程获取，这时候会导致错误，抛出异常`ArrayIndexOutOfBoundsException`，假如Vector一定要做到绝对的线程安全，那就必须在它内部维护一组一致性的快照访问才行，每次对其中元素进行改动都要产生新的快照，这样要付出的时间和空间成本都是非常大的。
+
+c. 相对线程安全
+
+相对线程安全就是我们通常意义上所讲的线程安全，它需要保证对这个对象单次的操作是线程安全的，我们在调用的时候不需要进行额外的保障措施，但是对于一些特定顺序的连续调用，就可能需要在调用端使用额外的同步手段来保证调用的正确性。
+
+d. 线程兼容
+
+线程兼容是指对象本身并不是线程安全的，但是可以通过在调用端正确地使用同步手段来保证对象在并发环境中可以安全地使用。Java类库API中大部分的类都是线程兼容的，如与前面的Vector和HashTable相对应的集合类ArrayList和HashMap等
+
+
+f. 线程对立
+
+线程对立是指不管调用端是否采取了同步措施，都无法在多线程环境中并发使用代码。由于Java语言天生就支持多线程的特性，线程对立这种排斥多线程的代码是很少出现的，而且通常都是有害的，应当尽量避免。
+
+2. 线程安全的实现方法
+
+2.1 互斥同步
+
+互斥同步（Mutual Exclusion & Synchronization）是一种最常见也是最主要的并发正确性保障手段。同步是指在多个线程并发访问共享数据时，保证共享数据在同一个时刻只被一条（或者是一些，当使用信号量的时候）线程使用。而互斥是实现同步的一种手段，临界区（Critical Section）、互斥量（Mutex）和信号量（Semaphore）都是常见的互斥实现方式。因此在“互斥同步”这四个字里面，互斥是因，同步是果；互斥是方法，同步是目的。
+
+实现方法如下：
+
+2.1.1 synchronized关键字
+
+synchronized关键字，这是一种块结构（Block Structured）的同步语法。。synchronized关键字经过Javac编译之后，会在同步块的前后分别形成monitorenter和monitorexit这两个字节码指令。这两个字节码指令都需要一个reference类型的参数来指明要锁定和解锁的对象。如果Java源码中的synchronized明确指定了对象参数，那就以这个对象的引用作为reference；如果没有明确指定，那将根据synchronized修饰的方法类型（如实例方法或类方法），来决定是取代码所在的对象实例还是取类型对应的Class对象来作为线程要持有的锁。
+
+根据《Java虚拟机规范》的要求，在执行monitorenter指令时，首先要去尝试获取对象的锁。如果这个对象没被锁定，或者当前线程已经持有了那个对象的锁，就把锁的计数器的值增加一，而在执行monitorexit指令时会将锁计数器的值减一。一旦计数器的值为零，锁随即就被释放了。如果获取对象锁失败，那当前线程就应当被阻塞等待，直到请求锁定的对象被持有它的线程释放为止。
+
+被synchronized修饰的同步块对同一条线程来说是可重入的。这意味着同一线程反复进入同步块也不会出现自己把自己锁死的情况。
+
+被synchronized修饰的同步块在持有锁的线程执行完毕并释放锁之前，会无条件地阻塞后面其他线程的进入。这意味着无法像处理某些数据库中的锁那样，强制已获取锁的线程释放锁；也无法强制正在等待锁的线程中断等待或超时退出。从执行成本的角度看，持有锁是一个重量级（Heavy-Weight）的操作。
+
+2.1.2 concurrent包
+
+Java类库中新提供了java.util.concurrent包（下文称J.U.C包），其中的java.util.concurrent.locks.Lock接口便成了Java的另一种全新的互斥同步手段。基于Lock接口，用户能够以非块结构（Non-Block Structured）来实现互斥同步，从而摆脱了语言特性的束缚，改为在类库层面去实现同步，
+
+重入锁（ReentrantLock）是Lock接口最常见的一种实现[2]，顾名思义，它与synchronized一样是可重入的；与synchronized相比增加了以下几种功能：
+
++	等待可中断：是指当持有锁的线程长期不释放锁的时候，正在等待的线程可以选择放弃等待，改为处理其他事情。可中断特性对处理执行时间非常长的同步块很有帮助。
++	公平锁：是指多个线程在等待同一个锁时，必须按照申请锁的时间顺序来依次获得锁；而非公平锁则不保证这一点，在锁被释放时，任何一个等待锁的线程都有机会获得锁。synchronized中的锁是非公平的，ReentrantLock在默认情况下也是非公平的，但可以通过带布尔值的构造函数要求使用公平锁。不过一旦使用了公平锁，将会导致ReentrantLock的性能急剧下降，会明显影响吞吐量。
++	锁绑定多个条件：是指一个ReentrantLock对象可以同时绑定多个Condition对象。在synchronized中，锁对象的wait()跟它的notify()或者notifyAll()方法配合可以实现一个隐含的条件，如果要和多于一个的条件关联的时候，就不得不额外添加一个锁；而ReentrantLock则无须这样做，多次调用newCondition()方法即可。
+
+
+synchronized是在Java语法层面的同步，足够清晰，也足够简单。每个Java程序员都熟悉synchronized，但J.U.C中的Lock接口则并非如此。因此在只需要基础的同步功能时，更推荐synchronized。Lock应该确保在finally块中释放锁，否则一旦受同步保护的代码块中抛出异常，则有可能永远不会释放持有的锁。
+
+2.2 非阻塞同步
+
+互斥同步面临的主要问题是进行线程阻塞和唤醒所带来的性能开销，因此这种同步也被称为阻塞同步（Blocking Synchronization）。从解决问题的方式上看，互斥同步属于一种悲观的并发策略，其总是认为只要不去做正确的同步措施（例如加锁），那就肯定会出现问题。无论共享的数据是否真的会出现竞争，它都会进行加锁，这将会导致用户态到核心态转换、维护锁计数器和检查是否有被阻塞的线程需要被唤醒等开销。
+
+2.2.1 基于冲突检测的乐观并发策略
+
+不管风险，先进行操作，如果没有其他线程争用共享数据，那操作就直接成功了；如果共享的数据的确被争用，产生了冲突，那再进行其他的补偿措施，最常用的补偿措施是不断地重试，直到出现没有竞争的共享数据为止。这种乐观并发策略的实现不再需要把线程阻塞挂起，因此这种同步操作被称为非阻塞同步（Non-Blocking Synchronization），使用这种措施的代码也常被称为无锁（Lock-Free）编程。
+
+2.2.2 CAS
+通过硬件，可以保证某些从语义上看起来需要多次操作的行为可以只通过一条处理器指令就能完成。
+
+常用指令如下
++	测试并设置（Test-and-Set）；
++	获取并增加（Fetch-and-Increment）；
++	交换（Swap）；
++	比较并交换（Compare-and-Swap，下文称CAS）；
++	加载链接/条件储存（Load-Linked/Store-Conditional，下文称LL/SC）
+
+以CAS为例：CAS指令需要有三个操作数，分别是内存位置（在Java中可以简单地理解为变量的内存地址，用V表示）、旧的预期值（用A表示）和准备设置的新值（用B表示）。CAS指令执行时，当且仅当V符合A时，处理器才会用B更新V的值，否则它就不执行更新。但是，不管是否更新了V的值，都会返回V的旧值，上述的处理过程是一个原子操作，执行期间不会被其他线程中断。在JDK 5之后，Java类库中才开始使用CAS操作，该操作由sun.misc.Unsafe类里面的ompareAndSwapInt()和compareAndSwapLong()等几个方法包装提供。
+
+不过由于Unsafe类在设计上就不是提供给用户程序调用的类（Unsafe::getUnsafe()的代码中限制了只有启动类加载器（Bootstrap ClassLoader）加载的Class才能访问它），因此在JDK 9之前只有Java类库可以使用CAS，譬如J.U.C包里面的整数原子类，其中的compareAndSet()和getAndIncrement()等方法都使用了Unsafe类的CAS操作来实现。
+
+而如果用户程序也有使用CAS操作的需求，那要么就采用反射手段突破Unsafe的访问限制，要么就只能通过Java类库API来间接使用它。
+
+2.3 无同步方案
+
+# 二、锁优化
