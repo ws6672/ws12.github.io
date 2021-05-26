@@ -1,9 +1,10 @@
 ---
 title: 了解fmi、ssp与dcp
 date: 2021-05-16 13:18:20
-tags: [co-simulate]
+tags: [co-simulation]
 ---
 
+fmi是仿真模型规范，ssp是存储模块参数的规范，而dcp是分布式仿真的应用层通信协议。
 
 #  一、fmi、ssp与dcp
 
