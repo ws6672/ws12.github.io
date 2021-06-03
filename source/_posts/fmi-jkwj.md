@@ -126,7 +126,7 @@ fmi2Status fmi2SetupExperiment (fmi2Component c,
 ```
 
 `fmuType = fmi2ModelExchange`: 如果“ toleranceDefined = fmi2True”，则使用数值积分方案调用模型，其中通过使用“ tolerance”控制误差来控制步长（通常使用相对公差）
-`fmuType = fmi2CoSimulation`：如果“toleranceDefined = fmi2True”，通信间隔由估计估计误差控制；如果从站具有可变步长和估计误差的积分，那么通过公差来控制通信间隔
+`fmuType = fmi2CoSimulation`：如果“toleranceDefined = fmi2True”，通信间隔由估计误差控制；如果从站具有可变步长和估计误差的积分，那么通过公差来控制通信间隔
 
 参数 startTime 和 stopTime 可用于检查模型在给定范围内是否有效，或分配存储结果所需的内存。如果当前时间超过 stopTime，则FMU必须返回fmi2Status = fmi2Error。如果stopTimeDefined = fmi2False，则没有定义自变量的最终值，并且参数stopTime没有意义。
 
@@ -220,7 +220,7 @@ XML文件的第一行（如modelDescription.xml）必须包含XML文件的编码
 		+	copyright：知识版权定义（例如“© My Company 2011”）
 		+	generationTool：生成XMLfile的工具
 		+	generationDateAndTime：生成XML文件的日期和时间（格式为“YYYY-MM-DDThh:mm:ssZ”，Z表示Zulu 时区）
-		+	variableNamingConvention：变量名称约束（flat表示一个字符串列表；structured表示使用”.“作为分隔符）
+		+	variableNamingConvention：该约束定义了如何构造 ScalarVariable的名称（flat表示唯一的非空字符串；structured表示使用”.“作为分隔符，名称由“_”、字母和数字组成，也可以由单撇号括起来的任何字符组成）
 		+	numberOfEventIndicators：基于FMI 模型交换的事件指标的（固定）数量，协同仿真下可以忽略
 	+	子标签
 		+	ModelExchange：如果存在，则FMU基于“用于模型交换的FMI”（换句话说，FMU包含模型或与提供模型的工具进行通信，而环境提供模拟引擎）。
@@ -404,26 +404,27 @@ fmiModelDescription的“ ModelVariables”元素是模型描述的核心部分�
 +	ModelVariables
 	+	ScalarVariable（多个）：标量变量,即存储一个数据的变量
 		+	属性
-			+	name（必需、唯一）：变量标识符
-			+	valueReference：变量值的标识符
+			+	name（必需）：变量唯一名称
+			+	valueReference：使用被称为值引用的整数句柄识别FMU的标量变量的值。
 			+	description
-			+	causality（变量关系）
-				+	parameter：独立参数 
-				+	calculatedParameter：计算参数
-				+	input/output：可用于连接
-				+	local：从其他变量计算出的变量
-				+	independent：自变量
-			+	variability（时间依赖性）
-				+	constant：固定值
-				+	fixed：变量在初始化后可调
-				+	tunable：变量在外在事件间是恒定的
-				+	discrete（离散）：变量在内部事件间是恒定的
-				+	continuous：变量修改没有限制
+			+	causality（	因果关系）：默认值为local，一个连续时间状态需要设置causality = "local/output"
+				+	parameter：独立参数（由环境提供的参数，在仿真期间数据值是固定的，且不能用于连接中） 
+				+	calculatedParameter：计算参数（在仿真期间数据值是固定的，在初始化阶段以及可调（tunable）参数发生变化时被计算）
+				+	input：该变量是其它模块或从机提供的，不允许定义initial
+				+	output：该变量是提供给其它模块或从机的，与输入的代数关系是通过dependencies属性定义的（`<fmiModelDescription><ModelStructure><Outputs><Unknown>`）
+				+	local（默认值）：由其他变量计算得到的局部变量或连续时间状态，不允许用于其它模块或从站。
+				+	independent：自变量（通常是时间）。所有变量与这个自变量构成函数。可变性必须是“continuous”。在FMU中，最多只有一个 `ScalarVariable `可以定义为自变量。如果没有变量定义为自变量，那可以是隐式的定义（name='time',unit='s'）。如果有一个变量被定义为自变量，那它必须定义为'Real'类型，并且不设置'start'属性；也不允许调用`fmi2SetReal`函数。取而代之的是，通过`fmi2SetupExperiment`函数对自变量值进行初始化。在初始化后，模型交换类型的需要调用`fmi2SetTime`函数；联合仿真类型的，需要调用`fmi2DoStep`函数设置参数`currentCommunicationPoint`和`communicationStepSize`(实际值可以通过fmi2GetReal查询)。
+			+	variability（可变性）:定义变量的时间依赖性，换句话说它规定了一个变量在什么时候可以改变它的值。
+				+	constant：变量值永不改变
+				+	fixed：变量值在初始化后不可调整，换句话说在调用`fmi2ExitInitializationMode`函数后变量值不能够再改变
+				+	tunable：如果设置属性 `causality = "parameter/input"`以及`variability = "tunable"`，在外部事件（模型交换）间或者通讯点（联合仿真）间变量是固定不变的；如果发生了变化，那么就会触发一个外部事件（ModelExchange）或者在下一个通讯点（CoSimulation）执行改变。属性设置为`variability = "tunable"、causality = "calculatedParameter\output"`的变量必须被重新计算。
+				+	discrete（离散）：在模型交换类型中，在外部事件以及内部事件（time、state、step）间是固定不变的；在联合仿真中，通常变量来自“真实”的采样数据系统，其值仅在通信点（或从站内部）更改
+				+	continuous（默认值）：只有属性`ype = “Real”`的变量可以是连续的。在模型交换类型中，值的变化没有限制；在联合仿真中，变量通常来自微分。【注意，关于连续状态的信息是用元素 fmiModelDescription.ModelStructure.Derivatives 定义的】
 			+	initial
-				+	exact：变量用起始值初始化
+				+	exact：变量用`start`进行初始化
 				+	approx：该变量是代数环的迭代变量，初始化时的迭代从起始值开始
 				+	calculated：该变量是在初始化期间根据其他变量计算得出的。不允许提供“起始”值
-			+	canHandleMultipleSetPerTimeInstant：使用于模型交换中且 variability = "input"，不允许使用在代数环中
+			+	canHandleMultipleSetPerTimeInstant：如果存在`canHandleMultipleSetPerTimeInstant = false`，则该变量在一个超密集时刻（模型评估）只允许调用一次 `fmi2SetXXX`函数；在模型交换中变量属性 `variability = "input"`时使用，不允许使用在代数环中。
 			+	previous
 		+	子标签
 			+	Real
