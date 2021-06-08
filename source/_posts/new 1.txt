@@ -1,0 +1,130 @@
+手机、邮箱、账号【QQ、微信、微博】
+
+
+
+MySQL 日期类型及默认设置
+
+使用 timestamp 类型，且 默认值设为 now() 或 current_timestamp()
+
+MySQL 的日期类型有5个，分别是： date、time、year、datetime、timestamp。
+
+关于 default 设置，通常情况下会使用当前时间作为默认值。例如：
+```
+ts_time timestamp NOT NULL DEFAULT NOW();
+```
+
+
+模型交换在同一个仿真环境下，多个fmu相连，可以抽象成一个图。如果图中存在强连通图，即多个FMU相互依赖;如果将图再抽象，可以形成代数方程组，那么这个连通图就是代数环。通过牛顿迭代法，当残差趋向0的时候，可以得到一个近似解。而在仿真体系中，模拟的是一个运动的物理系统，那么抽象出来的方程必然存在时间参数，即为时间方程。两个t参数的取值的差，可以称之为时间步长。步长如果达到毫秒级甚至是微秒级，在微观上虽然数据会呈现离散态，但是在宏观上得到的曲线相对光滑。时间步长越小，仿真的效果越好。
+
+在FMI标准中，FMU存在外部事件、状态事件、时间事件、步进事件。
++	在联合仿真的环境中，不同的FMU连接在一起，如果存在因变量（即变量值由其它模块的输入决定），那么就好触发一个外部事件；
++	在仿真系统中，涉及到的参数一般是物理参数，例如热量、重量等，还必然需要考虑时间参数。那么，单个物理参数就可以与时间参数构成一个二维的坐标系，通过不同的取值可以在宏观上形成曲线（忽略不相关点），那么这个参数的取值范围如果发生变化（由正到负），那么会触发一个状态事件；
++	如果当前时间时刻的取值依赖于上一个时刻，那么会触发一个时间事件；
++	如果在两个时刻内进行一次积分，那么结束之后会触发一个步进事件。
+
+
+FMI的事件机制是用于在模型交换时，单个fmu的数据发生某种变化时触发。
+
+
+-----------------------------------------------------------------------------------
+spring jpa 自动建表字段乱序
+
+jpa配置如下：
+```
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+#    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+```
+
+因为hibernate源码中用的是TreeMap存储实体类字段，TreeMap属性是无序的。项目中复制Hibernate中的类PropertyContainer，包路径与类名一致需要一致；将所有TreeMap修改为LinkedTreeMap。
+
+-----------------------------------------------------------------------------------
+
+
+JPA定义表
+
+实例如下：
+```
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+
+import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Date;
+
+@Entity
+@Table(name = "user_auth")
+@org.hibernate.annotations.Table(appliesTo = "user_auth", comment = "用户授权表")
+public class UserAuth {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "uid", unique = true, nullable = false)
+    private String uid;
+
+    @Column(name = "identity_type", columnDefinition = "tinyint(4) default '0' comment '1手机号 2邮箱 3用户名 4备用'")
+    private Byte identityType;
+
+    @Column(name = "identifier", columnDefinition = "varchar(50) comment '设备号'")
+    private String identifier;
+
+    @Column(name = "certificate", nullable = false, columnDefinition = "varchar(20) comment '密码凭证'")
+    private String certificate;
+//    支持的时间类型的列表包括三个java.sql类型，java.sql.Date java.sql.Time和java.sql.Timestamp，以及两个java.util类型，java.util.Date和java.util.Calendar。
+//    其中Timestamp才可以使用函数设置默认值
+    @Column(name = "create_time",  columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '绑定时间'")
+    @Generated(GenerationTime.INSERT)
+    private java.sql.Timestamp createTime;
+    @Column(name = "update_time",  columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '更新时间'")
+    @Generated(GenerationTime.INSERT)
+    private java.sql.Timestamp updateTime;
+
+    。。。。。
+}
+
+```
+
+涉及到的几个注解：
+```
+@Entity 表明该类为一个实体类
+@Table 表明该类为数据表，如果没有定义name，就根据驼峰命名法定义表名（UserAuth--> user_auth）
+
+@Id 设置为表ID字段
+@GeneratedValue 与@Id配合使用，自动生成值，取值如下
+    TABLE, 使用一个特定的数据库表格来保存主键
+    SEQUENCE, 根据底层数据库的序列来生成主键，条件是数据库支持序列
+    IDENTITY, 主键由数据库自动生成，自增长
+    AUTO; 由数据库自动选择
+
+例如：
+	@GeneratedValue(strategy = GenerationType.TABLE, generator="payablemoney_gen")  
+	@GeneratedValue(strategy = GenerationType.SEQUENCE,generator="payablemoney_seq")  
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+
+@Column 设置为表字段，相关属性如下
+	name 属性名
+	nullable 非空
+	unique 唯一
+	columnDefinition 属性定义，如果设置了这个，需要配合@org.hibernate.annotations.Table注解使用；还需要设置字段类型，因为设置后属性不会自动转换。
+```
+
+设置默认时间：
+支持的时间类型的列表包括三个java.sql类型，java.sql.Date、java.sql.Time和java.sql.Timestamp，以及两个java.util类型，java.util.Date和java.util.Calendar。其中Timestamp才可以使用函数设置默认值。例如：
+
+```
+    @Column(name = "update_time",  columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '更新时间'")
+    @Generated(GenerationTime.INSERT)
+    private java.sql.Timestamp updateTime;
+```
+-----------------------------------------------------------------------------------
+
+
+对于从节点，主节点会提供当前时间点、一致的通信步长；那么，下一次交互的时间为当前时间点加通信步长。在从节点内部，可以拥有不同的步长，从而把通信步长拆分成多个子步长。如果有部分子步长计算失败，那么会把上一个成功的通信步长的结束时间发给主站；主节点根据需要重新进行doStep。
+
+对于联合仿真，fmi提供了函数`fmi2SetRealInputDerivatives`以及`fmi2GetRealOutputDerivatives`。这两个函数是用于设置输入的实数导数以及用于设置输出的实数导数。通过这个导数以及步长，我们可以算出某个时间点的变量值。
+

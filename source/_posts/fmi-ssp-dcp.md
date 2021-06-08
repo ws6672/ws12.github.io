@@ -90,7 +90,7 @@ FMI标准虽然提供了模型交换和联合仿真的功能，但是还无法�
 
 ### SSP
 
-SSP（SystemStructure and Parameterization）是一种与工具无关的格式，用于描述、打包和交换系统的结构及其参数化。该标准由一组基于XML格式的文件组成，这些XML使用信号流和参数化的方法描述了一个组件模型网络。该标准的XML描述文件是工具中立的，主要用于不同工具之间被仿真系统的信息交换。
+SSP（SystemStructure and Parameterization）是一种与工具无关的格式，用于描述、打包和交换系统的结构及其参数化。该标准由一组基于XML格式的文件组成，这些XML使用信号流和参数化的方法描述了一个组件模型网络。该标准的XML描述文件是工具中立的，主要用于不同工具之间仿真系统的信息交换。
 
 "*.SPP"压缩包格式：
 +	`*.fmu`：Functional Mock-up Unit
