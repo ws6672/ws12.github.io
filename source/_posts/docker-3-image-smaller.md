@@ -98,7 +98,7 @@ Docker 拉取资源所用的官方镜像源太差，导致响应超时。网上�
 ```
 
 
-参考文献
+导读
 >	[三个技巧，将Docker镜像体积减小90%](http://www.docker.org.cn/docker/176.html)
 [Docker多阶段构建最佳实践](http://dockone.io/article/8179)
 [Distroless is for Security if not for Size](https://medium.com/@dwdraju/distroless-is-for-security-if-not-for-size-6eac789f695f)

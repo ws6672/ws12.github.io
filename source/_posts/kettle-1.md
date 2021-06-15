@@ -95,6 +95,6 @@ file.
 *转型和工作之间有什么区别*
 > 转换是关于将行从源移动到目标并进行转换。作业更多是关于高级流控制的：执行转换，失败时发送邮件，ftp'ing文件，...
 
-# 三、参考文献
+# 三、导读
 > [数据集成-水壶](https://community.hitachivantara.com/s/article/data-integration-kettle)
  [Kettle使用教程（一）](http://www.kettle.net.cn/1310.html)

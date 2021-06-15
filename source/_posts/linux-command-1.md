@@ -375,7 +375,7 @@ cat < file1 > file2 #copy file1 to file2
 sudo rm -f /var/run/yum.pid
 ```
 
-# 参考文献
+# 导读
 > [ss64 ———— 操作系统命令参考网站](https://ss64.com/bash/)
 [Linux上，最常用的一批命令解析（10年精选）](https://mp.weixin.qq.com/s/9RbTGQ4k4s92mrSf2xJ5TQ)
 [Linux压缩和解压汇总](https://www.cnblogs.com/rwxwsblog/p/4505934.html)

@@ -79,6 +79,6 @@ tags: [javaweb]
 +	【/】 【开始时间/间隔时间】 ,例如【0/5】0分钟开始，每5分钟运行一次; 【\*/5】在分钟位置表示每五分钟一次
 
 
-# 参考文献
+# 导读
 > [Cron_维基百科](https://zh.wikipedia.org/wiki/Cron)
 [SpringMVC中使用Cron表达式的定时器](https://www.cnblogs.com/leeyes999/p/5742287.html)
