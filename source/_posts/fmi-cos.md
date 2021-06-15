@@ -201,7 +201,7 @@ fmi2Status fmi2CancelStep(fmi2Component c);
 
 3. 获取从节点的状态信息
 
-从节点通过以下函数回复当前状态信息：
+通过以下函数向主节点反馈从节点的当前状态信息：
 
 ```
 fmi2Status fmi2GetStatus(fmi2Component c,const fmi2StatusKind s, fmi2Status* value); 
@@ -212,13 +212,9 @@ fmi2Status fmi2GetStringStatus (fmi2Component c, const fmi2StatusKind s, fmi2Str
 
 -- 通知主节点，模拟运行的实际状态（响应正文）
 typedefenum{
-// （fmi2Status）当 fmi2DoStep 函数返回 fmi2Pending 时可以调用。如果计算未完成，该函数将传递 fmi2Pending；否则，函数返回异步执行的 fmi2DoStep 调用的结果
 	fmi2DoStepStatus, 
-// （fmi2String）当 fmi2DoStep 函数返回 fmi2Pending 时可以调用。该函数提供一个字符串，通知当前运行的异步 fmi2DoStep 计算的状态
 	fmi2PendingStatus,
-// （fmi2Real）在调用fmi2DoStep(...)函数返回 fmi2Discard状态后，返回最后一次成功完成的通信步长的结束时间，可用于重置doStep
 	fmi2LastSuccessfulTime,
-// （fmi2Boolean）如果从站想要终止模拟，则返回 true；可以在 fmi2DoStep(...) 返回 fmi2Discard 后调用；然后使用 fmi2LastSuccessfulTime 确定从站终止的时刻。
 	fmi2Terminated 
 } fmi2StatusKind;
 
@@ -245,7 +241,7 @@ typedef enum {
 |fmi2LastSuccessfulTime|fmi2Real|返回上一个成功完成的通信步骤的结束时间。可以在fmi2DoStep（...）返回fmi2Discard之后调用。|
 |fmi2Terminate|fmi2Boolean|如果从节点希望终止仿真，则返回true。可以在fmi2DoStep（...）返回fmi2Discard之后调用。使用fmi2LastSuccessfulTime确定从节点终止的时刻|
 
-3. 从主节点到从节点调用次序的状态机
+3. 主节点到从节点调用次序的状态机
 
 以下状态机定义了fmi规范所支持的调用序列
 
@@ -257,13 +253,16 @@ typedef enum {
 
 +	Initialization Mode（初始化模式）：在这种状态下，方程式可用于确定所有输出（以及导出工具到处的其他可选变量）、可以通过fmi2GetXXX调用变量是在xml文件中的<ModelStructure> <InitialUnknowns>下定义的（causality="output"）变量、可以设置initial="exact"的变量以及具有variability="input"的变量
 
-+	slaveInitialized（从节点初始化）：在这种状态下，将对从节点进行初始化并执行联合仿真计算；使用函数“ fmi2DoStep”执行计算直到下一个通讯点。根据返回值，从节点处于不同的状态（step complete, step failed, step canceled）。
++	slaveInitialized（从节点初始化）：在这种状态下，将对从节点进行初始化并执行联合仿真计算；使用函数“ fmi2DoStep”执行计算直到下一个通讯点。根据返回值，从节点处于不同的状态
+	+	step complete
+	+	step failed
+	+	step canceled
 
 +	terminated（终止）：在这种状态下，可以获取仿真最后时刻的解。
 
 > 注：在初始化模式下，可以根据xml文件中的元素`<ModelStructure>、 <InitialUnknowns>`定义模型结构，使用fmi2SetXXX设置输入变量，并使用fmi2GetXXX获取输出变量。【例如，如果一个输出y1取决于两个输入u1，u2，则必须先设置这两个输入，然后才能获取y1。 如果另外输出y2取决于输入u3，则可以设置u3，然后再获取y2；可以通过使用适当的数值算法来处理初始化模式下连接的FMU上的人工或“真实”代数环。】
 
-“slaveInitialized”状态还有一个额外的限制，即不允许在fmi2SetXXX函数之后，如果没有fmi2DoStep调用，则不允许调用fmi2GetXXX函数。
+“slaveInitialized”状态还有一个额外的限制，在fmi2SetXXX函数之后如果没有fmi2DoStep调用，则不允许调用fmi2GetXXX函数。
 
 与模型交换类型的FMI相反，为了避免缓存存在不同的解释，联合仿真的`fmi2DoStep`函数将执行实际的计算，而不是使用`fmi2GetXXX`函数。因此，模型交换时调用的`fmi2GetXXX`、`fmi2SetXXX`序列无法处理通讯点处的虚拟代数环。
 

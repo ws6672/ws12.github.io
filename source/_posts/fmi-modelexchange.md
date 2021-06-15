@@ -15,16 +15,15 @@ table th:first-of-type {
 
 ### 基础
 
-下图包含了在C程序访问dll文件的接口示意图
+下图包含了访问C程序动态系统的方程的接口描述，示意图如下
 
 ![接口示意图](/image/co-simulation/me-view.png)
 
-模型交换接口的目标是用数值方法求解微分、代数和离散时间方程组。在此版本的接口中，需要处理在状态空间中由事件组成的常微分方程（缩写为“hybrid ODE”）。在FMU中可能包含代数方程系统；FMU也​​可能仅包含离散时间方程（例如描述采样数据控制器）。
+模型交换接口的目标是用数值方法求解由微分、代数和离散时间方程构成的系统。在2.0版本的接口中，需要处理在状态空间中由事件组成的常微分方程（缩写为“hybrid ODE”）。在FMU中可能包含代数方程系统；FMU也​​可能仅包含离散时间方程（例如描述采样数据控制器）。
 
 自变量时间t属于元祖 t=(t<sub>R</sub>...t<sub>i</sub>)。其中tR为实数，t<sub>i</sub>为{0,1,2,...}；
 +	实数部分t<sub>R</sub>是FMU的自变量，用于描述事件之间模型的连续时间行为；
 +	而整数部分t<sub>i</sub>是一个计数器，用于枚举在同一连续时间中发生的事件，该时间定义在文献中也称为“超密集时间”，参见（Lee and Zheng 2007）。
-
 
 
 > ODE意为常微分方程，hybrid ODE 意为 混合常微分方程
@@ -33,11 +32,13 @@ table th:first-of-type {
 相关符号的含义如下
 ![记号](/image/co-simulation/me-t-symbol.png)
 
+***
+
 ### 事件(Event)
 
 FMI支持的混合ODE被描述为分段连续时间系统，不连续性可能发生在T<sub>0</sub>....T<sub>i</sub>时刻，其中T<sub>i</sub> < T<sub>i+1</sub>。这些时刻称为“事件”，事件可以被预先声明（定时器），也可以隐式定义（状态、步长事件）。
 
-在两个事件间，变量的值是连续的或不变的：如果变量仅在事件瞬间更改其值，则该变量称为离散时间；否则称为连续时间。只有实数变量可以是连续时间。以下可变指数用于描述相应变量的时间行为（例如，v<sub>d</sub>是离散时间变量）
+在两个事件间，变量的值是连续的或不变的：如果变量仅在事件瞬间更改其值，则该变量称为离散时间；否则称为连续时间。只有实数变量可以是连续时间。以下变量索引用于描述相应变量的时序行为（例如，v<sub>d</sub>是离散时间变量）
 
 +	c：连续时间变量，取值范围为t<sub>i</sub><sup>+</sup> <= t <= <sup>-</sup>t<sub>i+1</sub>
 +	d：离散时间变量，只在时刻t<sub>i</sub>改变它的值
@@ -58,7 +59,7 @@ FMI支持的混合ODE被描述为分段连续时间系统，不连续性可能�
 这几个被称之为外部事件。【如果A连接到B，当A触发了事件，那么A所有的输出在当前时间点是非连续的。因此，如果A的输出连接到B，也建议为B触发一个外部事件，这意味着在B上调用fmi2EnterEventMode】
 
 2. 时间事件（time event）：当前瞬间取值依赖于前一个取值
-预定义的 时间瞬间 t<sub>i</sub> =（T<sub>next</sub>(t<sub>i-1</sub>), 0) 由FMU的前一个 时间瞬间 t<sub>i-1</sub>定义，这样的事件称之为时间事件。
+预定义的 时刻 t<sub>i</sub> =（T<sub>next</sub>(t<sub>i-1</sub>), 0) 取决于FMU的前一个 时刻 t<sub>i-1</sub>，这样的事件称之为时间事件。
 
 3. 状态事件：指示器z取值发生变化
 事件指示器 z<sub>j</sub>(t)的取值范围发生类似从z<sub>j</sub> > 0修改为z<sub>j</sub> <= 0的变化，这种事件称之为状态事件。所有事件指示器都是分段连续的，并集中在一个实数向量z（t）中。
@@ -67,9 +68,9 @@ FMI支持的混合ODE被描述为分段连续时间系统，不连续性可能�
 
 4. 步进事件（step）:
 
-在完成的积分器步骤中可能发生的事件。由于此事件类型不是由精确的时间或条件定义的，因此通常不是由用户定义的。程序可以使用它，例如在不同状态之间动态切换。步进事件比状态事件的处理效率高得多，因为在完成积分器步进时执行检查后才触发事件，而状态事件需要一个搜索过程。
+在完成的积分器步进中可能发生的事件。它不是由精确的时间或条件定义的，因此通常不是由用户定义的。程序可以使用它，例如在不同状态之间动态切换。步进事件比状态事件的处理效率高得多，因为在完成积分器步进时执行检查后才触发事件，而状态事件需要一个搜索过程。
 
-在积分器的每个步中，都必须调用 fmi2CompletedIntegratorStep（函数标志ModelDescription.completedIntegratorStepNotNeeded = false）；如果返回参数 nextMode = EventMode，则此时会发生一个事件，称之为步进事件。【步进事件用于动态的修改FMU内部模型（连续）状态，因为以前的状态在数值上不再适用】
+在积分器的每个步中，都必须调用 fmi2CompletedIntegratorStep（函数标志ModelDescription.completedIntegratorStepNotNeeded = false）；如果返回参数 `nextMode = EventMode`，则此时会发生一个事件，称之为步进事件。【步进事件用于动态的修改FMU内部模型（连续）状态，因为以前的状态在数值上不再适用】
 
 > 积分器（Integrator、数值积分）：积分器是软件中的一部分。在一些计算物理的电脑模拟软件中，像是数值天气预报、分子动力学、飞行模拟器、油层模拟法、隔音屏障设计、建筑声学及电子电路仿真等应用中，积分器是可以用离散步骤计算积分的数值方法。
 
@@ -128,7 +129,7 @@ FMI模型交换模型由以下变量描述：
 
 FMU在 初始化模式 下使用init方法进行初始化。该函数的输入参数包括输入变量（causality =“input”）和自变量（causality =“independent”；通常为默认值“time”）。所有的变量都具有一个初始化（initial = ”exact“），这是为了在初始时间 t<sub>0</sub> 中，计算连续时间状态和输出变量。例如，可通过为状态提供初始值或声明状态导数为零来定义初始化。
 
-初始化本身是一个困难的话题，而且还要求FMU在初始化模式下解决FMU内部明确定义的初始化问题。调用fmi2ExitInitializationMode之后，FMU隐式处于事件模式，所有的离散时间变量和连续时间变量都会在初始化时间实例中被计算处理。如果喜欢，还可以依靠代数循环进行迭代。完成后必须调用fmi2NewDiscreteStates，并且根据返回参数的值，FMU要么在初始时刻继续事件迭代、要么切换到连续时间模式。
+初始化本身是一个复杂的话题，而且还要求FMU在初始化模式下解决FMU内部明确定义的初始化问题。调用`fmi2ExitInitializationMode`之后，FMU隐式处于事件模式，所有的离散时间变量和连续时间变量都会在初始化时间实例中被计算处理。如果喜欢，还可以依靠代数循环进行迭代。完成后必须调用fmi2NewDiscreteStates，并且根据返回参数的值，FMU要么在初始时刻继续事件迭代、要么切换到连续时间模式。
 +	切换到连续时间模式后，开始计算积分；在此阶段中，将计算连续状态的导数。如果FMU和子模型连接在一起，则这些模型的输入是其他模型的输出，因此必须计算相应的FMU输出。每当存储结果值时，通常在模拟开始之前定义的输出点上，都必须调用与所需变量有关的fmi2GetXXX函数。
 
 事件时刻由时间、状态/步进事件/环境触发的外部事件确定。为了确定状态事件，必须在每个完成的积分器步骤中查询事件指示器。一旦事件指示符发出信号指示其域的更改，将在前一个积分器步骤与实际完成的积分器步骤之间执行随时间的迭代，以便确定达到一定精度的域更改的瞬间。
@@ -139,96 +140,133 @@ FMU在 初始化模式 下使用init方法进行初始化。该函数的输入�
 
 # 二、FMI应用程序编程接口
 
-本节包含接口说明，用于评估C程序中的不同模型零件
+本节包含接口说明，用于声明C程序中的不同实体部分
 
-### 提供自变量并重新初始化缓存
+### 提供自变量（Independent Variables）和缓存的重新初始化（Re-initialization）
 
-根据实际情况需要计算不同的变量；而为了提高效率，接口仅需要计算当前上下文中所需的变量。例如
-+	在积分的迭代过程中，只要未连接模型的输出，仅需要计算状态导数。
-+	如果积分步骤已完成，则还需要计算事件指示器功能。为了提高效率，在调用计算事件指示符函数时，如果状态导数已经在当前时刻进行了计算，则不要重新计算状态导数。这意味着状态导数支持重用，此功能被称为“变量缓存”。
+根据实际情况，需要计算不同的变量；而为了提高效率，需要接口仅用于计算当前上下文中所需的变量。例如，在进行积分迭代的过程中，仅需要计算状态导数，前提是模型的输出未连接。有可能在同一时刻，也需要其它的变量。
 
+如果积分步长已经完成，则还需要计算事件指示（event indicator）函数。为了提高效率，在调用计算事件指示符函数时，如果状态导数已经在之前时刻进行了计算，则不要重新计算状态导数。这意味着状态导数支持重用，此功能被称为“变量缓存”。
 
-缓存要求模型评估可以检测输入参数（例如：时间或状态）何时已更改。这是通过用函数调用显式设置它们来实现的，因为每个这样的函数调用都会精确地发出相应变量更改的信号。因此，本节包含用于设置方程式求值函数的输入自变量的函数。这对于时间和状态变量来说没有问题，但是对于参数和输入则涉及更多，因为后者可能具有不同的数据类型。
+当输入参数（例如：时间或状态）发生改变，缓存需要模型评估可以探测到。这是通过用函数调用显式设置它们来实现的，因为每个这样的函数调用调用的信号（signal）恰好是相应变量的变化。因此，本节包含用于设置方程估计函数的输入参数的函数。这对于时间和状态变量来说没有问题，但是参数和输入则涉及更多，因为后者可能具有不同的数据类型。
 
 ```
--- 设置新的时刻，更新依赖该参数的变量缓存，新时间需要与当前时间不一致
-fmi2Statusfmi2SetTime(fmi2Component c, fmi2Realtime);
+-- 设置新的时刻，重新初始化依赖时间的变量缓存，新的时间值需要与当前时间不一致（仅依赖于常量或参数的变量不需要在后面重新计算，可以重用先前计算的值）
+fmi2Status fmi2SetTime(fmi2Component c, fmi2Realtime);
 
--- 设置一个新的状态变量，更新依赖该参数的变量缓存
-fmi2Statusfmi2SetContinuousStates(fmi2Component c, constfmi2Realx[], size_tnx);
+-- 设置一个新的（连续）状态向量，重新初始化依赖状态的变量缓存
+-- nx 表示向量x的长度，目的是用于检测；仅依赖于常量、参数、时间和输入的变量不需要在后续中重新计算，但可以重复使用先前计算的值
+-- 连续状态可能在事件模式中更改
+fmi2Status fmi2SetContinuousStates(fmi2Component c, constfmi2Realx[], size_tnx);
 
--- 为（独立）参数，起始值和输入设置新值，并重新初始化依赖于这些变量的变量的缓存。
+-- 为（独立）参数、起始值、输入和变量缓存重新初始化 设置新值。
 fmi2Status fmi2SetXXX(..)
 ```
 
-### Evaluation of Model Equations（模型方程式的评估）
+***
 
-1. fmi2Statusfmi2EnterEventMode
+### 模型方程评估（Evaluation of Model Equations）
+
+本小节包含核心函数用于估计模型方程。下列函数之一在被调用前，需要调用合适的（上一小节）函数为当前的模型方程设置输入参数。
+
+1. fmi2EnterEventMode（进入事件模式）
 
 ```
 -- 模型从连续时间模式进入事件模式，离散时间方程可能变为活动状态（并且关系未“冻结”）。
-fmi2Statusfmi2EnterEventMode(fmi2Component c);
+fmi2Status fmi2EnterEventMode(fmi2Component c);
 ```
-DiscreteStates
+
+
+2. fmi2NewDiscreteStates（递增超密集时间  (t<sub>R</sub>,t<sub>I</sub>) ==> t<sub>R</sub>,t<sub>I+1</sub>)）
 
 ```
+-- 模型从连续时间模式进入事件模式，离散时间方程可能被激活（不是冻结状态（frozen），可以与其它fmu交互）
 fmi2Status fmi2NewDiscreteStates(fmi2Component  c , fmi2EventInfo* fmi2eventInfo);
 
-typedef struct{     
+-- 表示事件信息
+typedef struct{
+	// 需要新的离散状态
 	fmi2Boolean newDiscreteStatesNeeded;
-	fmi2Boolean terminateSimulation;
+	//终止仿真
+	fmi2Boolean terminateSimulation; 
+	//连续状态的标称改变
 	fmi2Boolean nominalsOfContinuousStatesChanged;
-	fmi2Boolean valuesOfContinuousStatesChanged;
-	fmi2Boolean nextEventTimeDefined;
-	fmi2Real    nextEventTime; // 如果设置nextEventTimeDefined=fmi2True，则显示下一个事件 
+	//连续状态的标称值改变
+	fmi2Boolean valuesOfContinuousStatesChanged; 
+	// 如果设置nextEventTimeDefined=fmi2True，则使用nextEventTime显示下一个事件时间
+	fmi2Boolean nextEventTimeDefined;  
+	fmi2Real nextEventTime;
 } fmi2EventInfo;
 ```
 
+> 超密集时间：在一个事件中，使用迭代器计数用于表示事件的精确描述，即 t = (t<sub>R</sub>,t<sub>I</sub>)。
+
+
 fmi2EventInfo 的参数如下：
 
-+	FMU处于事件模式，并且此调用会增加超密集时间。如果调用fmi2NewDiscreteStates之前的超密集时间为（tR，tI），则调用后的瞬时时间为（tR，tI + 1）。如果返回参数（fmi2eventInfo-> newDiscreteStatesNeeded = fmi2True），则FMU应该保持事件模式，并且FMU要求将新输入设置为FMU（输入为fmi2SetXXX），以计算并获取输出（输出为fmi2GetXXX），并再次调用fmi2NewDiscreteStates 。根据与其他FMU的连接，环境应根据以下条件设置。而当FMU终止（Terminate）时，假定记录器功能会打印一条适当的消息以说明终止的原因。
-	+	`如果至少有一个FMU返回 参数 TerminateSimulation = fmi2True，则调用fmi2Terminate函数；
-	+	如果所有FMU返回newDiscreteStatesNeeded = fmi2False，则调用fmi2EnterContinuousTimeMode。
-	+	否则，保持活动模式
-+	如果 nominalsOfContinuousStatesChanged = fmi2True，则状态的值由于函数调用而发生了变化，可以使用 fmi2GetNominalsOfContinuousStates 进行查询
-+	如果 valuesOfContinuousStatesChanged = fmi2True，则由于函数调用，连续状态向量中至少一个元素已更改其值。可以使用 fmi2GetContinuousStates 查询状态的新值。如果连续状态向量的任何元素均未更改其值，则 valuesOfContinuousStatesChanged 必须返回fmi2False（如果在这种情况下将返回fmi2True，则可能发生无限事件循环）。
-+	如果 nextEventTimeDefined = fmi2True，则模拟将最大次数的进行积分，直到time = nextEventTime，并且此时应调用fmi2EnterEventMode。如果由于状态事件而在nextEventTime之前停止积分，那么nextEventTime的定义将过时。
++	FMU 处于事件模式，在这个函数调用中递增超密集时间。在调用`fmi2NewDiscreteStates`函数之前，如果超密集时间的值为(t<sub>R</sub>,t<sub>I</sub>)；那么调用之后的时间是(t<sub>R</sub>,t<sub>I+1</sub>)。如果返回参数(fmi2eventInfo->`newDiscreteStatesNeeded=fmi2True`)，那么FMU仍然需要保持为事件模式，还需要为FMU设置新的输入、计算和获取输出以及重新调用`fmi2NewDiscreteStates`函数。这还取决于其他FMU的连接，环境应当为：
+	+	如果至少有一个FMU返回参数 `TerminateSimulation=fmi2True`，即有模块表示可以终止模型交换了；则调用`fmi2Terminate`函数；
+	+	如果所有FMU返回`newDiscreteStatesNeeded=fmi2False`，则调用`fmi2EnterContinuousTimeMode`。
+	+	否则，保持事件模式
++	如果 `nominalsOfContinuousStatesChanged=fmi2True`，则状态的值由于函数调用而发生了变化，可以使用 fmi2GetNominalsOfContinuousStates 进行查询
++	如果 `valuesOfContinuousStatesChanged=fmi2True`，则由于函数调用，连续状态向量中至少一个元素已更改其值。可以使用 fmi2GetContinuousStates 查询状态的新值。如果连续状态向量的任何元素均未更改其值，则 valuesOfContinuousStatesChanged 必须返回fmi2False（如果在这种情况下将返回fmi2True，则可能发生无限事件循环）。
++	如果 `nextEventTimeDefined=fmi2True`，则模拟将最大次数的进行积分，直到 `time=nextEventTime`，并且此时应调用`fmi2EnterEventMode`。如果由于状态事件而在`nextEventTime`之前停止积分，那么nextEventTime的定义将过时。
 
+![fmi2NewDiscreteStates](/image/co-simulation/fmi2NewDiscreteStates.png)
 
-3. fmi2Statusfmi2EnterContinuousTimeMode
+3. fmi2EnterContinuousTimeMode（进入连续时间模式）
 ```
-fmi2Statusfmi2EnterContinuousTimeMode(fmi2Component c);
+fmi2Status fmi2EnterContinuousTimeMode(fmi2Component c);
 ```
 
 模型进入连续时间模式，所有离散时间方程变为非活动状态，所有关系都被“冻结”。从事件模式更改为（在所有涉及的FMU和其他模型的事件模式中的全局事件迭代已收敛之后）连续时间模式时，必须调用此函数。
 
+使用这个函数的目的是为了：
++	将FMU内部结果存储在文件中，可以存储初始化后的结果和已被处理的事件；
++	如果FMU包含动态变化的状态，新状态可能选择这个函数执行。
 
-4. fmi2CompletedIntegratorStep
+4. fmi2CompletedIntegratorStep（完成积分器步长）
+
+如果`completedIntegratorStepNotNeeded=false`，则需要在每次积分器步长完成后调用这个函数，用于
 
 ```
-fmi2Status fmi2CompletedIntegratorStep(fmi2Component c, fmi2Boolean  noSetFMUStatePriorToCurrentPoint, fmi2Boolean* enterEventMode, fmi2Boolean* terminateSimulation);
+fmi2Status fmi2CompletedIntegratorStep(
+// 表示fmu实例
+	fmi2Component c,
+// 表示在本次模拟运行中，不再对上一个时刻调用 fmi2SetFMUState 函数（FMU可以使用此标志刷新结果缓冲区）
+	fmi2Boolean  noSetFMUStatePriorToCurrentPoint, 
+// 表示将进入 fmi2EnterEventMode 函数
+	fmi2Boolean* enterEventMode, 
+// 表示将调用 terminateSimulation 函数终止模拟
+	fmi2Boolean* terminateSimulation
+);
 ```
 
-如果函数标志 completedIntegratorStepNotNeeded = false，则在积分器的每个完成步骤之后，环境都必须调用此函数。如果在此模拟运行中不再针对当前时间之前的时刻调用 fmi2SetFMUState，则参数 noSetFMUStatePriorToCurrentPoint为fmi2True [FMU可以使用此标志刷新结果缓冲区]
 
-如果FMU调用fmi2EnterEventMode，则该函数返回enterEventMode以向环境发出信号，并且如果仿真应终止，则该函数返回TerminateSimulation发出信号。如果enterEventMode = fmi2False并且TerminateSimulation = fmi2False，则FMU保持在连续时间模式，而无需再次调用fmi2EnterContinuousTimeMode
+如果`enterEventMode = fmi2False并且 terminateSimulation = fmi2False`，则FMU保持在连续时间模式，而无需再次调用fmi2EnterContinuousTimeMode函数。
 
-当积分器步骤完成并且状态由积分器修改后（例如通过BDF方法进行校正）时，则在调用fmi2CompletedIntegratorStep（..）之前，必须调用fmi2SetContinuousStates（..）更新状态。
 
-当积分器步骤完成并且一个或多个事件指示器更改符号（相对于先前完成的积分器步骤）时，则积分器或环境必须确定最接近先前完成的步骤的符号更改的时刻。达到一定的精度（通常是机器epsilon的很小的倍数）。这通常是通过迭代来执行的，其中时间是变化的，并且迭代期间所需的状态变量是通过插值确定的。必须在此状态事件定位过程之后而不是在积分算法成功计算时间步长之后调用函数fmi2CompletedIntegratorStep。该函数调用的预期目的是向FMU指示，在此阶段，所有输入和状态变量都具有有效（接受）的值。
+当积分器步长完成并且在随后修改状态（例如通过BDF方法进行校正）时，在调用`fmi2CompletedIntegratorStep(..)`函数之前，必须调用`fmi2SetContinuousStates(..)`函数更新状态。
 
-调用fmi2CompletedIntegratorStep之后，仍然允许其返回时间（调用fmi2SetTime）并使用fmi2GetXXX在先前的时刻查询变量的值（例如，确定输出点处的非状态变量的值）：但是，它不是允许在上一个完成的IntegratorStep或上一个fmi2EnterEventMode调用之前返回时间。
+
+当积分步长完成且一个或多个事件指示器改变符号（相对于先前完成的积分步长来说）时，则积分器或者环境必须确定符号改变时最接近
+的上一个完成时间，这个时间必须具有一定精度（通常是计算机中最小的浮点数的小倍数）。这通常是通过迭代来执行的，其中时间是变化的，并且迭代期间所需的状态变量是通过插值确定的。函数 `fmi2CompletedIntegratorStep`必须在此状态事件定位程序之后调用，而不是在积分算法成功计算出时间步长之后调用。该函数调用的预期目的是向FMU指示，在此阶段，所有输入和状态变量都具有有效（接受）值。
+
+调用`fmi2CompletedIntegratorStep`之后，仍然允许其返回时间（调用fmi2SetTime）并使用fmi2GetXXX查询前时刻中变量的值（例如，确定输出点处的非状态变量的值）：但是，它不是允许在上一个完成的``IntegratorStep或上一个fmi2EnterEventMode调用之前返回时间。
 
 在以下几种情况中，需要调用这个函数：
 +	延迟：delay(...)操作中使用的所有变量都存储在适当的缓冲区中，并且函数返回 nextMode = fmi2ContinuousTimeMode
 +	动态状态选择：检查动态选择的状态在数值上是否仍然合适。如果合适，则函数返回enterEventMode = fmi2False，否则返回enterEventMode=fmi2True。在第二种情况下，必须调用fmi2EnterEventMode（..），然后通过fmi2NewDiscreteStates（..）函数动态更改状态。
 
-> 注意：此函数不用于检测时间或状态事件。例如，通过将前一个事件的指示符与fmi2CompletedIntegratorStep（..）的当前调用进行比较，来检测时间或状态事件。这些类型的事件是在环境中检测到的，在这种情况下，环境必须调用fmi2EnterEventMode（..），而与fmi2CompletedIntegratorStep（..）的返回参数enterEventMode是fmi2True还是fmi2False无关。
+注意：此函数不用于检测时间或状态事件。例如，通过将前一个事件的指示符与`fmi2CompletedIntegratorStep（..）`的当前调用进行比较，来检测时间或状态事件。这些类型的事件是在环境中检测到的，在这种情况下，环境必须调用`fmi2EnterEventMode（..）`，而与`fmi2CompletedIntegratorStep（..）`的返回参数`enterEventMode`是fmi2True还是fmi2False无关。
 
-5. 导数与事件指示符
+> 积分步长：积分区间[a,b]等分为n段,积分步长h=(b-a)/n
+BDF方法：时间步相关的算法
+
+5. fmi2GetDerivatives、fmi2GetEventIndicators（获取导数、事件指示符）
 ```
 fmi2Status fmi2GetDerivatives    (fmi2Component c, fmi2Real derivatives[], size_t nx); 
-fmi2Status fmi2GetEventIndicators(fmi2Component c, fmi2Real eventIndicators[], size_tni)
+fmi2Status fmi2GetEventIndicators(fmi2Component c, fmi2Real eventIndicators[], size_t ni)
 ```
 
 在当前时刻和当前状态下，计算状态导数和事件指示符：
@@ -236,16 +274,16 @@ fmi2Status fmi2GetEventIndicators(fmi2Component c, fmi2Real eventIndicators[], s
 +	导数作为带有“ nx”个元素的向量返回，事件指示符作为带有“ ni”个元素的向量返回。
 +	当事件指示器的域从z<sub>j</sub> > 0变为z<sub>j</sub> ≤0或相反操作时，将触发状态事件。 FMU必须保证在事件发生时重启z<sub>j</sub>≠0，例如通过以较小值改变z<sub>j</sub>来保证。此外，z<sub>j</sub>应在FMU中使用其标称值进行缩放（因此，返回的矢量“ eventIndicators”的所有元素应按“ one”的顺序排列）。
 
-导数向量的元素的顺序与状态向量的顺序相同（例如，导数[2]是x [2]的导数），而事件指示器不一定与模型描述文件中的变量相关。
+导数向量中元素的顺序与状态向量的顺序相同（例如，导数[2]是x [2]的导数），而事件指示器不一定与模型描述文件中的变量相关。
 
-> 注：fmi2Status = fmi2Discard对于上述两个函数来说都是可能的取值。
+> 注：fmi2Status = fmi2Discard 对于上述两个函数来说都是可能的取值。
 
-6. fmi2GetContinuousStates
+6. fmi2GetContinuousStates（连续状态）
 ```
-fmi2Status fmi2GetContinuousStates(fmi2Component c, fmi2Realx[], size_tnx);
+fmi2Status fmi2GetContinuousStates(fmi2Component c, fmi2Realx[], size_t nx);
 ```
 
-返回新的（连续）状态向量x。如果函数以eventInfo-> valuesOfContinuousStatesChanged = fmi2True返回（标识（连续时间）状态向量已更改），则必须在调用函数 fmi2EnterContinuousTimeMode 之后直接调用此函数。
+返回新的（连续）状态向量x。如果函数以 `eventInfo-> valuesOfContinuousStatesChanged = fmi2True`返回（标识（连续时间）状态向量已更改），则必须在调用函数 fmi2EnterContinuousTimeMode 之后直接调用此函数。
 
 7. fmi2GetNominalsOfContinuousStates
 
@@ -253,16 +291,23 @@ fmi2Status fmi2GetContinuousStates(fmi2Component c, fmi2Realx[], size_tnx);
 fmi2Status fmi2GetNominalsOfContinuousStates(fmi2Component c, fmi2Realx_nominal[],size_tnx);
 ```
 
-返回连续状态的标称值。如果此函数返回eventInfo-> nominalsOfContinuousStatesChanged = fmi2True，则在调用函数 fmi2NewDiscreteStates 之后应始终调用此函数，因为连续状态的标称值已更改[例如，因为连续状态与变量的关联由于内部动态状态选择而发生了变化。如果FMU没有与连续状态i有关的标称值信息，则应返回标称值x_nominal [i] = 1.0。注意，要求x_nominal [i]> 0.0。 【通常，连续状态的标称值用于计算积分器所需的绝对公差：`absoluteTolerance[i] = 0.01*tolerance*x_nominal[i];`】
+返回连续状态的标称值。如果此函数返回`eventInfo-> nominalsOfContinuousStatesChanged = fmi2True`，则在调用函数 `fmi2NewDiscreteStates `之后应调用此函数，因为连续状态的标称值已更改[例如，因为连续状态与变量的关联由于内部动态状态选择而发生了变化。如果FMU没有与连续状态i有关的标称值信息，则应返回标称值x_nominal [i] = 1.0。注意，要求x_nominal [i]> 0.0。 【通常，连续状态的标称值用于计算积分器所需的绝对公差：`absoluteTolerance[i] = 0.01*tolerance*x_nominal[i];`】
+
+***
 
 ### 基于函数调用顺序的状态机
 
-FMI的每个实现都必须根据以下状态图支持函数的调用序列（以UML 2.0状态机的形式进行的模型交换C函数的调用序列）：
+根据以下状态图,FMI的每个实现都必须支持的函数调用序列（以 UML 2.0 状态机的形式调用模型交换 C函数的序列）：
 
 ![状态机](/image/co-simulation/me-state-chart.png)
 
+![连续时间模式-事件模式](/image/co-simulation/ctm-em.png)
+
 定义状态图的最初目的是为了定义 FMI函数允许的调用顺序：
-FMI不支持状态图不接受的调用顺序。对于这样的调用序列，FMU的行为是不确定的。例如，状态图指示当用于模型交换的FMU处于状态“连续时间模式”时，不支持对离散输入的fmi2SetReal调用。状态图在此处以UML 2.0状态机的形式给出。如果一个过渡带有一个或多个函数名（例如fmi2GetReal，fmi2GetInteger）标记，则表示成功调用了这些函数中的任何一个，就进行了过渡。注意，由于每个状态都是通过特定的函数调用（例如fmi2EnterEventMode）或特定的返回值（例如fmi2Fatal）输入的，因此FMU始终可以确定它处于哪种状态。
+
+FMI不支持状态图不接受的调用顺序。对于这样的调用序列，FMU的行为是不确定的。例如，状态图表示当用于模型交换的FMU处于状态“连续时间模式”时，不支持对离散输入的fmi2SetReal调用。如果转换被标记为一个或多个函数名称（例如 fmi2GetReal、fmi2GetInteger），这意味着如果成功调用了这些函数中的任何一个，则会进行转换。注意，由于每个状态都是通过特定的函数调用（例如fmi2EnterEventMode）或特定的返回值（例如fmi2Fatal）输入的，因此FMU始终可以确定它处于哪种状态。
+
+
 
 状态机的每个状态对应于仿真的特定阶段，如下所示
 
@@ -271,38 +316,176 @@ FMI不支持状态图不接受的调用顺序。对于这样的调用序列，FM
 在这种状态下，可以设置起始值和估计值（initial ="exact/approx"的变量）
 
 2. Initialization Mode（初始化模式）
-在此状态下，方程式可确定所有连续时间状态以及所有输出（以及可选的导出工具公开的其他变量）。可以通过fmi2GetXXX调用检索的变量为：
-（1）在xml文件中的<ModelStructure> <InitialUnknowns>下定义的
-（2）具有 causality ="output"的变量；可以设置为 initial ="exact" 的变量以及 variability ="input" 的变量。
+在此状态下，方程式可用于确定所有连续时间状态以及所有输出（可选：导出工具公开的其他变量）。可以通过fmi2GetXXX调用检索的变量为：
++	在xml文件中的<ModelStructure> <InitialUnknowns>下定义的
++	具有 causality ="output"的变量；可以设置为 initial ="exact" 的变量以及 variability ="input" 的变量。
 
 3. Continuous-Time Mode（连续时间模式）
-在这种状态下，连续时间模型方程处于活动状态，并执行了积分步进。如果在完成积分器步进结束时检测到至少一个事件指示器的域发生变化，则可以确定状态事件的事件时间。
+在这种状态下，连续时间模型方程处于活动状态，并执行了积分器步进。如果在完成积分器步进结束时，至少一个事件指示域被检测到发生了变化，则可以确定状态事件的事件时间。
 
 4. Event Mode（事件模式）
-如果在连续时间模式下触发了事件，则通过调用fmi2EnterEventMode进入事件模式。在这种模式下，所有的连续时间方程和离散时间方程都是有效的，并且可以计算和检索事件中的未知数。事件完全处理后，必须调用fmi2NewDiscreteStates函数并根据返回参数（newDiscreteStatesNeeded）决定保持状态图处于事件模式或切换到连续时间模式。当初始化模式以fmi2ExitInitializationMode终止时，将直接进入事件模式，并根据在初始化模式下确定的初始连续时间状态来计算初始时间的连续时间和离散时间变量。
+如果在连续时间模式下触发了事件，则通过调用fmi2EnterEventMode进入事件模式。
+
+在这种模式下，所有的连续时间方程和离散时间方程都是有效的，并且可以计算和检索事件中的未知数。事件完全处理后，必须调用fmi2NewDiscreteStates函数并根据返回参数（newDiscreteStatesNeeded）决定保持状态图处于事件模式或切换到连续时间模式。当初始化模式以 `fmi2ExitInitializationMode`终止时，将直接进入事件模式，并根据在初始化模式下确定的初始连续时间状态来计算初始时间的连续时间和离散时间变量。
 
 5. terminated（终止）
 在这种状态下，可以获取模拟的最后一次结果。
 
-> 注1：仅在连续的时间间隔内才允许在时间上向后仿真。一旦发生事件（调用了fmi2EnterEventMode），就禁止及时返回，因为fmi2EnterEventMode / fmi2NewDiscreteStates只能计算下一个离散状态，而不能计算前一个离散状态。
-注2：在初始化，事件和连续时间模式期间，可以根据xml文件中元素<ModelStructure>下定义的模型结构，使用fmi2SetXXX设置输入变量，并使用fmi2GetXXX互换获取输出变量。
+> 注1：仅在连续的时间间隔内才允许在时间上向后仿真。一旦发生事件（调用了fmi2EnterEventMode），就禁止时间向前回溯，因为fmi2EnterEventMode / fmi2NewDiscreteStates只能计算下一个离散状态，而不能计算前一个离散状态。
+注2：在初始化，事件和连续时间模式期间，可以根据xml文件中元素<ModelStructure>下定义的模型结构，使用`fmi2SetXXX`函数设置输入变量，并使用`fmi2GetXXX`函数互换获取输出变量。
 
 下表汇总了各个状态下允许的函数调用：
-（黄色的仅适用于模型交换，而其它函数使用于模型交换以及协同仿真）
+（黄色的仅适用于模型交换，而其它函数可使用于模型交换以及联合仿真）
 
 ![允许的函数调用](/image/co-simulation/me-allowed-function.png)
 
 "x"表示：在相应状态下允许调用
 数字表示：如果指示的条件成立，则允许调用
-（1）variability ≠"constant"initial = "exact/approx"
-（2）causality = "output/" 或者 continuous-time 状态 或者状态导数 
-（3）variability≠"constant" & (hasinitial="exact" || causality="input")
-（4）causality = "input" || (causality = "parameter" & variability = "tunable")
-（5）causality = "input" & variability = "continuous"
-（7）检索到的值仅可用于调试
++	（1）variability ≠"constant"initial = "exact/approx"
++	（2）causality = "output/" 或者 continuous-time 状态 或者状态导数 
++	（3）variability≠"constant" & (hasinitial="exact" || causality="input")
++	（4）causality = "input" || (causality = "parameter" & variability = "tunable")
++	（5）causality = "input" & variability = "continuous"
++	（7）检索到的值仅可用于调试
 
 ***
 
+### 伪代码
+
+模型交换的伪代码如下：
+```
+m = M_fmi2Instantiate("m", ...)  // "m" 是实例名称
+                                 // "M_" 表示模型标识
+// 来自XML文件
+nx = ...         // 状态数量
+nz = ...         // 事件标识数量
+Tstart = 0       // 开始时间
+Tend = 10        // 结束时间
+dt = 0.01        // 固定步长为 10 毫秒
+
+// 设置开始时间
+time = TStart
+
+// 设置所有变量的初始值 ("ScalarVariable / <type> / start") 以及 设置time = Tstart
+M_fmi2SetReal/Integer/Boolean/String(m, ...)
+
+// 初始化
+// 确定连续和离散时间状态
+	M_fmi2SetupExperiment(m, fmi2False, 0.0, Tstart, fmi2True, Tend)
+	M_fmi2EnterInitializationMode(m)
+	M_fmi2ExitInitializationMode(m)
+
+	initialEventMode = fmi2True
+	enterEventMode = fmi2False
+	timeEvent = fmi2False
+	stateEvent = fmi2False
+	previous_z = zeros(nz)
+
+
+// 检索初始状态 x 以及 x的标称值（如果需要绝对公差）
+M_fmi2GetContinuousStates(m, x, nx)
+M_fmi2GetNominalsOfContinuousStates(m, x_nominal, nx)
+
+// 例如，在 t=Tstart 处检索解，用于输出
+M_fmi2GetReal/Integer/Boolean/String(m, ...)
+
+
+do
+  // 处理事件
+  if initialEventMode or enterEventMode or timeEvent or stateEvent then
+    if not initialEventMode then
+      M_fmi2EnterEventMode(m)
+    end if
+    // 事件迭代
+    eventInfo.newDiscreteStatesNeeded = fmi2True;
+    valuesOfContinuousStatesChanged   = fmi2False;
+    nominalsOfContinuousStatesChanged = fmi2False
+    while eventInfo.newDiscreteStatesNeeded loop
+      // 在超密集时间点设置输入
+      M_fmi2SetReal/Integer/Boolean/String(m, ...)
+      // 更新离散状态
+      M_fmi2NewDiscreteStates(m, &eventInfo)
+      // 在超密集时间点获取输出
+      M_fmi2GetReal/Integer/Boolean/String(m, ...)
+      valuesOfContinuousStatesChanged = valuesOfContinuousStatesChanged or eventInfo.valuesOfContinuousStatesChanged;
+      nominalsOfContinuousStatesChanged = nominalsOfContinuousStatesChanged or eventInfo.nominalsOfContinuousStatesChanged;
+      if eventInfo.terminateSimulation then goto TERMINATE_MODEL
+    end while
+
+    // 进入连续时间模式
+    M_fmi2EnterContinuousTimeMode(m)
+    //在模拟（重新）开始时求解
+    M_fmi2GetReal/Integer/Boolean/String(m, ...)
+    if initialEventMode or valuesOfContinuousStatesChanged then
+      //模型发出状态值变化的信号，检索它们
+      M_fmi2GetContinuousStates(m, x, nx)
+    end if
+
+    if initialEventMode or nominalsOfContinuousStatesChanged then
+      // 状态的含义发生了变化；检索新的标称值
+      M_fmi2GetNominalsOfContinuousStates(m, x_nominal, nx)
+    end if
+
+    if eventInfo.nextEventTimeDefined then
+      tNext = min(eventInfo.nextEventTime, Tend)
+    else
+      tNext = Tend
+    end if
+    initialEventMode = fmi2False
+  end if
+
+  if time >= Tend then
+   goto TERMINATE_MODEL
+  end if
+
+  // 计算导数
+  M_fmi2GetDerivatives(m, der_x, nx)
+
+  // 获取时间
+  h    = min(dt, tNext-time)
+  time = time + h
+  M_fmi2SetTime(m, time)
+
+  // 在 t=time 设置连续输入
+  M_fmi2SetReal(m, ...)
+
+  // 在 t=time 设置状态并执行一步
+  x = x + h * der_x // forward Euler method
+  M_fmi2SetContinuousStates(m, x, nx)
+
+  // 在 t=time 获取事件指标
+  M_fmi2GetEventIndicators(m, z, nz)
+
+  // 如果有的话，检测事件
+  timeEvent = time >= tNext
+  stateEvent = sign(z) <> sign(previous_z) or previous_z != 0 && z == 0
+  previous_z = z
+
+  // 通知模型接收积分步长
+  M_fmi2CompletedIntegratorStep(m, fmi2True, &enterEventMode, &terminateSimulation)
+  // 获取连续输出
+  M_fmi2GetReal(m, ...)
+until terminateSimulation
+
+// 终止仿真和获取最终值
+TERMINATE_MODEL:
+M_fmi2Terminate(m)
+M_fmi2GetReal/Integer/Boolean/String(m, ...)
+
+// cleanup
+M_fmi2FreeInstance(m)
+
+
+------------------------------
+status = M_fmi2GetDerivatives(m, der_x, nx);
+switch ( status ) { case fmi2Discard: ....; break; // reduce step size and try again
+                    case fmi2Error  : ....; break; // cleanup and stop simulation
+                    case fmi2Fatal  : ....; }      // stop using the model
+					
+```
+
+
+***
 # 三、FMI描述文件（Schema-ModelExchange）
 
 本节节将定义“模型交换”特定元素“ModelExchange”。
@@ -317,7 +500,7 @@ FMI不支持状态图不接受的调用顺序。对于这样的调用序列，FM
 modelexchange
 +	modelIdentifier：根据C语法的简短类名称，例如“ A_B_C”
 +	needsExecutionTool：如果为true，则需要一个工具来执行模型，并且FMU仅包含与此工具的通信。
-+	completedIntegratorStepNotNeeded：如果为true，则无需调用函数 fmi2CompletedIntegratorStep（这将使集成效率稍微提高一点）。如果调用该函数，则无效。如果为false（默认值），则必须在完成每个积分器步骤后调用该函数，请参见3.2.2节。
++	completedIntegratorStepNotNeeded：如果为true，则无需调用函数 fmi2CompletedIntegratorStep（这将使集成效率稍微提高一点）。如果调用该函数，则无效。如果为false（默认值），则必须在完成每个积分器步长后调用该函数，请参见3.2.2节。
 +	canBeInstantiatedOnlyOncePerProcess：该标志指示情况（尤其是对于嵌入式代码），其中每个FMU只能有一个实例（多个实例默认为false；如果需要多个实例且此标志为true，则必须在不同的进程中实例化FMU）。
 +	canNotUseMemoryManagementFunctions：如果为true，则FMU使用其自身的函数仅用于内存分配和释放。 fmi2Instantiate中的回调函数allocateMemory和freeMemorygiven被忽略
 +	canGetAndSetFMUstate：如果为true，则环境可以查询内部FMU状态并可以将其还原。也就是说，FMU支持函数fmi2GetFMUstate、fmi2SetFMUstate和fmi2FreeFMUstate。
