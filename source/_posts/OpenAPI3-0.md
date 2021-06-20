@@ -227,7 +227,7 @@ OpenAPI 相关的工具在支持 [CommonMark 0.27](http://spec.commonmark.org/0.
 
 ##### Info 对象示例
 
-```json
+```
 {
   "title": "Sample Pet Store App",
   "description": "This is a sample server for a pet store.",
