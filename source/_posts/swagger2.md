@@ -29,7 +29,7 @@ Swagger组成：
 
 1. 导包
 
-```
+```xml
 <dependency>
 	<groupId>com.github.xiaoymin</groupId>
 	<artifactId>knife4j-spring-ui</artifactId>
@@ -46,7 +46,7 @@ Swagger组成：
 
 定义配置类，定义全局状态。`HttpStatus`是定义的全局状态类，存放了响应状态码。通过`globalResponseMessage`方法可以将它设置为全局的响应信息。
 
-```
+```java
 /**
  * @Author zws
  * @Description swagger配置类
@@ -94,12 +94,12 @@ public class SwaggerConf {
 ```
 
 在实际使用中，一般会有多个环境，例如开发环境、正式环境；在正式环境中就不应当展示文档界面。我们可以通过以下的方式来切换环境：
-+	在正式环境注释掉 swagger配置类的注解 [false]
-+	从配置类获取配置 [true]
++	在正式环境注释掉 swagger配置类的注解
++	从配置类获取配置
 
 两种方法中，第二种虽然有一定工作量，但是效果更好，可以快速切换，无需二次编译。如application.yml：
 
-```
+```yml
 swagger:
   enable: true
 ```
@@ -107,7 +107,7 @@ swagger:
 3. 处理资源拦截问题
 
 在IDEA中如此配置后，还是无法访问，搜索了资料，发现是资源被拦截，定义如下类：
-```
+```java
 @Configuration
 public class IntercpetorConfig implements WebMvcConfigurer {
 
@@ -128,29 +128,63 @@ public class IntercpetorConfig implements WebMvcConfigurer {
 ![swagger2示意图](/image/swagger/swagger-ui.png)
 
 
-# 三、使用
+# 三、注解
 
-Swagger2 的常用注解：
+1. 使用于API的注解
 
-+	@Api()用于类； 
-	+	表示标识这个类是swagger的资源 
-+	@ApiOperation()用于方法； 
-	+	表示一个http请求的操作 
-+	@ApiParam()用于方法，参数，字段说明； 
-	+	表示对参数的添加元数据（说明或是否必填等） 
-+	@ApiModel()用于类 
-	+	表示对类进行说明，用于参数用实体类接收 
-+	@ApiModelProperty()用于方法，字段 
-	+	表示对model属性的说明或者数据操作更改 
+1.1 使用在类的注解
+
++	@Api：定义一个API
+	+	value	url的路径值
+	+	tags	如果设置这个值、value的值会被覆盖
+	+	description	对api资源的描述
+	+	basePath	基本路径
+	+	position	如果配置多个Api 想改变显示的顺序位置
+	+	produces	如, “application/json, application/xml”
+	+	consumes	如, “application/json, application/xml”
+	+	protocols	协议类型，如: http, https, ws, wss.
+	+	authorizations	高级特性认证时配置
+	+	hidden	配置为true ，将在文档中隐藏
+
+1.2 使用在方法的注解
+
++	@ApiOperation："用在请求的方法上，说明方法的作用"
+	+	value="说明方法的作用"
+	+	notes="方法的备注说明"
++	@ApiImplicitParams：用在请求的方法上，包含一组参数说明
+	+	@ApiImplicitParam：对单个参数的说明	    
+		+	name：参数名
+		+	value：参数的说明、描述
+		+	required：参数是否必须必填
+		+	paramType：参数放在哪个地方
+			+	query --> 请求参数的获取：@RequestParam
+			+	header --> 请求参数的获取：@RequestHeader	      
+			+	path（用于restful接口）--> 请求参数的获取：@PathVariable
+			+	body（请求体）-->  @RequestBody User user
+			+	form（普通表单提交）	   
+		+	dataType：参数类型，默认String，其它值dataType="Integer"	   
+		+	defaultValue：参数的默认值
++	@ApiResponses：方法返回对象的说明
+	+	@ApiResponse：每个参数的说明
+		+	code：数字，例如400
+		+	message：信息，例如"请求参数没填好"
+		+	response：抛出异常的类
+
+2. 使用在Model的注解
+
++	@ApiModel：用于JavaBean上面，表示对JavaBean 的功能描述
+	+	@ApiModelProperty：用在JavaBean类的属性上面，说明属性的含义
+
+3. 忽略
+
 +	@ApiIgnore()用于类，方法，方法参数 
 	+	表示这个方法或者类被忽略 
-+	@ApiImplicitParam() 用于方法 
-	+	表示单独的请求参数 
-+	@ApiImplicitParams() 用于方法	包含多个 @ApiImplicitParam
 
+
+# 四、使用
 
 控制器的编写：
-```
+```java
 @RestController
 @Api(tags = "用户接口")
 public class UserController {
@@ -198,7 +232,7 @@ public class UserController {
 ```
 
 User实体类：
-```
+```java
 @ApiModel(value = "用户", description = "表示用户的实体类")
 @Entity
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer","handler" })
@@ -306,7 +340,7 @@ public class User implements java.io.Serializable {
     @Generated(GenerationTime.INSERT)
     @ApiModelProperty(value = "用户最后登陆时间")
     private java.sql.Timestamp lastLoginTime;
-	
+	`
 	。。。。忽略的getter/setter方法
 }
 ```
