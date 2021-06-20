@@ -55,7 +55,8 @@ tags:
 	+	 object 包含 message 和 detail 字段
 		+	message 字段作为接口处理失败时, 给予用户的友好的提示信息, 即所有给用户的提示信息都统一由后端来处理.
 		+	detail 字段用来放置接口处理失败时的详细错误信息. 只是为了方便排查错误, 前端无需使用
-```
+
+```http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
@@ -81,7 +82,7 @@ Content-Type: application/json; charset=utf-8
 
 4. 响应码示例
 
-```
+```java
 package com.simtek.cosimcloud.tool;
 
 /**
@@ -165,5 +166,66 @@ public enum HttpStatus {
 
 ```
 
+# 三、 RESTFUL
+
+
+1. model与entity
+
+> MVC是模式，EF是ORM，角色不同。MVC里面的Model是C发给V的。这些Model应该被高度优化，仅仅被对应的View用来显示，额外的数据应该被Model层砍掉以节省磁盘访问、内存占用或者数据库带宽。通常情况下，View的数量都会比你数据库的Entity要多，比如用户要求的各种各样的报表，所以对应的Model也应该比数据访问层的Entity多。假设View和EF的实体类完全一一对应，可以不编写额外的Model。但是随着需求的增多，很难一直使用EF的实体类来做Model。
+	Entity = Database Table
+	Model = Entities + Relations
+	DTO = Entity - Uninteresting Fields
+	View = DTOs + Relations
+
+Entity是相对数据库而言的，是一个数据实体。而Model是MVC里面的概念，是一个用户所需的最小化视图。
+
+2. Restful中API不同操作的区别
+
+
+RESTFUL风格的请求如下：
+
++	GET 获取资源
++	POST 创建会话（用户登录）、创建资源、添加资源
++	PUT 创建资源、更新资源
++	DELETE 删除资源
++	PATCH 更新部分资源
+
+POST与PUT的区别
+
++	在更新资源的操作上，POST 和 PUT 基本相同。在创建资源时，PUT可以指定资源路径，POST无法指定资源路径
++	PUT是幂等的操作，即重复操作不会产生变化，10次PUT 的创建请求与1次PUT 的创建请求相同，只会创建一个资源，其实后面9次的请求只是对已创建资源的更新，且更新内容与原内容相同，所以不会产生变化。
++	POST 的重复操作截然不同，10次POST请求将会创建10个资源。
+
+以用户模块为例：
+```
+/user/1 put
+/user post
+```
+
+PUT请求会查询ID为1的用户，如果不存在就创建；如果存在，就更新；POST请求会直接使用数据创建用户，一次请求表示创建一个用户。
+
+
+Springboot中相关的注解
++	@GetMapping 
++	@PostMapping 
++	@PutMapping  
++	@DeleteMapping 
++	@PatchMapping 
+
+```
+@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+===>
+@GetMapping("/get/{id}")
+
+```
+
+
+3. RESTFUL URL命名规则
+
+URL命名通常有三种，驼峰命名法(serverAddress)，蛇形命名法(server_address)，脊柱命名法(server-address)。由于URL是大小写敏感的，如果用驼峰命名在输入的时候就要求区分大小写，一个是增加输入难度，另外也容易输错，报404（aB）。蛇形命名法用下划线（a_b），在输入的时候需要切换shfit，同时下划线容易被文本编辑器的下划线掩盖，支付宝用的是蛇形命名法，stackoverflow.com和github.com用的是脊柱命名法(a-b)
+
+
+
 # 导读
 > [前后端接口联调](https://www.zhihu.com/question/61415974/answer/187589565)
+[什么时候用Model，什么时候用Entity？](https://www.zhihu.com/question/25256772)
