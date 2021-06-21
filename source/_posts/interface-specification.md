@@ -220,12 +220,37 @@ Springboot中相关的注解
 ```
 
 
-3. RESTFUL URL命名规则
+3. RESTFUL URL
+
+3.1 命名规则
 
 URL命名通常有三种，驼峰命名法(serverAddress)，蛇形命名法(server_address)，脊柱命名法(server-address)。由于URL是大小写敏感的，如果用驼峰命名在输入的时候就要求区分大小写，一个是增加输入难度，另外也容易输错，报404（aB）。蛇形命名法用下划线（a_b），在输入的时候需要切换shfit，同时下划线容易被文本编辑器的下划线掩盖，支付宝用的是蛇形命名法，stackoverflow.com和github.com用的是脊柱命名法(a-b)
 
 
++	URL请求采用小写字母，数字，部分特殊符号（非制表符）组成。
++	URL请求中不采用大小写混合的驼峰命名方式，尽量采用全小写单词，如果需要连接多个单词，则采用连接符“_”连接单词
+
+3.2 CRUD请求定义规范
+
+第一级Pattern为模块,比如组织管理/orgz, 网格化：/grid；
+第二级Pattern为资源分类或者功能请求，优先采用资源分类；如果为资源分类，则按照RESTful的方式定义第三级Pattern；定义类似如下所示：
+
+```
+/orgz/members GET 获取成员列表
+/orgz/members/120 GET 获取单个成员
+/orgz/members POST 创建成员
+/orgz/members/120 PUT 修改成员
+/orgz/members PUT 批量修改
+/orgz/members/120 PATCH 修改成员的部分属性
+/orgz/members/120 DELETE 删除成员
+```
+
+
+
+
+假设第三季
 
 # 导读
 > [前后端接口联调](https://www.zhihu.com/question/61415974/answer/187589565)
 [什么时候用Model，什么时候用Entity？](https://www.zhihu.com/question/25256772)
+[RESTFUL URL命名原则](https://www.pianshen.com/article/4262562009/)
