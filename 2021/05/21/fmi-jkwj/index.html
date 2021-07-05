@@ -1,0 +1,411 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>FMI2.0 ———— 接口与文件 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">FMI2.0 ———— 接口与文件</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">FMI2.0 ———— 接口与文件</h1><div class="post-meta"><a href="/2021/05/21/fmi-jkwj/#comments" class="comment-count"></a><p><span class="date">May 21, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>本文是来自于FMI2.0规范的前两章的部分译文，基于机翻与个人理解修订而成；描述了FMI模型交换和联合仿真，还包括了程序接口以及模型描述文件两部分。</p>
+<h1 id="一、FMI程序接口"><a href="#一、FMI程序接口" class="headerlink" title="一、FMI程序接口"></a>一、FMI程序接口</h1><ol>
+<li>模型交换</li>
+</ol>
+<p>支持该功能是为了在建模环境中可以生成动态系统模型的C代码，该模型可以被其他建模和仿真环境使用。通过代数、离散方程和具有时间，状态和阶跃事件的离散方程来描述模型。如果C代码描述了一个连续的系统，那么该系统将由使用它的环境的集成商来解决。该接口要处理的模型可以很大，可以在离线或在线仿真中使用，也可以在微处理器的嵌入式控制系统中使用。设计该接口是旨在描述大型模型。</p>
+<ol start="2">
+<li>联合仿真</li>
+</ol>
+<p>支持该功能的意图是提供一个接口标准，用于在联合仿真环境中与其它仿真工具协同工作。子系统之间的数据交换仅限于离散的通信点（通讯时间）；在两个通信点之外的时间中，子系统由各自的求解器彼此独立地求解。主算法控制子系统之间的数据交换以及所有模拟求解器（从属）的同步。</p>
+<ol start="3">
+<li>FMI通用概念</li>
+</ol>
+<p>这两个接口标准有很多共同点。我们可以利用模型以及联合仿真工具的多个实例单独或协同的将它们连接在一起。这些接口独立于目标环境，因为没有使用依赖于目标环境的头文件（目标平台的数据类型除外）。这允许生成一个可在同一平台上的任何环境中使用的动态链接库。</p>
+<ol start="4">
+<li>FMU</li>
+</ol>
+<p>模型、联合仿真从属/工具的关联部分被存储在一个称为FMU（功能模拟单元）的zip文件中，包含以下内容：</p>
+<ul>
+<li>XML包含FMU中所有公开变量的定义以及其他静态信息。这样就可以在没有此信息的情况下在目标系统上运行FMU</li>
+<li>提供了所需的模型方程式或联合仿真工具的访问权限，并提供了一小组易于使用的C函数。与其他方法相比，一种新的缓存技术可以更有效地评估模型方程；同一平台的FMU zip文件中可以包含不同平台的二进制格式</li>
+<li>可以直接在FMU中提供模型方程式或联合仿真工具，或与外部工具通信的功能模块。</li>
+<li>包含模型图标（位图文件）、FMU所需的文档文件、地图和表格</li>
+</ul>
+<p>FMU包含文件如下：</p>
+<ul>
+<li>XML 用于描述模型</li>
+<li>DLL 运行库</li>
+<li>其它用户所需资源</li>
+</ul>
+<p>FMU模型的数据流：</p>
+<ul>
+<li>数据类型为 Real, Integer, Boolean, String</li>
+<li>inputs</li>
+<li>outputs</li>
+<li>对外暴露的变量</li>
+</ul>
+<ol start="5">
+<li>头文件和函数命名</li>
+</ol>
+<p>提供了几个头文件，它们定义了FMU的接口。在所有头文件中，均约定所有相关的C函数和类型定义均使用前缀“fmi2”开头</p>
+<ul>
+<li>“fmi2TypesPlatform.h“：包含函数的输入和输出参数的类型定义，FMU和目标模拟器都必须使用此头文件。</li>
+<li>“fmi2FunctionTypes.h“：包含FMU所有函数原型的 typedef 定义</li>
+<li>“fmi2Functions.h“；包含FMU的函数原型，这些原型可以在仿真环境中访问</li>
+</ul>
+<p>定义这几个接口的目的是支持FMU的文本表示和二进制表示，并且可执行文件中可能同时存在多个FMU（例如FMU A可以使用FMU B）。所以不同的fmu中函数名应当不一致，避免同时使用时冲突。</p>
+<p>5.1 类型平台</p>
+<p>“fmi2TypesPlatform.h”：包含类型平台的所有定义，用于唯一地标识用于编译二进制文件的头文件，相关源码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#ifndef fmi2TypesPlatform_h</span><br><span class="line">#define fmi2TypesPlatform_h</span><br><span class="line">#define fmi2TypesPlatform &quot;default&quot;</span><br><span class="line"></span><br><span class="line">   typedef void*           fmi2Component;               /* 该数据结构包含处理模型方程式或处理各个从站的联合仿真所需的信息 */</span><br><span class="line">   typedef void*           fmi2ComponentEnvironment;    /* 可以在仿真环境和记录器功能之间传输来自modelDescription.xml文件 */</span><br><span class="line">   typedef void*           fmi2FMUstate;                /* 保存实际或先前时刻的内部FMU状态*/</span><br><span class="line">   typedef unsigned int    fmi2ValueReference; /* 模型变量值的句柄，句柄和基类型（例如fmi2Real）唯一地标识变量的值*/</span><br><span class="line">   typedef double          fmi2Real   ;</span><br><span class="line">   typedef int             fmi2Integer;</span><br><span class="line">   typedef int             fmi2Boolean;</span><br><span class="line">   typedef char            fmi2Char;</span><br><span class="line">   typedef const fmi2Char* fmi2String;</span><br><span class="line">   typedef char            fmi2Byte;</span><br><span class="line">#define fmi2True  1</span><br><span class="line">#define fmi2False 0</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<p>这个接口用于定义FMI中支持的所有数据类型。</p>
+<p>5.2 函数返回值</p>
+<p>文件中定义了“状态”标识（在文件“ fmi2FunctionTypes.h”中定义的fmi2Status类型的枚举），所有函数均返回该标志以指示函数调用成功：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">typedef	enum&#123;</span><br><span class="line">	fmi2OK,</span><br><span class="line">	fmi2Warning, </span><br><span class="line">	fmi2Discard, </span><br><span class="line">	fmi2Error, </span><br><span class="line">	fmi2Fatal, </span><br><span class="line">	fmi2Pending</span><br><span class="line">&#125; fmi2Status;</span><br></pre></td></tr></table></figure>
+
+<p>这个接口用于定义FMI中函数的返回值类型。</p>
+<p>5.3 fmu函数库</p>
+<p>部分源码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">。。。</span><br><span class="line">	#define fmi2GetTypesPlatform         fmi2FullName(fmi2GetTypesPlatform)</span><br><span class="line">	#define fmi2GetVersion               fmi2FullName(fmi2GetVersion)</span><br><span class="line">	#define fmi2SetDebugLogging          fmi2FullName(fmi2SetDebugLogging)</span><br><span class="line">	#define fmi2Instantiate              fmi2FullName(fmi2Instantiate)</span><br><span class="line">	#define fmi2FreeInstance             fmi2FullName(fmi2FreeInstance)</span><br><span class="line">	#define fmi2SetupExperiment          fmi2FullName(fmi2SetupExperiment)</span><br><span class="line">	#define fmi2EnterInitializationMode  fmi2FullName(fmi2EnterInitializationMode)</span><br><span class="line">	#define fmi2ExitInitializationMode   fmi2FullName(fmi2ExitInitializationMode)</span><br><span class="line">。。。</span><br></pre></td></tr></table></figure>
+
+<p>这个接口用于定义FMI中使用的函数。</p>
+<ol start="6">
+<li>初始化，终止和重置FMU</li>
+</ol>
+<p>fmi2SetupExperiment函数会在fmi2Instantiate被调用之后和fmi2EnterInitializationMode被调用之前调用，参数公差定义和公差取决于FMU类型</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fmi2Status fmi2SetupExperiment (fmi2Component c,</span><br><span class="line">								fmi2Boolean   toleranceDefined,</span><br><span class="line">								fmi2Real      tolerance, </span><br><span class="line">								fmi2Real      startTime,</span><br><span class="line">								fmi2Boolean   stopTimeDefined, </span><br><span class="line">								fmi2Real    stopTime);</span><br></pre></td></tr></table></figure>
+
+<p><code>fmuType = fmi2ModelExchange</code>: 如果“ toleranceDefined = fmi2True”，则使用数值积分方案调用模型，其中通过使用“ tolerance”控制误差来控制步长（通常使用相对公差）<br><code>fmuType = fmi2CoSimulation</code>：如果“toleranceDefined = fmi2True”，通信间隔由估计误差控制；如果从站具有可变步长和估计误差的积分，那么通过公差来控制通信间隔</p>
+<p>参数 startTime 和 stopTime 可用于检查模型在给定范围内是否有效，或分配存储结果所需的内存。如果当前时间超过 stopTime，则FMU必须返回fmi2Status = fmi2Error。如果stopTimeDefined = fmi2False，则没有定义自变量的最终值，并且参数stopTime没有意义。</p>
+<p>相关函数定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-- 使FMU进入初始化模式</span><br><span class="line">fmi2Status fmi2EnterInitializationMode(fmi2Component c);</span><br><span class="line">-- 使FMU退出初始化模式</span><br><span class="line">fmi2Status fmi2ExitInitializationMode(fmi2Component c);</span><br><span class="line">-- 终止FMU</span><br><span class="line">fmi2Status fmi2Terminate(fmi2Component c);</span><br><span class="line">-- 重置FMU</span><br><span class="line">fmi2Status fmi2Reset(fmi2Component c);</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>偏导数的支持</li>
+</ol>
+<p>fmi标准可以选择评估FMU的偏导数。对于模型交换，这意味着在特定时刻计算偏导数；对于联合仿真，这意味着要在特定的通信点上计算偏导数。fmi标准提供了一种函数来计算方向导数，此函数可用于构造所需的偏导数矩阵。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">fmi2Status fmi2GetDirectionalDerivative(fmi2Component c, </span><br><span class="line">		const fmi2ValueReference vUnknown_ref[], </span><br><span class="line">		size_t nUnknown, </span><br><span class="line">		const fmi2ValueReference vKnown_ref[]  , </span><br><span class="line">		size_t nKnown,</span><br><span class="line">		const fmi2Real dvKnown[], </span><br><span class="line">		fmi2Real dvUnknown[])</span><br><span class="line"></span><br><span class="line">初始化模式（Initialization Mode）：在&lt;ModelStructure&gt; &lt;InitialUnknowns&gt;下列出的公开类型为实数的未知数。</span><br><span class="line"></span><br><span class="line">连续时间模式（Continuous-Time Mode —— ModelExchange）：连续时间输出和状态导数（在&lt;ModelStructure&gt; &lt;Outputs&gt;下列出的类型为Real和variability =&apos;continuous&apos;的变量，以及在&lt;ModelStructure&gt; &lt;Derivatives&gt;下列出为状态导数的变量）。</span><br><span class="line"></span><br><span class="line">事件模式（Event Mode —— ModelExchange）：与连续时间模式中相同的变量，以及&lt;ModelStructure&gt; &lt;Outputs&gt;下类型为Real和variability =&apos;discrete&apos;的变量</span><br><span class="line"></span><br><span class="line">步进模式（Step Mode —— CoSimulation）：在&lt;ModelStructure&gt; &lt;Outputs&gt;下列出的类型为Real且variability =&apos;continuous&apos;或&apos;discrete&apos;的变量。如果存在&lt;ModelStructure&gt; &lt;Derivatives&gt;，则此处列出的变量也是状态导数。</span><br></pre></td></tr></table></figure>
+
+<h1 id="二、FMI模型架构（ModelDescription）"><a href="#二、FMI模型架构（ModelDescription）" class="headerlink" title="二、FMI模型架构（ModelDescription）"></a>二、FMI模型架构（ModelDescription）</h1><p>与FMU相关的所有静态信息都以XML格式存储在文本文件 modelDescription.xml 中(FMU变量及其属性如名称，单位，默认初始值等都存储在此文件中)；使用模式文件“ fmiModelDescription.xsd”定义此XML文件的结构。该架构文件使用了以下辅助架构文件：</p>
+<ul>
+<li>fmi2Unit.xsd</li>
+<li>fmi2Type.xsd</li>
+<li>fmi2Annotation.xsd</li>
+<li>fmi2ScalarVariable.xsd</li>
+<li>fmi2AttributeGroups.xsd</li>
+<li>fmi2VariableDependency.xsd</li>
+</ul>
+<p>该架构所需的数据类型（例如：xs：normalizedString）在<a href="http：//www.w3.org/TR/XMLschema-2/">XML架构标准</a>中定义，类型的定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">xs:double 表示 double</span><br><span class="line">xs:int 表示  int</span><br><span class="line">xs:unsignedInt 表示   unsigned int</span><br><span class="line">xs:boolean 表示  char</span><br><span class="line">xs:string 表示  char*</span><br><span class="line">xs:normalizedString 表示  char*</span><br><span class="line">xs:dateTime tool 表示  specific</span><br></pre></td></tr></table></figure>
+
+<p>XML文件的第一行（如modelDescription.xml）必须包含XML文件的编码方案,要求编码方案始终为UTF8，需要如下定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>以下是根级别的架构文件，包含架构文件中的所有元素，而数据由这些元素的属性定义：</p>
+<p><img src="/image/co-simulation/fmi-md.png" alt="元素架构"></p>
+<hr>
+<ol>
+<li>fmiModelDescription（fmi模型描述）</li>
+</ol>
+<p>定义如下：</p>
+<p><img src="/image/co-simulation/fmi-md-attr.png" alt="元素架构-属性"></p>
+<p>标签结构如下：</p>
+<ul>
+<li>fmiModelDescription<ul>
+<li>属性<ul>
+<li>fmiVersion（必需）：FMI规范版本</li>
+<li>modelName（必需）：生成XML的模型名称</li>
+<li>guid（必需）：全球唯一标识</li>
+<li>description：模型简短描述</li>
+<li>author：模型作者的名称和组织</li>
+<li>version：模型版本</li>
+<li>copyright：知识版权定义（例如“© My Company 2011”）</li>
+<li>generationTool：生成XMLfile的工具</li>
+<li>generationDateAndTime：生成XML文件的日期和时间（格式为“YYYY-MM-DDThh:mm:ssZ”，Z表示Zulu 时区）</li>
+<li>variableNamingConvention：该约束定义了如何构造 ScalarVariable的名称（flat表示唯一的非空字符串；structured表示使用”.“作为分隔符，名称由“_”、字母和数字组成，也可以由单撇号括起来的任何字符组成）</li>
+<li>numberOfEventIndicators：基于FMI 模型交换的事件指标的（固定）数量，联合仿真下可以忽略</li>
+</ul>
+</li>
+<li>子标签<ul>
+<li>ModelExchange：如果存在，则FMU基于“用于模型交换的FMI”（换句话说，FMU包含模型或与提供模型的工具进行通信，而环境提供模拟引擎）。</li>
+<li>CoSimulation： 如果存在，则FMU基于“用于联合仿真的FMI”（换句话说，FMU包括模型和仿真引擎，或者与提供模型和仿真引擎的工具进行通信，该环境提供了主算法来运行耦合的FMU联合仿真从设备以共同运行)。</li>
+<li>UnitDefinitions：定义单位和显示单位的全局列表（例如，将显示单位转换为模型方程式中使用的单位）。这些定义在XML元素“ ModelVariables”中使用</li>
+<li>TypeDefinitions：“ ModelVariables”中使用的类型定义列表</li>
+<li>LogCategories：日志类别的全局列表，可以设置该列表以定义FMU支持的日志信息</li>
+<li>DefaultExperiment：提供积分的默认设置，例如停止时间和相对公差</li>
+<li>VendorAnnotations：供应商可能想要存储而其他供应商可能会忽略的其他数据</li>
+<li>ModelVariables：定义了FMU的所有变量</li>
+<li>ModelStructure：定义模型的结构，包括输出，连续时间状态和初始未知数</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ol start="2">
+<li>UnitDefinitions （变量单位）</li>
+</ol>
+<p>变量的单位是（可选）自定义的，单位的支持对于技术系统很重要，因为很容易发生错误。</p>
+<p>相关定义如下</p>
+<p><img src="/image/co-simulation/fmi-unit.png" alt="变量单位"><br><img src="/image/co-simulation/fmi-unit2.png" alt="变量单位"></p>
+<p>标签结构如下</p>
+<ul>
+<li>UnitDefinitions<ul>
+<li>Unit（多个）<ul>
+<li>属性<ul>
+<li>name：</li>
+</ul>
+</li>
+<li>标签<ul>
+<li>BaseUnit（基本单位 前七个是国际单位制中的基本单位）<ul>
+<li>kg：质量-千克</li>
+<li>m：距离-米</li>
+<li>s：时间-秒</li>
+<li>A：电流-安培</li>
+<li>K：温度-开尔文</li>
+<li>mol：物质的量-摩尔</li>
+<li>cd：发光强度-坎德拉</li>
+<li>rad：辐射吸收剂量-拉德</li>
+<li>factor：因子（乘法）</li>
+<li>offset：偏移量（增益）</li>
+</ul>
+</li>
+<li>DisplayUnit<ul>
+<li>name</li>
+<li>factor</li>
+<li>offset<br>其中，DisplayUnit用于定义转换值，转换公式如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DisplayUnit_value = factor*Unit_value + offset</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>示例如下：</p>
+<figure class="highlight plain"><figcaption><span>name</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">	&lt;BaseUnit s=&quot;-1&quot; rad=&quot;1&quot;/&gt;</span><br><span class="line">	&lt;DisplayUnit name=&quot;deg/s&quot; factor= &quot;57.29577951308232&quot;/&gt;</span><br><span class="line">	&lt;DisplayUnit name=&quot;rev/min&quot; factor= &quot;9.549296585513721&quot;/&gt;</span><br><span class="line">&lt;/Unit&gt;</span><br><span class="line">&lt;Unit name=&quot;bar&quot;&gt;</span><br><span class="line">	&lt;BaseUnit kg=&quot;1&quot;, m=&quot;-1&quot;, s=&quot;-2&quot;, factor=&quot;1.0e5&quot;, offset=&quot;0&quot;/&gt;</span><br><span class="line">&lt;/Unit&gt;</span><br><span class="line">&lt;Unit name=&quot;Re&quot;&gt;</span><br><span class="line">	&lt;BaseUnit/&gt; // unit = &quot;1&quot;</span><br><span class="line">//(dimensionless, all exponents of BaseUnit are zero)</span><br><span class="line">&lt;/Unit&gt;</span><br><span class="line">&lt;Unit name=&quot;Euro/PersonYear&quot;/&gt; // no mapping to BaseUnit defined</span><br></pre></td></tr></table></figure>
+
+<hr>
+<ol start="3">
+<li>TypeDefinitions（类型定义）</li>
+</ol>
+<p>该元素是一个名为“SimpleType”的集合，在 fmi2Type.xsd文件中的 fmi2SimpleType 架构下定义的。</p>
+<p>相关定义如下</p>
+<p><img src="/image/co-simulation/fmi-type.png" alt="类型定义"></p>
+<p>标签结构如下：</p>
+<ul>
+<li>TypeDefinitions<ul>
+<li>SimpleType（多个）<ul>
+<li>属性<ul>
+<li>name</li>
+<li>description</li>
+</ul>
+</li>
+<li>子标签<ul>
+<li>Real<ul>
+<li>declaredType：定义的类型</li>
+<li>quantity：变量的物理量</li>
+<li>unit：单位</li>
+<li>displayUnit：显示单位</li>
+<li>relativeQuantity：为true，那么忽略“ displayUnit”的“ offset”</li>
+<li>min：时间最小值</li>
+<li>max：时间最大值</li>
+<li>nominal：变量的标称值。如果未定义并且没有有关标称值的其他信息，则假定标称= 1</li>
+<li>unbounded：如果为true，则表示该变量在时间积分中远大于其标称值nominal。</li>
+<li>start：如果 initiaJ= exact/approx，那么需要满足min&lt;start&lt;max.</li>
+<li>derivative：导数</li>
+<li>reinit：为true，运行重新初始化</li>
+</ul>
+</li>
+<li>Integer<ul>
+<li>declaredType</li>
+<li>quantity</li>
+<li>min</li>
+<li>max</li>
+<li>start</li>
+</ul>
+</li>
+<li>Boolean<ul>
+<li>declaredType</li>
+<li>start</li>
+</ul>
+</li>
+<li>String<ul>
+<li>declaredType</li>
+<li>start        </li>
+</ul>
+</li>
+<li>Enumeration<ul>
+<li>declaredType</li>
+<li>quantity</li>
+<li>min</li>
+<li>max</li>
+<li>start</li>
+<li>Items</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ol start="4">
+<li>LogCategories（日志类别）</li>
+</ol>
+<p>LogCategories定义了一组无序字符串，可用于通过函数“ logger”定义日志输出。“名称”属性对于LogCategories列表的所有其他元素必须是唯一的</p>
+<p>定义如下<br><img src="/image/co-simulation/fmi-log.png" alt="日志类别的定义"></p>
+<p>标签结构如下</p>
+<ul>
+<li>LogCategories<ul>
+<li>Category(多个、分类)<ul>
+<li>name(在日志列表中唯一)</li>
+<li>description</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ol start="5">
+<li>DefaultExperiment（默认设置）</li>
+</ol>
+<p>DefaultExperiment提供积分器的默认设置，例如开始时间、停止时间、相对公差和第一次仿真步长等（默认、可选）。对于用户来说，比较方便的是这些变量已经为模型提供了有意义的默认值。</p>
+<p>定义如下<br><img src="/image/co-simulation/fmi-de.png" alt="默认设置"></p>
+<p>标签结构如下</p>
+<ul>
+<li>DefaultExperiment<ul>
+<li>tolerance：相对公差（默认值为1e-6）</li>
+<li>startTime：开始时间</li>
+<li>stopTime：结束时间</li>
+<li>stepSize：步长大小（决定最小采样周期）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ol start="6">
+<li>VendorAnnotations（附加信息）</li>
+</ol>
+<p>VendorAnnotations由一组有序的注释组成，这些注释由可以解释“ any”元素的工具名称标识。</p>
+<p>定义如下<br><img src="/image/co-simulation/fmi-annotation.png" alt="附加信息"></p>
+<p>标签结构如下</p>
+<ul>
+<li>VendorAnnotations<ul>
+<li>Tool（多个）<ul>
+<li>name（必须、唯一）</li>
+<li>#any：是可以由工具定义的任意XML数据结构（例如javafmi中的v2.Tool类中定义的HybridCoSim）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ol start="7">
+<li>ModelVariables（模型变量）</li>
+</ol>
+<p>fmiModelDescription的“ ModelVariables”元素是模型描述的核心部分，它提供所有公开变量的静态信息，并定义为：</p>
+<p><img src="/image/co-simulation/fmi-variables.png" alt="模型变量"></p>
+<p>“ ModelVariables”元素由“ ScalarVariable”元素的有序集合组成（请参见上图）,标签结构如下</p>
+<ul>
+<li>ModelVariables<ul>
+<li>ScalarVariable（多个）：标量变量,即存储一个数据的变量<ul>
+<li>属性<ul>
+<li>name（必需）：变量唯一名称</li>
+<li>valueReference：使用被称为值引用的整数句柄识别FMU的标量变量的值。</li>
+<li>description</li>
+<li>causality（    因果关系）：默认值为local，一个连续时间状态需要设置causality = “local/output”<ul>
+<li>parameter：独立参数（由环境提供的参数，在仿真期间数据值是固定的，且不能用于连接中） </li>
+<li>calculatedParameter：计算参数（在仿真期间数据值是固定的，在初始化阶段以及可调（tunable）参数发生变化时被计算）</li>
+<li>input：该变量是其它模块或从机提供的，不允许定义initial</li>
+<li>output：该变量是提供给其它模块或从机的，与输入的代数关系是通过dependencies属性定义的（<code>&lt;fmiModelDescription&gt;&lt;ModelStructure&gt;&lt;Outputs&gt;&lt;Unknown&gt;</code>）</li>
+<li>local（默认值）：由其他变量计算得到的局部变量或连续时间状态，不允许用于其它模块或从站。</li>
+<li>independent：自变量（通常是时间）。所有变量与这个自变量构成函数。可变性必须是“continuous”。在FMU中，最多只有一个 <code>ScalarVariable</code>可以定义为自变量。如果没有变量定义为自变量，那可以是隐式的定义（name=’time’,unit=’s’）。如果有一个变量被定义为自变量，那它必须定义为’Real’类型，并且不设置’start’属性；也不允许调用<code>fmi2SetReal</code>函数。取而代之的是，通过<code>fmi2SetupExperiment</code>函数对自变量值进行初始化。在初始化后，模型交换类型的需要调用<code>fmi2SetTime</code>函数；联合仿真类型的，需要调用<code>fmi2DoStep</code>函数设置参数<code>currentCommunicationPoint</code>和<code>communicationStepSize</code>(实际值可以通过fmi2GetReal查询)。</li>
+</ul>
+</li>
+<li>variability（可变性）:定义变量的时间依赖性，换句话说它规定了一个变量在什么时候可以改变它的值。<ul>
+<li>constant：变量值永不改变</li>
+<li>fixed：变量值在初始化后不可调整，换句话说在调用<code>fmi2ExitInitializationMode</code>函数后变量值不能够再改变</li>
+<li>tunable：如果设置属性 <code>causality = &quot;parameter/input&quot;</code>以及<code>variability = &quot;tunable&quot;</code>，在外部事件（模型交换）间或者通讯点（联合仿真）间变量是固定不变的；如果发生了变化，那么就会触发一个外部事件（ModelExchange）或者在下一个通讯点（CoSimulation）执行改变。属性设置为<code>variability = &quot;tunable&quot;、causality = &quot;calculatedParameter\output&quot;</code>的变量必须被重新计算。</li>
+<li>discrete（离散）：在模型交换类型中，在外部事件以及内部事件（time、state、step）间是固定不变的；在联合仿真中，通常变量来自“真实”的采样数据系统，其值仅在通信点（或从站内部）更改</li>
+<li>continuous（默认值）：只有属性<code>ype = “Real”</code>的变量可以是连续的。在模型交换类型中，值的变化没有限制；在联合仿真中，变量通常来自微分。【注意，关于连续状态的信息是用元素 fmiModelDescription.ModelStructure.Derivatives 定义的】</li>
+</ul>
+</li>
+<li>initial<ul>
+<li>exact：变量用<code>start</code>进行初始化</li>
+<li>approx：该变量是代数环的迭代变量，初始化时的迭代从起始值开始</li>
+<li>calculated：该变量是在初始化期间根据其他变量计算得出的。不允许提供“起始”值</li>
+</ul>
+</li>
+<li>canHandleMultipleSetPerTimeInstant：如果存在<code>canHandleMultipleSetPerTimeInstant = false</code>，则该变量在一个超密集时刻（模型评估）只允许调用一次 <code>fmi2SetXXX</code>函数；在模型交换中变量属性 <code>variability = &quot;input&quot;</code>时使用，不允许使用在代数环中。</li>
+<li>previous</li>
+</ul>
+</li>
+<li>子标签<ul>
+<li>Real</li>
+<li>Integer</li>
+<li>Boolean</li>
+<li>String</li>
+<li>Enumeration</li>
+<li>Annotations<ul>
+<li>array-Tool</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>ScalarVariable 标签的几个属性存在关联，如下所示</p>
+<p><img src="/image/co-simulation/ScalarVariable.png" alt="ScalarVariable"></p>
+<ul>
+<li>（a）组合没有意义，因为parameters 和 input 是从环境设置的，而常数始终是一个值。</li>
+<li>（b）组合没有意义，因为causality =parameter/calculatedParameter 定义了不依赖时间的变量，而“离散” ”和“连续”定义变量，在仿真过程中这些值可以更改</li>
+<li>（c）对于独立变量，只有可变性为连续才有意义。    </li>
+<li>（d）固定或可调的“输入”具有与固定或可调参数完全相同的属性。为简单起见，仅应定义固定参数和可调参数</li>
+<li>（e）固定或可调的“输出”具有与固定或可调的calculatedParameter完全相同的属性。为简单起见，仅应定义固定和可调的calculatedParameters</li>
+</ul>
+<blockquote>
+<p>代数环（algebraic loop）：代数环（algebraic loop)发生在两个或多个模块在输入端口具有信号直接传递而形成反馈的情况时，直接传递的模块在不知输入端口的值的情况下无法计算出输出端的值，也就是现在时刻的输出是依赖现在时刻的输入值来计算的。当这种情况出现时simulink会在每一次迭代言算完成时，去决定它是否会有解。代数回路会减缓方真执行的速度并可能会没有解。<br>为简单起见，此版本的模式文件中仅支持标量变量，并且必须将结构化实体（如数组或记录）映射到标量。</p>
+</blockquote>
+<hr>
+<ol start="8">
+<li>ModelStructure（模型结构）</li>
+</ol>
+<p>该结构是针对基础模型方程式的，独立于这些模型方程式的求解方式。</p>
+<p>相关定义如下</p>
+<p><img src="/image/co-simulation/fmi-ms.png" alt="模型结构的定义"></p>
+<p>标签结构如下</p>
+<ul>
+<li>ModelStructure<ul>
+<li>Outputs（多个）：所有输出的有序列表<ul>
+<li>Unknown</li>
+</ul>
+</li>
+<li>Derivatives（多个）：所有状态导数的有序列表<ul>
+<li>Unknown</li>
+</ul>
+</li>
+<li>InitialUnknowns（多个）：初始化列表<ul>
+<li>Unknown<ul>
+<li>index 索引</li>
+<li>dependencies 相关依赖项</li>
+<li>dependenciesKind 依赖项类型，如果存在“ dependenciesKind”，则必须存在“ dependencies”，并且必须具有相同数量的列表元素<ul>
+<li>constant：常数因子  </li>
+<li>fixed</li>
+<li>tunable</li>
+<li>discrete</li>
+<li>dependent：没有特定的结构</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>定义例子如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;ModelVariables&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;p&quot;      , ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;1&quot; --&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;u1&quot;     , ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;2&quot; --&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;u2&quot;     , ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;3&quot; --&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;u3&quot;     , ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;4&quot; --&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;x1&quot;     , ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;5&quot; --&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;x2&quot;     , ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;6&quot; --&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;x3&quot;     , ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;7&quot; --&gt;   </span><br><span class="line">	&lt;ScalarVariable name=&quot;der(x1)&quot;, ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;8&quot; --&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;der(x2)&quot;, ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;9&quot; --&gt;  </span><br><span class="line">	&lt;ScalarVariable name=&quot;der(x3)&quot;, ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;10&quot; --&gt;    </span><br><span class="line">	&lt;ScalarVariable name=&quot;y&quot;      , ...&gt; ... &lt;/ScalarVariable&gt;  &lt;!—index=&quot;11&quot; --&gt; </span><br><span class="line">&lt;/ModelVariables&gt; </span><br><span class="line"></span><br><span class="line">&lt;ModelStructure&gt;     </span><br><span class="line">	&lt;Outputs&gt;      </span><br><span class="line">		&lt;Unknown index=&quot;11&quot; dependencies=&quot;6 7&quot; /&gt;    </span><br><span class="line">	&lt;/Outputs&gt; </span><br><span class="line">	&lt;Derivatives&gt;</span><br><span class="line">		&lt;Unknown index=&quot;8&quot;  dependencies=&quot;6&quot; /&gt;</span><br><span class="line">		// 索引2是索引9的常量</span><br><span class="line">		&lt;Unknown index=&quot;9&quot;  dependencies=&quot;2 4 5 6&quot; dependenciesKind=&quot;constant constant dependent fixed&quot;/&gt;</span><br><span class="line">		&lt;Unknown index=&quot;10&quot; dependencies=&quot;2 3 4 5 6&quot; /&gt;</span><br><span class="line">	&lt;/Derivatives&gt;</span><br><span class="line">	&lt;InitialUnknowns&gt;</span><br><span class="line">		&lt;Unknown index=&quot;6&quot; dependencies=&quot;2 4 5&quot; /&gt;</span><br><span class="line">		&lt;Unknown index=&quot;7&quot; dependencies=&quot;2 4 5 11&quot; /&gt;</span><br><span class="line">		&lt;Unknown index=&quot;8&quot; ... /&gt;</span><br><span class="line">		&lt;Unknown index=&quot;10&quot; ... /&gt;</span><br><span class="line">	&lt;/InitialUnknowns&gt;</span><br><span class="line">&lt;/ModelStructure&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="三、参考资料"><a href="#三、参考资料" class="headerlink" title="三、参考资料"></a>三、参考资料</h1><blockquote>
+<p>《Functional Mock-up Interface forModel Exchange and Co-Simulation v2.0》</p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/05/21/fmi-jkwj/">http://zws6672.top/2021/05/21/fmi-jkwj/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/co-simulation/">co-simulation</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/05/21/git-branch-recover/" class="pre">恢复git删除的分支</a><a href="/2021/05/20/jdk-function/" class="next">JDK8新特性 ———— Function接口</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、FMI程序接口"><span class="toc-text">一、FMI程序接口</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、FMI模型架构（ModelDescription）"><span class="toc-text">二、FMI模型架构（ModelDescription）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、参考资料"><span class="toc-text">三、参考资料</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/20/swagger2-1/">swagger2 通过OpenAPI文件生成JAVA代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/16/rustInstall/">rust安装与初试</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/interface-specification/">接口对接规范</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/swagger2/">swagger2的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/OpenAPI3-0/">OpenAPI 3.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/11/springboot-hot/">springboot实现热部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/07/jdk-source-Object/">jdk8 源码 —— Object</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/SHA-256/">SHA-256</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/jdk-thread-lock/">线程安全与锁优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/27/fmi-cos/">FMI2.0 ———— 联合仿真</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/co-simulation/" style="font-size: 15px;">co-simulation</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/soft-skills/" style="font-size: 15px;">soft-skills</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/jdk-source/" style="font-size: 15px;">jdk-source</a> <a href="/tags/jna/" style="font-size: 15px;">jna</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/rust/" style="font-size: 15px;">rust</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

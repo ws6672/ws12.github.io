@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>rust安装与初试 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">rust安装与初试</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">rust安装与初试</h1><div class="post-meta"><a href="/2021/06/16/rustInstall/#comments" class="comment-count"></a><p><span class="date">Jun 16, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="一、-安装"><a href="#一、-安装" class="headerlink" title="一、 安装"></a>一、 安装</h1><p>官方文档：<a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">https://doc.rust-lang.org/book/</a></p>
+<p>1.编译环境选择</p>
+<p>rust底层是依赖C环境，所以需要先安装C/C++编译环境, 有两种选择:</p>
+<ul>
+<li>安装微软的<a href="https://visualstudio.microsoft.com/zh-hans/downloads/" target="_blank" rel="noopener">C++ build tools</a>，即 Visual Studio 2019 生成工具；</li>
+<li>安装<a href="https://sourceforge.net/projects/mingw-w64/files/" target="_blank" rel="noopener">mingw</a>/cygwin（模拟linux） ，需要配置 gnu toolchain开发环境（stable-x86_64-pc-windows-gnu）：<ul>
+<li>Cygwin 提供了Windows下的类Unix环境（Window）；</li>
+<li>MinGW 是提供用于开发Window应用的开发环境（Linux）。</li>
+</ul>
+</li>
+</ul>
+<h1 id="二、配置Cygwin"><a href="#二、配置Cygwin" class="headerlink" title="二、配置Cygwin"></a>二、配置Cygwin</h1><ol>
+<li>初始化与更新 Cygwin 包</li>
+</ol>
+<p>为 64 位版本的 Windows 安装和更新 Cygwin：当您想要更新或安装适用于 64 位 Windows 的 <a href="https://cygwin.com/setup-x86_64.exe" target="_blank" rel="noopener">Cygwin 软件包</a> 时，请运行setup-x86_64.exe。该签名的设置，x86_64.exe可以用来验证这个二进制文件的有效性。</p>
+<p>注意事项：</p>
+<ul>
+<li>首次安装软件包时，安装程​​序 不会安装每个软件包。 默认情况下只安装 Cygwin 发行版中的最小基础包，大约占用 100 MB。<br>单击安装程序包安装屏幕中的类别和包，您可以选择安装或更新的内容。像bash、gcc、less等单独的包是独立于 Cygwin DLL 发布的，因此 Cygwin DLL 版本作为通用的 Cygwin 版本号没有用处。安装程序会跟踪所有已安装组件的版本，并提供用于安装或更新此站点上 Cygwin 可用所有内容的机制。</li>
+</ul>
+<p>不提供apt, yum：</p>
+<ul>
+<li>不使用功能更全的包管理器的原因是这样的程序需要完全访问 Cygwin 的所有 POSIX 功能。然而，这在没有 Cygwin 的环境中很难提供，例如需要第一次安装时就存在。此外，Windows 不允许覆盖正在使用的可执行文件，因此在包管理器使用 DLL 时安装新版本的 Cygwin DLL 是有问题的。</li>
+</ul>
+<p>验证安装程序的签名（例子）：</p>
+<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gpg --recv-key 1A698DE9E2E56300</span><br><span class="line">gpg --keyid-format=long --with-fingerprint --verify setup-x86_64.exe.sig setup-x86_64.exe</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>通过Cygwin Setup 可以更新包，为了能够通过命令安装软件，可以先使用该程序添加GIT。</p>
+<ul>
+<li>打开后，直接下一步即可；</li>
+<li>到了包管理页面找到GIT选择版本号即可；</li>
+<li>再通过GIT安装apt-cyg。<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/transcode-open/apt-cyg.git</span><br><span class="line">cd apt-cyg/</span><br><span class="line">chmod +x apt-cyg</span><br><span class="line">cp apt-cyg /bin</span><br><span class="line">apt-cyg install wget</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<p>注：wget安装会提示缺少lynx，需要通过Cygwin安装程序安装。</p>
+<ol start="2">
+<li>在windows命令下使用cygwin</li>
+</ol>
+<p>需要添加环境变量，Path 添加 <code>D:\cygwin64\bin</code>,刷新环境变量<code>set PATH=C</code>。</p>
+<p>在Window下通过以下命令可以进入类unix环境：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">D:\Environment\Rust&gt;bash</span><br><span class="line">	86178@LAPTOP-KFPIFLPS /cygdrive/d/Environment/Rust</span><br><span class="line">	86178@LAPTOP-KFPIFLPS /cygdrive/d/Environment/Rust <span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>为了通过 Cygwin配置Rustup，需要通过Cygwin安装程序安装以下包：</li>
+</ol>
+<ul>
+<li>httpd</li>
+<li>make</li>
+<li>ls</li>
+<li>curl</li>
+</ul>
+<h1 id="三、Rustup"><a href="#三、Rustup" class="headerlink" title="三、Rustup"></a>三、Rustup</h1><p>Rustup是Rust 安装程序和版本管理工具，<a href="https://www.rust-lang.org/learn/get-started" target="_blank" rel="noopener">相关资源</a></p>
+<ol>
+<li>配置环境变量</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CARGO_HOME=D:\Environment\Rust\.cargo</span><br><span class="line">RUSTUP_HOME=D:\Environment\Rust\.rustup</span><br><span class="line">RUSTUP_UPDATE_ROOT=http://mirrors.ustc.edu.cn/rust-static/rustup</span><br><span class="line">RUSTUP_DIST_SERVER=http://mirrors.ustc.edu.cn/rust-static</span><br><span class="line">path 添加%CARGO_HOME%\bin</span><br><span class="line"></span><br><span class="line">set PATH=C</span><br></pre></td></tr></table></figure>
+
+
+<ol start="2">
+<li>安装程序</li>
+</ol>
+<p>打开rustup-init.exe文件，输入2，自定义安装选项，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">host triple：x86_64-pc-windows-gnu 版本</span><br><span class="line">default toolchain：stable 稳定版</span><br><span class="line">profile: complete 表示完全安装</span><br><span class="line">modify PATH variable：y 表示按照环境变量定义的路径安装</span><br></pre></td></tr></table></figure>
+
+<p>查看安装结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\86178&gt;cargo version</span><br><span class="line">cargo 1.52.0 (69767412a 2021-04-21)</span><br></pre></td></tr></table></figure>
+
+<p>查看版本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\86178&gt;rustup show</span><br><span class="line">Default host: x86_64-pc-windows-gnu</span><br><span class="line">rustup home:  D:\Environment\Rust\.rustup</span><br><span class="line"></span><br><span class="line">installed toolchains</span><br><span class="line">--------------------</span><br><span class="line"></span><br><span class="line">stable-x86_64-pc-windows-gnu (default)</span><br><span class="line">stable-x86_64-pc-windows-msvc</span><br><span class="line"></span><br><span class="line">active toolchain</span><br><span class="line">----------------</span><br><span class="line"></span><br><span class="line">stable-x86_64-pc-windows-gnu (default)</span><br><span class="line">rustc 1.52.1 (9bc8c42bb 2021-05-09)</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>Hello World</li>
+</ol>
+<p>一个Hello World的例子。</p>
+<p>3.1 配置</p>
+<p>在windows配置项目：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; mkdir &quot;%USERPROFILE%\projects&quot;</span><br><span class="line">&gt; cd /d &quot;%USERPROFILE%\projects&quot;</span><br><span class="line">&gt; mkdir hello_world</span><br><span class="line">&gt; cd hello_world</span><br></pre></td></tr></table></figure>
+
+<p>创建一个新的源文件并将其命名为main.rs。Rust 文件总是以.rs扩展名结尾。如果您在文件名中使用多个单词，请使用下划线将它们分开。例如，使用hello_world.rs而不是 helloworld.rs。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello, world!"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注：将左大括号与函数声明放在同一行是一种很好的风格，中间加一个空格。如果你想在 Rust 项目中坚持标准风格，你可以使用一个自动格式化工具<code>rustfmt</code>来以特定的风格格式化你的代码.</p>
+<ul>
+<li>Rust 风格是缩进四个空格，而不是一个制表符;</li>
+<li><code>println!</code>调用一个 Rust 宏。如果它改为调用函数，则输入为println（不带!）</li>
+<li>大多数 Rust 代码行都以分号结尾。</li>
+</ul>
+<p>3.2 编译与运行</p>
+<p>在运行 Rust 程序之前，您必须使用 Rust 编译器通过输入<code>rustc</code>命令并将源文件的名称传递给它来编译它</p>
+<p>运行方式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">-- Linux</span><br><span class="line">$ rustc main.rs  # 编译</span><br><span class="line">$ ./main  # 运行</span><br><span class="line">Hello, world!</span><br><span class="line"></span><br><span class="line">-- Window</span><br><span class="line">&gt; rustc main.rs</span><br><span class="line">&gt; .\main.exe</span><br><span class="line">Hello, world!</span><br></pre></td></tr></table></figure>
+
+<p>Rust 是一种提前编译语言，这意味着您可以编译程序并将可执行文件提供给其他人，他们甚至可以在没有安装 Rust 的情况下运行它。如果你给某人一个.rb、.py或 .js文件，他们需要安装一个 Ruby、Python 或 JavaScript 实现（分别）。但是在这些语言中，您只需要一个命令来编译和运行您的程序。一切都是语言设计的权衡。</p>
+<h1 id="四、Cargo"><a href="#四、Cargo" class="headerlink" title="四、Cargo"></a>四、Cargo</h1><p>Cargo 是 Rust 的构建系统和包管理器。大多数 Rustaceans 使用这个工具来管理他们的 Rust 项目，因为 Cargo 为你处理了很多任务，比如构建代码、下载代码依赖的库以及构建这些库。（我们将您的代码需要的库称为依赖项。）</p>
+<ol>
+<li>Cargo创建项目</li>
+</ol>
+<p>查看是否安装cargo：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo --version</span><br></pre></td></tr></table></figure>
+
+<p>使用 Cargo 创建项目：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cargo new hello_cargo</span><br><span class="line">$ cd hello_cargo</span><br><span class="line"></span><br><span class="line">-- 使用现成的git存储库创建项目</span><br><span class="line">cargo new --vcs=git.</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>文件结构</li>
+</ol>
+<p>生成以下文件</p>
+<ul>
+<li>src<ul>
+<li>main.rs</li>
+</ul>
+</li>
+<li>Cargo.toml</li>
+<li>.gitignore</li>
+<li>.git  Git存储库</li>
+</ul>
+<p>Cargo.toml（<code>Tom&#39;s Obvious, Minimal Language</code>）的内容如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[package]</span><br><span class="line">name = &quot;hello_cargo&quot;</span><br><span class="line">version = &quot;0.1.0&quot;</span><br><span class="line">authors = [&quot;ws6672 &lt;ws6672s@gmail.com&gt;&quot;]</span><br><span class="line">edition = &quot;2018&quot;</span><br><span class="line"></span><br><span class="line"># See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html</span><br><span class="line"></span><br><span class="line">[dependencies]</span><br></pre></td></tr></table></figure>
+
+<p>Cargo 希望您的源文件位于src目录中。顶级项目目录仅用于 README 文件、许可证信息、配置文件以及与您的代码无关的任何其他内容。使用 Cargo 可以帮助您组织项目。一切都有一个地方，一切都在它的位置。</p>
+<ol start="3">
+<li>编译与运行项目</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ cargo build</span><br><span class="line">   Compiling hello_cargo v0.1.0 (file:///projects/hello_cargo)</span><br><span class="line">    Finished dev [unoptimized + debuginfo] target(s) in 2.85 secs</span><br><span class="line">$ cargo run</span><br><span class="line"></span><br><span class="line">// 此命令会快速检查您的代码以确保它可以编译但不生成可执行文件</span><br><span class="line">$ cargo check </span><br><span class="line"></span><br><span class="line">// 为发布而构建</span><br><span class="line">cargo build --release</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>相关实例</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::io; <span class="comment">//使用use 语句将该类型显式引入作用域</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello, world!"</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Guess Number"</span>);</span><br><span class="line">    <span class="comment">// 存储用户输入</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> guess = <span class="built_in">String</span>::new();</span><br><span class="line">    <span class="comment">// stdin函数返回 的一个实例std::io::Stdin，它是一种表示终端标准输入句柄的类型。</span></span><br><span class="line">    <span class="comment">// read_line 表示读取一行到缓冲区guess</span></span><br><span class="line">    <span class="comment">// expect 表示异常处理</span></span><br><span class="line">    io::stdin()</span><br><span class="line">        .read_line(&amp;<span class="keyword">mut</span> guess)</span><br><span class="line">        .expect(<span class="string">"faild"</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"You guessed: &#123;&#125;"</span>, guess);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>read_line函数源码如下：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[stable(feature = <span class="meta-string">"rust1"</span>, since = <span class="meta-string">"1.0.0"</span>)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">read_line</span></span>(&amp;<span class="keyword">self</span>, buf: &amp;<span class="keyword">mut</span> <span class="built_in">String</span>) -&gt; io::<span class="built_in">Result</span>&lt;<span class="built_in">usize</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">self</span>.lock().read_line(buf)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>read_line将用户输入的内容放入我们传递给它的字符串中，但它也返回一个值Result，表示函数运行结果，这个模块有不同的实现，例如<code>io::Result</code>。Result类型是enum，通常被称为枚举。枚举是一种可以具有一组固定值的类型，这些值称为枚举的变体。对于Result，变体是Ok或Err。所述Ok变体指示操作是成功的，并且内部Ok是成功生成值。该Err变种意味着操作失败，并Err包含有关操作如何或为何失败的信息。</p>
+<p>如果您不调用expect，程序将编译，但会收到警告。</p>
+<h1 id="导读"><a href="#导读" class="headerlink" title="导读"></a>导读</h1><blockquote>
+<p><a href="https://www.zhangtiefei.cn/211.html" target="_blank" rel="noopener">Cygwin安装新的软件或者程序</a><br><a href="https://icedream2linxi.github.io/blog/2018/09/29/Windows%E4%B8%8B%E4%B8%8D%E6%B1%A1%E6%9F%93%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85Rust%E7%BC%96%E8%AF%91%E5%99%A8" target="_blank" rel="noopener">Windows 下不污染环境安装 Rust 编译器</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/06/16/rustInstall/">http://zws6672.top/2021/06/16/rustInstall/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/rust/">rust</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/06/20/swagger2-1/" class="pre">swagger2 通过OpenAPI文件生成JAVA代码</a><a href="/2021/06/15/interface-specification/" class="next">接口对接规范</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、-安装"><span class="toc-text">一、 安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、配置Cygwin"><span class="toc-text">二、配置Cygwin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、Rustup"><span class="toc-text">三、Rustup</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四、Cargo"><span class="toc-text">四、Cargo</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#导读"><span class="toc-text">导读</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/20/swagger2-1/">swagger2 通过OpenAPI文件生成JAVA代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/16/rustInstall/">rust安装与初试</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/interface-specification/">接口对接规范</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/swagger2/">swagger2的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/OpenAPI3-0/">OpenAPI 3.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/11/springboot-hot/">springboot实现热部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/07/jdk-source-Object/">jdk8 源码 —— Object</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/SHA-256/">SHA-256</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/jdk-thread-lock/">线程安全与锁优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/27/fmi-cos/">FMI2.0 ———— 联合仿真</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/co-simulation/" style="font-size: 15px;">co-simulation</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/soft-skills/" style="font-size: 15px;">soft-skills</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/jdk-source/" style="font-size: 15px;">jdk-source</a> <a href="/tags/jna/" style="font-size: 15px;">jna</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/rust/" style="font-size: 15px;">rust</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

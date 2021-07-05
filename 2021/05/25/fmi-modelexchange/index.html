@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>FMI2.0 ———— 	模型交换 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">FMI2.0 ———— 	模型交换</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">FMI2.0 ———— 	模型交换</h1><div class="post-meta"><a href="/2021/05/25/fmi-modelexchange/#comments" class="comment-count"></a><p><span class="date">May 25, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>本文是来自于FMI2.0规范的第三章模型交换的译文，基于机翻与个人理解修订而成。</p>
+<style>
+table th:first-of-type {
+    width: 10%;
+}
+</style>
+<h1 id="一、模型交换的数学描述"><a href="#一、模型交换的数学描述" class="headerlink" title="一、模型交换的数学描述"></a>一、模型交换的数学描述</h1><h3 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h3><p>下图包含了访问C程序动态系统的方程的接口描述，示意图如下</p>
+<p><img src="/image/co-simulation/me-view.png" alt="接口示意图"></p>
+<p>模型交换接口的目标是用数值方法求解由微分、代数和离散时间方程构成的系统。在2.0版本的接口中，需要处理在状态空间中由事件组成的常微分方程（缩写为“hybrid ODE”）。在FMU中可能包含代数方程系统；FMU也​​可能仅包含离散时间方程（例如描述采样数据控制器）。</p>
+<p>自变量时间t属于元祖 t=(t<sub>R</sub>…t<sub>i</sub>)。其中tR为实数，t<sub>i</sub>为{0,1,2,…}；</p>
+<ul>
+<li>实数部分t<sub>R</sub>是FMU的自变量，用于描述事件之间模型的连续时间行为；</li>
+<li>而整数部分t<sub>i</sub>是一个计数器，用于枚举在同一连续时间中发生的事件，该时间定义在文献中也称为“超密集时间”，参见（Lee and Zheng 2007）。</li>
+</ul>
+<blockquote>
+<p>ODE意为常微分方程，hybrid ODE 意为 混合常微分方程<br>超密集时间（super dense time）：按我的理解是在一个时间段中，存在多个时间点，每个时间点的间隔是毫秒甚至微秒级的，可以称之为超密集时间。</p>
+</blockquote>
+<p>相关符号的含义如下<br><img src="/image/co-simulation/me-t-symbol.png" alt="记号"></p>
+<hr>
+<h3 id="事件-Event"><a href="#事件-Event" class="headerlink" title="事件(Event)"></a>事件(Event)</h3><p>FMI支持的混合ODE被描述为分段连续时间系统，不连续性可能发生在T<sub>0</sub>….T<sub>i</sub>时刻，其中T<sub>i</sub> &lt; T<sub>i+1</sub>。这些时刻称为“事件”，事件可以被预先声明（定时器），也可以隐式定义（状态、步长事件）。</p>
+<p>在两个事件间，变量的值是连续的或不变的：如果变量仅在事件瞬间更改其值，则该变量称为离散时间；否则称为连续时间。只有实数变量可以是连续时间。以下变量索引用于描述相应变量的时序行为（例如，v<sub>d</sub>是离散时间变量）</p>
+<ul>
+<li>c：连续时间变量，取值范围为t<sub>i</sub><sup>+</sup> &lt;= t &lt;= <sup>-</sup>t<sub>i+1</sub></li>
+<li>d：离散时间变量，只在时刻t<sub>i</sub>改变它的值</li>
+<li>c+d： 连续时间变量以及离散时间变量的集合</li>
+</ul>
+<p>相关例子如下：</p>
+<p><img src="/image/co-simulation/me-event.png" alt="记号"></p>
+<p>瞬时事件由以下条件之一定义，这些条件给出了最小的时刻（event instant）t<sub>i</sub>：</p>
+<ol>
+<li>外部事件(external event)：参数变化导致分段不连续</li>
+</ol>
+<ul>
+<li>离散时间的输入值发生变化</li>
+<li>连续时间输入变量存在一个非连续的变化</li>
+<li>可调参数（tunable）发生了变化</li>
+</ul>
+<p>这几个被称之为外部事件。【如果A连接到B，当A触发了事件，那么A所有的输出在当前时间点是非连续的。因此，如果A的输出连接到B，也建议为B触发一个外部事件，这意味着在B上调用fmi2EnterEventMode】</p>
+<ol start="2">
+<li><p>时间事件（time event）：当前瞬间取值依赖于前一个取值<br>预定义的 时刻 t<sub>i</sub> =（T<sub>next</sub>(t<sub>i-1</sub>), 0) 取决于FMU的前一个 时刻 t<sub>i-1</sub>，这样的事件称之为时间事件。</p>
+</li>
+<li><p>状态事件：指示器z取值发生变化<br>事件指示器 z<sub>j</sub>(t)的取值范围发生类似从z<sub>j</sub> &gt; 0修改为z<sub>j</sub> &lt;= 0的变化，这种事件称之为状态事件。所有事件指示器都是分段连续的，并集中在一个实数向量z（t）中。</p>
+</li>
+</ol>
+<p><img src="/image/co-simulation/me-state-event.png" alt="状态事件"></p>
+<ol start="4">
+<li>步进事件（step）:</li>
+</ol>
+<p>在完成的积分器步进中可能发生的事件。它不是由精确的时间或条件定义的，因此通常不是由用户定义的。程序可以使用它，例如在不同状态之间动态切换。步进事件比状态事件的处理效率高得多，因为在完成积分器步进时执行检查后才触发事件，而状态事件需要一个搜索过程。</p>
+<p>在积分器的每个步中，都必须调用 fmi2CompletedIntegratorStep（函数标志ModelDescription.completedIntegratorStepNotNeeded = false）；如果返回参数 <code>nextMode = EventMode</code>，则此时会发生一个事件，称之为步进事件。【步进事件用于动态的修改FMU内部模型（连续）状态，因为以前的状态在数值上不再适用】</p>
+<blockquote>
+<p>积分器（Integrator、数值积分）：积分器是软件中的一部分。在一些计算物理的电脑模拟软件中，像是数值天气预报、分子动力学、飞行模拟器、油层模拟法、隔音屏障设计、建筑声学及电子电路仿真等应用中，积分器是可以用离散步骤计算积分的数值方法。</p>
+</blockquote>
+<p>FMI模型交换模型由以下变量描述：</p>
+<table>
+<thead>
+<tr>
+<th align="center">变量</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">t</td>
+<td align="center">自变量时间T，使用causality = “independent”定义变量</td>
+</tr>
+<tr>
+<td align="center">v</td>
+<td align="center">所有暴露变量的向量</td>
+</tr>
+<tr>
+<td align="center">p</td>
+<td align="center">在仿真过程中恒定的参数，不带下标的表示自变量（causality = “parameter”）；因变量（causality = “calculatedParameter”）用p<sub>calculated</sub>表示</td>
+</tr>
+<tr>
+<td align="center">u(t)</td>
+<td align="center">输入变量（causality = “input”、variability= “discrete” or “ continuous”），这些变量的值在模式之外定义</td>
+</tr>
+<tr>
+<td align="center">u(t)</td>
+<td align="center">输出变量（causality = “output”、variability= “discrete” or “ continuous”），这些变量的值在FMU中计算，并被设计用于模型连接中。因此，输出变量可以在环境中用作其他FMU或其他子模型的输入值。</td>
+</tr>
+<tr>
+<td align="center">w(t)</td>
+<td align="center">无法用于FMU连接的FMU的局部变量(causality = “local”)。</td>
+</tr>
+<tr>
+<td align="center">z(t)</td>
+<td align="center">用于定义状态事件的实际连续时间变量的向量</td>
+</tr>
+<tr>
+<td align="center">x<sub>c</sub>(t)</td>
+<td align="center">代表连续时间状态的实际连续时间变量的向量.为了符号上的方便，连续时间状态在概念上被视为另一种类型的变量，作为以下数学描述的输出或局部变量。实际上，连续时间状态是FMU的输出y或局部变量w的一部分</td>
+</tr>
+<tr>
+<td align="center">x<sub>d</sub>(t)<br><sup>.<sup>x<sub>d</sub>(t)</sup></sup></td>
+<td align="center">第一个符号表示（内部）离散时间变量（任何类型）的向量，表示离散状态；第二个表示前离散时间变量的向量</td>
+</tr>
+<tr>
+<td align="center">T<sub>next</sub>(t<sub>i</sub>)</td>
+<td align="center">在初始化或事件瞬间，FMU可以定义下一个瞬间</td>
+</tr>
+<tr>
+<td align="center">r(t<sub>i</sub>)</td>
+<td align="center">布尔变量的向量</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="模式（Mode）"><a href="#模式（Mode）" class="headerlink" title="模式（Mode）"></a>模式（Mode）</h3><ol>
+<li>模式分类</li>
+</ol>
+<p>计算FMI模型的解意味着将求解过程划分为不同的阶段，并且在每个阶段都使用不同的方程式和求解方法，可根据以下模式划分阶段：</p>
+<ul>
+<li><p>初始化模式：该模式用于在开始时间t<sub>0</sub>时，通过其它模式中不存在的额为方程式来计算 连续时间状态x<sub>c</sub>(t<sub>0</sub>) 、（内部）前离散时间状态<sup>.</sup>x<sub>d</sub>(t<sub>0</sub>) 的初始值。（例如，用于定义状态或状态导数的起始值的方程式）</p>
+</li>
+<li><p>连续时间模式：通过数值求解常微分方程和代数方程，此模式用于计算事件之间所有（实时）连续时间变量的值。在此阶段中，所有离散时间变量都是固定的，并且不分析相应的离散时间方程。</p>
+</li>
+<li><p>事件模式：此模式用于为所有连续时间变量、所有在当前时刻<em>t</em>以及在前一时刻<sup>.</sup>t 的离散时间变量计算新值。这是通过求解由所有连续时间方程和所有活动离散时间方程组成的代数方程实现的。在FMI 2.0中，没有对应机制能够提供事件发生时 离散时间变量是否变化的信息。因此，在环境中必须假定某个瞬时事件总是计算所有离散时间变量，尽管在FMU内部只有一个新的子集可能会被计算出来。</p>
+</li>
+</ul>
+<ol start="2">
+<li>代数环</li>
+</ol>
+<p>将FMU连接在一起时会出现回路结构，这会加大求解模型的难度。因为在实数变量、布尔变量或整数变量中可能存在线性或非线性代数方程组。为了有效地解决FMU中的这类方程系统，需要声明依赖性信息（例如，其输出直接取决于输入）。在xml文件下的元素<modelstructure>中，可以有选择性的提供此数据。如果未提供此数据，则必须假定最坏的情况（例如，所有输出变量都代数依赖于所有输入变量）</modelstructure></p>
+<p><img src="/image/co-simulation/ms-algebraicloop.png" alt="代数环"></p>
+<p>在上图中，FMU1和FMU2通过适合的fmi2SetXXX、fmi2GetXXX调用序列来调用可计算的FMU变量，可以计算FMU变量。在下图中，FMU3和FMU4通过存在的“真实”代数环连接。这类循环可以使用牛顿迭代法解决。在每个迭代中，求解器提供的迭代变量u<sub>4</sub>以及通过fmi2SetXXX 和 fmi2GetXXX的显示序列调用的残差都会被计算并提供给求解器。基于残差，提供u<sub>4</sub>的新值。当残差趋向于0时，迭代会被终止。</p>
+<p>这种类型的代数环会在初始化模式、事件模式、连续-时间模式等模式下发生。由于在每个模式中都会计算不同的变量，并且与其他两个模式相比，在初始化模式中变量计算的因果关系可能会有所不同，因此可能有必要在不同的模式中解决不同种类的循环。</p>
+<p>如下表所示，函数fmi2SetXXX是函数fmi2SetReal，fmi2SetBoolean，fmi2SetInteger和fmi2SetString的缩写。函数fmi2GetXXX是函数fmi2GetReal，fmi2GetBoolean，fmi2GetInteger和fmi2GetString的缩写。</p>
+<p><img src="/image/co-simulation/me-et.png" alt="相关公式"></p>
+<p>在某个瞬时事件中，离散系统的代数方程可以描述为 前一个离散时间状态<sup>.</sup>x<sub>d</sub> 以及 离散时间输入 u<sub>d</sub>的函数。如果FMU被循环连接，则会迭代调用这些代数方程，直到找到解为止。如果实际离散时间状态x<sub>d</sub>和前离散时间状态<sup>.</sup>x<sub>d</sub> 不同，则更新离散时间状态；时间的整数部分将增加，并执行新的事件迭代。</p>
+<p>FMU在 初始化模式 下使用init方法进行初始化。该函数的输入参数包括输入变量（causality =“input”）和自变量（causality =“independent”；通常为默认值“time”）。所有的变量都具有一个初始化（initial = ”exact“），这是为了在初始时间 t<sub>0</sub> 中，计算连续时间状态和输出变量。例如，可通过为状态提供初始值或声明状态导数为零来定义初始化。</p>
+<p>初始化本身是一个复杂的话题，而且还要求FMU在初始化模式下解决FMU内部明确定义的初始化问题。调用<code>fmi2ExitInitializationMode</code>之后，FMU隐式处于事件模式，所有的离散时间变量和连续时间变量都会在初始化时间实例中被计算处理。如果喜欢，还可以依靠代数循环进行迭代。完成后必须调用fmi2NewDiscreteStates，并且根据返回参数的值，FMU要么在初始时刻继续事件迭代、要么切换到连续时间模式。</p>
+<ul>
+<li>切换到连续时间模式后，开始计算积分；在此阶段中，将计算连续状态的导数。如果FMU和子模型连接在一起，则这些模型的输入是其他模型的输出，因此必须计算相应的FMU输出。每当存储结果值时，通常在模拟开始之前定义的输出点上，都必须调用与所需变量有关的fmi2GetXXX函数。</li>
+</ul>
+<p>事件时刻由时间、状态/步进事件/环境触发的外部事件确定。为了确定状态事件，必须在每个完成的积分器步骤中查询事件指示器。一旦事件指示符发出信号指示其域的更改，将在前一个积分器步骤与实际完成的积分器步骤之间执行随时间的迭代，以便确定达到一定精度的域更改的瞬间。</p>
+<p>触发事件后，需要将FMU切换到事件模式。在这种模式下，可以解决连接的FMU上的方程组（类似于连续时间模式）。一旦达到收敛，就必须调用fmi2NewDiscreteStates（..）来增加超密集时间。根据离散时间模型，可能需要新的事件迭代（例如，因为FMU在内部描述了状态机，并且转换仍然可以触发，但是必须考虑新的输入）。</p>
+<hr>
+<h1 id="二、FMI应用程序编程接口"><a href="#二、FMI应用程序编程接口" class="headerlink" title="二、FMI应用程序编程接口"></a>二、FMI应用程序编程接口</h1><p>本节包含接口说明，用于声明C程序中的不同实体部分</p>
+<h3 id="提供自变量（Independent-Variables）和缓存的重新初始化（Re-initialization）"><a href="#提供自变量（Independent-Variables）和缓存的重新初始化（Re-initialization）" class="headerlink" title="提供自变量（Independent Variables）和缓存的重新初始化（Re-initialization）"></a>提供自变量（Independent Variables）和缓存的重新初始化（Re-initialization）</h3><p>根据实际情况，需要计算不同的变量；而为了提高效率，需要接口仅用于计算当前上下文中所需的变量。例如，在进行积分迭代的过程中，仅需要计算状态导数，前提是模型的输出未连接。有可能在同一时刻，也需要其它的变量。</p>
+<p>如果积分步长已经完成，则还需要计算事件指示（event indicator）函数。为了提高效率，在调用计算事件指示符函数时，如果状态导数已经在之前时刻进行了计算，则不要重新计算状态导数。这意味着状态导数支持重用，此功能被称为“变量缓存”。</p>
+<p>当输入参数（例如：时间或状态）发生改变，缓存需要模型评估可以探测到。这是通过用函数调用显式设置它们来实现的，因为每个这样的函数调用调用的信号（signal）恰好是相应变量的变化。因此，本节包含用于设置方程估计函数的输入参数的函数。这对于时间和状态变量来说没有问题，但是参数和输入则涉及更多，因为后者可能具有不同的数据类型。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-- 设置新的时刻，重新初始化依赖时间的变量缓存，新的时间值需要与当前时间不一致（仅依赖于常量或参数的变量不需要在后面重新计算，可以重用先前计算的值）</span><br><span class="line">fmi2Status fmi2SetTime(fmi2Component c, fmi2Realtime);</span><br><span class="line"></span><br><span class="line">-- 设置一个新的（连续）状态向量，重新初始化依赖状态的变量缓存</span><br><span class="line">-- nx 表示向量x的长度，目的是用于检测；仅依赖于常量、参数、时间和输入的变量不需要在后续中重新计算，但可以重复使用先前计算的值</span><br><span class="line">-- 连续状态可能在事件模式中更改</span><br><span class="line">fmi2Status fmi2SetContinuousStates(fmi2Component c, constfmi2Realx[], size_tnx);</span><br><span class="line"></span><br><span class="line">-- 为（独立）参数、起始值、输入和变量缓存重新初始化 设置新值。</span><br><span class="line">fmi2Status fmi2SetXXX(..)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="模型方程评估（Evaluation-of-Model-Equations）"><a href="#模型方程评估（Evaluation-of-Model-Equations）" class="headerlink" title="模型方程评估（Evaluation of Model Equations）"></a>模型方程评估（Evaluation of Model Equations）</h3><p>本小节包含核心函数用于估计模型方程。下列函数之一在被调用前，需要调用合适的（上一小节）函数为当前的模型方程设置输入参数。</p>
+<ol>
+<li>fmi2EnterEventMode（进入事件模式）</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-- 模型从连续时间模式进入事件模式，离散时间方程可能变为活动状态（并且关系未“冻结”）。</span><br><span class="line">fmi2Status fmi2EnterEventMode(fmi2Component c);</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>fmi2NewDiscreteStates（递增超密集时间  (t<sub>R</sub>,t<sub>I</sub>) ==&gt; t<sub>R</sub>,t<sub>I+1</sub>)）</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">-- 模型从连续时间模式进入事件模式，离散时间方程可能被激活（不是冻结状态（frozen），可以与其它fmu交互）</span><br><span class="line">fmi2Status fmi2NewDiscreteStates(fmi2Component  c , fmi2EventInfo* fmi2eventInfo);</span><br><span class="line"></span><br><span class="line">-- 表示事件信息</span><br><span class="line">typedef struct&#123;</span><br><span class="line">	// 需要新的离散状态</span><br><span class="line">	fmi2Boolean newDiscreteStatesNeeded;</span><br><span class="line">	//终止仿真</span><br><span class="line">	fmi2Boolean terminateSimulation; </span><br><span class="line">	//连续状态的标称改变</span><br><span class="line">	fmi2Boolean nominalsOfContinuousStatesChanged;</span><br><span class="line">	//连续状态的标称值改变</span><br><span class="line">	fmi2Boolean valuesOfContinuousStatesChanged; </span><br><span class="line">	// 如果设置nextEventTimeDefined=fmi2True，则使用nextEventTime显示下一个事件时间</span><br><span class="line">	fmi2Boolean nextEventTimeDefined;  </span><br><span class="line">	fmi2Real nextEventTime;</span><br><span class="line">&#125; fmi2EventInfo;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>超密集时间：在一个事件中，使用迭代器计数用于表示事件的精确描述，即 t = (t<sub>R</sub>,t<sub>I</sub>)。</p>
+</blockquote>
+<p>fmi2EventInfo 的参数如下：</p>
+<ul>
+<li>FMU 处于事件模式，在这个函数调用中递增超密集时间。在调用<code>fmi2NewDiscreteStates</code>函数之前，如果超密集时间的值为(t<sub>R</sub>,t<sub>I</sub>)；那么调用之后的时间是(t<sub>R</sub>,t<sub>I+1</sub>)。如果返回参数(fmi2eventInfo-&gt;<code>newDiscreteStatesNeeded=fmi2True</code>)，那么FMU仍然需要保持为事件模式，还需要为FMU设置新的输入、计算和获取输出以及重新调用<code>fmi2NewDiscreteStates</code>函数。这还取决于其他FMU的连接，环境应当为：<ul>
+<li>如果至少有一个FMU返回参数 <code>TerminateSimulation=fmi2True</code>，即有模块表示可以终止模型交换了；则调用<code>fmi2Terminate</code>函数；</li>
+<li>如果所有FMU返回<code>newDiscreteStatesNeeded=fmi2False</code>，则调用<code>fmi2EnterContinuousTimeMode</code>。</li>
+<li>否则，保持事件模式</li>
+</ul>
+</li>
+<li>如果 <code>nominalsOfContinuousStatesChanged=fmi2True</code>，则状态的值由于函数调用而发生了变化，可以使用 fmi2GetNominalsOfContinuousStates 进行查询</li>
+<li>如果 <code>valuesOfContinuousStatesChanged=fmi2True</code>，则由于函数调用，连续状态向量中至少一个元素已更改其值。可以使用 fmi2GetContinuousStates 查询状态的新值。如果连续状态向量的任何元素均未更改其值，则 valuesOfContinuousStatesChanged 必须返回fmi2False（如果在这种情况下将返回fmi2True，则可能发生无限事件循环）。</li>
+<li>如果 <code>nextEventTimeDefined=fmi2True</code>，则模拟将最大次数的进行积分，直到 <code>time=nextEventTime</code>，并且此时应调用<code>fmi2EnterEventMode</code>。如果由于状态事件而在<code>nextEventTime</code>之前停止积分，那么nextEventTime的定义将过时。</li>
+</ul>
+<p><img src="/image/co-simulation/fmi2NewDiscreteStates.png" alt="fmi2NewDiscreteStates"></p>
+<ol start="3">
+<li>fmi2EnterContinuousTimeMode（进入连续时间模式）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fmi2Status fmi2EnterContinuousTimeMode(fmi2Component c);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>模型进入连续时间模式，所有离散时间方程变为非活动状态，所有关系都被“冻结”。从事件模式更改为（在所有涉及的FMU和其他模型的事件模式中的全局事件迭代已收敛之后）连续时间模式时，必须调用此函数。</p>
+<p>使用这个函数的目的是为了：</p>
+<ul>
+<li>将FMU内部结果存储在文件中，可以存储初始化后的结果和已被处理的事件；</li>
+<li>如果FMU包含动态变化的状态，新状态可能选择这个函数执行。</li>
+</ul>
+<ol start="4">
+<li>fmi2CompletedIntegratorStep（完成积分器步长）</li>
+</ol>
+<p>如果<code>completedIntegratorStepNotNeeded=false</code>，则需要在每次积分器步长完成后调用这个函数，用于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fmi2Status fmi2CompletedIntegratorStep(</span><br><span class="line">// 表示fmu实例</span><br><span class="line">	fmi2Component c,</span><br><span class="line">// 表示在本次模拟运行中，不再对上一个时刻调用 fmi2SetFMUState 函数（FMU可以使用此标志刷新结果缓冲区）</span><br><span class="line">	fmi2Boolean  noSetFMUStatePriorToCurrentPoint, </span><br><span class="line">// 表示将进入 fmi2EnterEventMode 函数</span><br><span class="line">	fmi2Boolean* enterEventMode, </span><br><span class="line">// 表示将调用 terminateSimulation 函数终止模拟</span><br><span class="line">	fmi2Boolean* terminateSimulation</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>enterEventMode = fmi2False并且 terminateSimulation = fmi2False</code>，则FMU保持在连续时间模式，而无需再次调用fmi2EnterContinuousTimeMode函数。</p>
+<p>当积分器步长完成并且在随后修改状态（例如通过BDF方法进行校正）时，在调用<code>fmi2CompletedIntegratorStep(..)</code>函数之前，必须调用<code>fmi2SetContinuousStates(..)</code>函数更新状态。</p>
+<p>当积分步长完成且一个或多个事件指示器改变符号（相对于先前完成的积分步长来说）时，则积分器或者环境必须确定符号改变时最接近<br>的上一个完成时间，这个时间必须具有一定精度（通常是计算机中最小的浮点数的小倍数）。这通常是通过迭代来执行的，其中时间是变化的，并且迭代期间所需的状态变量是通过插值确定的。函数 <code>fmi2CompletedIntegratorStep</code>必须在此状态事件定位程序之后调用，而不是在积分算法成功计算出时间步长之后调用。该函数调用的预期目的是向FMU指示，在此阶段，所有输入和状态变量都具有有效（接受）值。</p>
+<p>调用<code>fmi2CompletedIntegratorStep</code>之后，仍然允许其返回时间（调用fmi2SetTime）并使用fmi2GetXXX查询前时刻中变量的值（例如，确定输出点处的非状态变量的值）：但是，它不是允许在上一个完成的``IntegratorStep或上一个fmi2EnterEventMode调用之前返回时间。</p>
+<p>在以下几种情况中，需要调用这个函数：</p>
+<ul>
+<li>延迟：delay(…)操作中使用的所有变量都存储在适当的缓冲区中，并且函数返回 nextMode = fmi2ContinuousTimeMode</li>
+<li>动态状态选择：检查动态选择的状态在数值上是否仍然合适。如果合适，则函数返回enterEventMode = fmi2False，否则返回enterEventMode=fmi2True。在第二种情况下，必须调用fmi2EnterEventMode（..），然后通过fmi2NewDiscreteStates（..）函数动态更改状态。</li>
+</ul>
+<p>注意：此函数不用于检测时间或状态事件。例如，通过将前一个事件的指示符与<code>fmi2CompletedIntegratorStep（..）</code>的当前调用进行比较，来检测时间或状态事件。这些类型的事件是在环境中检测到的，在这种情况下，环境必须调用<code>fmi2EnterEventMode（..）</code>，而与<code>fmi2CompletedIntegratorStep（..）</code>的返回参数<code>enterEventMode</code>是fmi2True还是fmi2False无关。</p>
+<blockquote>
+<p>积分步长：积分区间[a,b]等分为n段,积分步长h=(b-a)/n<br>BDF方法：时间步相关的算法</p>
+</blockquote>
+<ol start="5">
+<li>fmi2GetDerivatives、fmi2GetEventIndicators（获取导数、事件指示符）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fmi2Status fmi2GetDerivatives    (fmi2Component c, fmi2Real derivatives[], size_t nx); </span><br><span class="line">fmi2Status fmi2GetEventIndicators(fmi2Component c, fmi2Real eventIndicators[], size_t ni)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>在当前时刻和当前状态下，计算状态导数和事件指示符：</p>
+<ul>
+<li>导数作为带有“ nx”个元素的向量返回，事件指示符作为带有“ ni”个元素的向量返回。</li>
+<li>当事件指示器的域从z<sub>j</sub> &gt; 0变为z<sub>j</sub> ≤0或相反操作时，将触发状态事件。 FMU必须保证在事件发生时重启z<sub>j</sub>≠0，例如通过以较小值改变z<sub>j</sub>来保证。此外，z<sub>j</sub>应在FMU中使用其标称值进行缩放（因此，返回的矢量“ eventIndicators”的所有元素应按“ one”的顺序排列）。</li>
+</ul>
+<p>导数向量中元素的顺序与状态向量的顺序相同（例如，导数[2]是x [2]的导数），而事件指示器不一定与模型描述文件中的变量相关。</p>
+<blockquote>
+<p>注：fmi2Status = fmi2Discard 对于上述两个函数来说都是可能的取值。</p>
+</blockquote>
+<ol start="6">
+<li>fmi2GetContinuousStates（连续状态）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fmi2Status fmi2GetContinuousStates(fmi2Component c, fmi2Realx[], size_t nx);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>返回新的（连续）状态向量x。如果函数以 <code>eventInfo-&gt; valuesOfContinuousStatesChanged = fmi2True</code>返回（标识（连续时间）状态向量已更改），则必须在调用函数 fmi2EnterContinuousTimeMode 之后直接调用此函数。</p>
+<ol start="7">
+<li>fmi2GetNominalsOfContinuousStates</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fmi2Status fmi2GetNominalsOfContinuousStates(fmi2Component c, fmi2Realx_nominal[],size_tnx);</span><br></pre></td></tr></table></figure>
+
+<p>返回连续状态的标称值。如果此函数返回<code>eventInfo-&gt; nominalsOfContinuousStatesChanged = fmi2True</code>，则在调用函数 <code>fmi2NewDiscreteStates</code>之后应调用此函数，因为连续状态的标称值已更改[例如，因为连续状态与变量的关联由于内部动态状态选择而发生了变化。如果FMU没有与连续状态i有关的标称值信息，则应返回标称值x_nominal [i] = 1.0。注意，要求x_nominal [i]&gt; 0.0。 【通常，连续状态的标称值用于计算积分器所需的绝对公差：<code>absoluteTolerance[i] = 0.01*tolerance*x_nominal[i];</code>】</p>
+<hr>
+<h3 id="基于函数调用顺序的状态机"><a href="#基于函数调用顺序的状态机" class="headerlink" title="基于函数调用顺序的状态机"></a>基于函数调用顺序的状态机</h3><p>根据以下状态图,FMI的每个实现都必须支持的函数调用序列（以 UML 2.0 状态机的形式调用模型交换 C函数的序列）：</p>
+<p><img src="/image/co-simulation/me-state-chart.png" alt="状态机"></p>
+<p><img src="/image/co-simulation/ctm-em.png" alt="连续时间模式-事件模式"></p>
+<p>定义状态图的最初目的是为了定义 FMI函数允许的调用顺序：</p>
+<p>FMI不支持状态图不接受的调用顺序。对于这样的调用序列，FMU的行为是不确定的。例如，状态图表示当用于模型交换的FMU处于状态“连续时间模式”时，不支持对离散输入的fmi2SetReal调用。如果转换被标记为一个或多个函数名称（例如 fmi2GetReal、fmi2GetInteger），这意味着如果成功调用了这些函数中的任何一个，则会进行转换。注意，由于每个状态都是通过特定的函数调用（例如fmi2EnterEventMode）或特定的返回值（例如fmi2Fatal）输入的，因此FMU始终可以确定它处于哪种状态。</p>
+<p>状态机的每个状态对应于仿真的特定阶段，如下所示</p>
+<ol>
+<li>instantiated(实例化)</li>
+</ol>
+<p>在这种状态下，可以设置起始值和估计值（initial =”exact/approx”的变量）</p>
+<ol start="2">
+<li>Initialization Mode（初始化模式）<br>在此状态下，方程式可用于确定所有连续时间状态以及所有输出（可选：导出工具公开的其他变量）。可以通过fmi2GetXXX调用检索的变量为：</li>
+</ol>
+<ul>
+<li>在xml文件中的<modelstructure> <initialunknowns>下定义的</initialunknowns></modelstructure></li>
+<li>具有 causality =”output”的变量；可以设置为 initial =”exact” 的变量以及 variability =”input” 的变量。</li>
+</ul>
+<ol start="3">
+<li><p>Continuous-Time Mode（连续时间模式）<br>在这种状态下，连续时间模型方程处于活动状态，并执行了积分器步进。如果在完成积分器步进结束时，至少一个事件指示域被检测到发生了变化，则可以确定状态事件的事件时间。</p>
+</li>
+<li><p>Event Mode（事件模式）<br>如果在连续时间模式下触发了事件，则通过调用fmi2EnterEventMode进入事件模式。</p>
+</li>
+</ol>
+<p>在这种模式下，所有的连续时间方程和离散时间方程都是有效的，并且可以计算和检索事件中的未知数。事件完全处理后，必须调用fmi2NewDiscreteStates函数并根据返回参数（newDiscreteStatesNeeded）决定保持状态图处于事件模式或切换到连续时间模式。当初始化模式以 <code>fmi2ExitInitializationMode</code>终止时，将直接进入事件模式，并根据在初始化模式下确定的初始连续时间状态来计算初始时间的连续时间和离散时间变量。</p>
+<ol start="5">
+<li>terminated（终止）<br>在这种状态下，可以获取模拟的最后一次结果。</li>
+</ol>
+<blockquote>
+<p>注1：仅在连续的时间间隔内才允许在时间上向后仿真。一旦发生事件（调用了fmi2EnterEventMode），就禁止时间向前回溯，因为fmi2EnterEventMode / fmi2NewDiscreteStates只能计算下一个离散状态，而不能计算前一个离散状态。<br>注2：在初始化，事件和连续时间模式期间，可以根据xml文件中元素<modelstructure>下定义的模型结构，使用<code>fmi2SetXXX</code>函数设置输入变量，并使用<code>fmi2GetXXX</code>函数互换获取输出变量。</modelstructure></p>
+</blockquote>
+<p>下表汇总了各个状态下允许的函数调用：<br>（黄色的仅适用于模型交换，而其它函数可使用于模型交换以及联合仿真）</p>
+<p><img src="/image/co-simulation/me-allowed-function.png" alt="允许的函数调用"></p>
+<p>“x”表示：在相应状态下允许调用<br>数字表示：如果指示的条件成立，则允许调用</p>
+<ul>
+<li>（1）variability ≠”constant”initial = “exact/approx”</li>
+<li>（2）causality = “output/“ 或者 continuous-time 状态 或者状态导数 </li>
+<li>（3）variability≠”constant” &amp; (hasinitial=”exact” || causality=”input”)</li>
+<li>（4）causality = “input” || (causality = “parameter” &amp; variability = “tunable”)</li>
+<li>（5）causality = “input” &amp; variability = “continuous”</li>
+<li>（7）检索到的值仅可用于调试</li>
+</ul>
+<hr>
+<h3 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h3><p>模型交换的伪代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line">m = M_fmi2Instantiate(&quot;m&quot;, ...)  // &quot;m&quot; 是实例名称</span><br><span class="line">                                 // &quot;M_&quot; 表示模型标识</span><br><span class="line">// 来自XML文件</span><br><span class="line">nx = ...         // 状态数量</span><br><span class="line">nz = ...         // 事件标识数量</span><br><span class="line">Tstart = 0       // 开始时间</span><br><span class="line">Tend = 10        // 结束时间</span><br><span class="line">dt = 0.01        // 固定步长为 10 毫秒</span><br><span class="line"></span><br><span class="line">// 设置开始时间</span><br><span class="line">time = TStart</span><br><span class="line"></span><br><span class="line">// 设置所有变量的初始值 (&quot;ScalarVariable / &lt;type&gt; / start&quot;) 以及 设置time = Tstart</span><br><span class="line">M_fmi2SetReal/Integer/Boolean/String(m, ...)</span><br><span class="line"></span><br><span class="line">// 初始化</span><br><span class="line">// 确定连续和离散时间状态</span><br><span class="line">	M_fmi2SetupExperiment(m, fmi2False, 0.0, Tstart, fmi2True, Tend)</span><br><span class="line">	M_fmi2EnterInitializationMode(m)</span><br><span class="line">	M_fmi2ExitInitializationMode(m)</span><br><span class="line"></span><br><span class="line">	initialEventMode = fmi2True</span><br><span class="line">	enterEventMode = fmi2False</span><br><span class="line">	timeEvent = fmi2False</span><br><span class="line">	stateEvent = fmi2False</span><br><span class="line">	previous_z = zeros(nz)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 检索初始状态 x 以及 x的标称值（如果需要绝对公差）</span><br><span class="line">M_fmi2GetContinuousStates(m, x, nx)</span><br><span class="line">M_fmi2GetNominalsOfContinuousStates(m, x_nominal, nx)</span><br><span class="line"></span><br><span class="line">// 例如，在 t=Tstart 处检索解，用于输出</span><br><span class="line">M_fmi2GetReal/Integer/Boolean/String(m, ...)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">do</span><br><span class="line">  // 处理事件</span><br><span class="line">  if initialEventMode or enterEventMode or timeEvent or stateEvent then</span><br><span class="line">    if not initialEventMode then</span><br><span class="line">      M_fmi2EnterEventMode(m)</span><br><span class="line">    end if</span><br><span class="line">    // 事件迭代</span><br><span class="line">    eventInfo.newDiscreteStatesNeeded = fmi2True;</span><br><span class="line">    valuesOfContinuousStatesChanged   = fmi2False;</span><br><span class="line">    nominalsOfContinuousStatesChanged = fmi2False</span><br><span class="line">    while eventInfo.newDiscreteStatesNeeded loop</span><br><span class="line">      // 在超密集时间点设置输入</span><br><span class="line">      M_fmi2SetReal/Integer/Boolean/String(m, ...)</span><br><span class="line">      // 更新离散状态</span><br><span class="line">      M_fmi2NewDiscreteStates(m, &amp;eventInfo)</span><br><span class="line">      // 在超密集时间点获取输出</span><br><span class="line">      M_fmi2GetReal/Integer/Boolean/String(m, ...)</span><br><span class="line">      valuesOfContinuousStatesChanged = valuesOfContinuousStatesChanged or eventInfo.valuesOfContinuousStatesChanged;</span><br><span class="line">      nominalsOfContinuousStatesChanged = nominalsOfContinuousStatesChanged or eventInfo.nominalsOfContinuousStatesChanged;</span><br><span class="line">      if eventInfo.terminateSimulation then goto TERMINATE_MODEL</span><br><span class="line">    end while</span><br><span class="line"></span><br><span class="line">    // 进入连续时间模式</span><br><span class="line">    M_fmi2EnterContinuousTimeMode(m)</span><br><span class="line">    //在模拟（重新）开始时求解</span><br><span class="line">    M_fmi2GetReal/Integer/Boolean/String(m, ...)</span><br><span class="line">    if initialEventMode or valuesOfContinuousStatesChanged then</span><br><span class="line">      //模型发出状态值变化的信号，检索它们</span><br><span class="line">      M_fmi2GetContinuousStates(m, x, nx)</span><br><span class="line">    end if</span><br><span class="line"></span><br><span class="line">    if initialEventMode or nominalsOfContinuousStatesChanged then</span><br><span class="line">      // 状态的含义发生了变化；检索新的标称值</span><br><span class="line">      M_fmi2GetNominalsOfContinuousStates(m, x_nominal, nx)</span><br><span class="line">    end if</span><br><span class="line"></span><br><span class="line">    if eventInfo.nextEventTimeDefined then</span><br><span class="line">      tNext = min(eventInfo.nextEventTime, Tend)</span><br><span class="line">    else</span><br><span class="line">      tNext = Tend</span><br><span class="line">    end if</span><br><span class="line">    initialEventMode = fmi2False</span><br><span class="line">  end if</span><br><span class="line"></span><br><span class="line">  if time &gt;= Tend then</span><br><span class="line">   goto TERMINATE_MODEL</span><br><span class="line">  end if</span><br><span class="line"></span><br><span class="line">  // 计算导数</span><br><span class="line">  M_fmi2GetDerivatives(m, der_x, nx)</span><br><span class="line"></span><br><span class="line">  // 获取时间</span><br><span class="line">  h    = min(dt, tNext-time)</span><br><span class="line">  time = time + h</span><br><span class="line">  M_fmi2SetTime(m, time)</span><br><span class="line"></span><br><span class="line">  // 在 t=time 设置连续输入</span><br><span class="line">  M_fmi2SetReal(m, ...)</span><br><span class="line"></span><br><span class="line">  // 在 t=time 设置状态并执行一步</span><br><span class="line">  x = x + h * der_x // forward Euler method</span><br><span class="line">  M_fmi2SetContinuousStates(m, x, nx)</span><br><span class="line"></span><br><span class="line">  // 在 t=time 获取事件指标</span><br><span class="line">  M_fmi2GetEventIndicators(m, z, nz)</span><br><span class="line"></span><br><span class="line">  // 如果有的话，检测事件</span><br><span class="line">  timeEvent = time &gt;= tNext</span><br><span class="line">  stateEvent = sign(z) &lt;&gt; sign(previous_z) or previous_z != 0 &amp;&amp; z == 0</span><br><span class="line">  previous_z = z</span><br><span class="line"></span><br><span class="line">  // 通知模型接收积分步长</span><br><span class="line">  M_fmi2CompletedIntegratorStep(m, fmi2True, &amp;enterEventMode, &amp;terminateSimulation)</span><br><span class="line">  // 获取连续输出</span><br><span class="line">  M_fmi2GetReal(m, ...)</span><br><span class="line">until terminateSimulation</span><br><span class="line"></span><br><span class="line">// 终止仿真和获取最终值</span><br><span class="line">TERMINATE_MODEL:</span><br><span class="line">M_fmi2Terminate(m)</span><br><span class="line">M_fmi2GetReal/Integer/Boolean/String(m, ...)</span><br><span class="line"></span><br><span class="line">// cleanup</span><br><span class="line">M_fmi2FreeInstance(m)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">------------------------------</span><br><span class="line">status = M_fmi2GetDerivatives(m, der_x, nx);</span><br><span class="line">switch ( status ) &#123; case fmi2Discard: ....; break; // reduce step size and try again</span><br><span class="line">                    case fmi2Error  : ....; break; // cleanup and stop simulation</span><br><span class="line">                    case fmi2Fatal  : ....; &#125;      // stop using the model</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="三、FMI描述文件（Schema-ModelExchange）"><a href="#三、FMI描述文件（Schema-ModelExchange）" class="headerlink" title="三、FMI描述文件（Schema-ModelExchange）"></a>三、FMI描述文件（Schema-ModelExchange）</h1><p>本节节将定义“模型交换”特定元素“ModelExchange”。</p>
+<ol>
+<li>modelexchange标签相关定义</li>
+</ol>
+<p><img src="/image/co-simulation/me-modelexchange.png" alt="modelexchange"></p>
+<ol start="2">
+<li>modelexchange标签相关结构</li>
+</ol>
+<p>modelexchange</p>
+<ul>
+<li>modelIdentifier：根据C语法的简短类名称，例如“ A_B_C”</li>
+<li>needsExecutionTool：如果为true，则需要一个工具来执行模型，并且FMU仅包含与此工具的通信。</li>
+<li>completedIntegratorStepNotNeeded：如果为true，则无需调用函数 fmi2CompletedIntegratorStep（这将使集成效率稍微提高一点）。如果调用该函数，则无效。如果为false（默认值），则必须在完成每个积分器步长后调用该函数，请参见3.2.2节。</li>
+<li>canBeInstantiatedOnlyOncePerProcess：该标志指示情况（尤其是对于嵌入式代码），其中每个FMU只能有一个实例（多个实例默认为false；如果需要多个实例且此标志为true，则必须在不同的进程中实例化FMU）。</li>
+<li>canNotUseMemoryManagementFunctions：如果为true，则FMU使用其自身的函数仅用于内存分配和释放。 fmi2Instantiate中的回调函数allocateMemory和freeMemorygiven被忽略</li>
+<li>canGetAndSetFMUstate：如果为true，则环境可以查询内部FMU状态并可以将其还原。也就是说，FMU支持函数fmi2GetFMUstate、fmi2SetFMUstate和fmi2FreeFMUstate。</li>
+<li>canSerializeFMUstate：如果为true，则环境可以序列化内部FMU状态，换句话说，FMU支持函数fmi2SerializedFMUstateSize、fmi2SerializeFMUstat 、fmi2DeSerializeFMUstate。如果是这种情况，则标记canGetAndSetFMUstate也必须为true</li>
+<li>providesDirectionalDerivative：如果为true，则可以使用fmi2GetDirectionalDerivative（..）计算方程的方向导数。</li>
+<li>sourceFiles<ul>
+<li>name</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>示例XML描述文件</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF8&quot;?&gt;</span><br><span class="line">&lt;fmiModelDescription   fmiVersion=&quot;2.0&quot;   modelName=&quot;MyLibrary.SpringMassDamper&quot;   guid=&quot;&#123;8c4e810f-3df3-4a00-8276-176fa3c9f9e0&#125;&quot;   description=&quot;Rotational Spring Mass Damper System&quot;   version=&quot;1.0&quot;   generationDateAndTime=&quot;2011-09-23T16:57:33Z&quot;   variableNamingConvention=&quot;structured&quot;   numberOfEventIndicators=&quot;2&quot;&gt; </span><br><span class="line">&lt;ModelExchange     modelIdentifier=&quot;MyLibrary_SpringMassDamper&quot;/&gt;</span><br><span class="line">	&lt;UnitDefinitions&gt; </span><br><span class="line">		&lt;Unit name=&quot;rad&quot;&gt;</span><br><span class="line">			&lt;BaseUnit rad=&quot;1&quot;/&gt; </span><br><span class="line">			&lt;DisplayUnit name=&quot;deg&quot; factor=&quot;57.2957795130823&quot;/&gt;&lt;/Unit&gt; &lt;Unit name=&quot;rad/s&quot;&gt;</span><br><span class="line">			&lt;BaseUnit s=&quot;-1&quot; rad=&quot;1&quot;/&gt; </span><br><span class="line">		&lt;/Unit&gt; </span><br><span class="line">		&lt;Unit name=&quot;kg.m2&quot;&gt;</span><br><span class="line">			&lt;BaseUnit kg=&quot;1&quot; m=&quot;2&quot;/&gt; </span><br><span class="line">		&lt;/Unit&gt; </span><br><span class="line">	&lt;/UnitDefinitions&gt;</span><br><span class="line"></span><br><span class="line">	&lt;TypeDefinitions&gt;</span><br><span class="line">		&lt;SimpleType name=&quot;Modelica.SIunits.Inertia&quot;&gt;</span><br><span class="line">			&lt;Real quantity=&quot;MomentOfInertia&quot; unit=&quot;kg.m2&quot; min=&quot;0.0&quot;/&gt;</span><br><span class="line">		&lt;/SimpleType&gt; </span><br><span class="line"></span><br><span class="line">		&lt;SimpleType name=&quot;Modelica.SIunits.Torque&quot;&gt;</span><br><span class="line">			&lt;Real quantity=&quot;Torque&quot; unit=&quot;N.m&quot;/&gt;</span><br><span class="line">		&lt;/SimpleType&gt;</span><br><span class="line"></span><br><span class="line">		&lt;SimpleType name=&quot;Modelica.SIunits.AngularVelocity&quot;&gt;</span><br><span class="line">			&lt;Real quantity=&quot;AngularVelocity&quot; unit=&quot;rad/s&quot;/&gt;</span><br><span class="line">		&lt;/SimpleType&gt;</span><br><span class="line"></span><br><span class="line">		&lt;SimpleType name=&quot;Modelica.SIunits.Angle&quot;&gt;</span><br><span class="line">			&lt;Real quantity=&quot;Angle&quot; unit=&quot;rad&quot;/&gt;</span><br><span class="line">		&lt;/SimpleType&gt;</span><br><span class="line">	&lt;/TypeDefinitions&gt;</span><br><span class="line"></span><br><span class="line">	&lt;DefaultExperiment startTime=&quot;0.0&quot; stopTime=&quot;3.0&quot; tolerance=&quot;0.0001&quot;/&gt;</span><br><span class="line"></span><br><span class="line">	&lt;ModelVariables&gt;</span><br><span class="line">		&lt;ScalarVariable name=&quot;inertia1.J&quot; valueReference=&quot;1073741824&quot; description=&quot;Moment of load inertia&quot; causality=&quot;parameter&quot; variability=&quot;fixed&quot;&gt;</span><br><span class="line">			&lt;Real declaredType=&quot;Modelica.SIunits.Inertia&quot; start=&quot;1&quot;/&gt;</span><br><span class="line">		&lt;/ScalarVariable&gt;</span><br><span class="line">		&lt;!—index=&quot;1&quot; --&gt;</span><br><span class="line"></span><br><span class="line">		&lt;ScalarVariable name=&quot;torque.tau&quot; valueReference=&quot;536870912&quot; description=&quot;Accelerating torque acting at flange (= -flange.tau)&quot;       causality=&quot;input&quot;&gt; </span><br><span class="line">			&lt;Real declaredType=&quot;Modelica.SIunits.Torque&quot; start=&quot;0&quot; /&gt;</span><br><span class="line">		&lt;/ScalarVariable&gt;</span><br><span class="line">		&lt;!—index=&quot;2&quot; --&gt;</span><br><span class="line"></span><br><span class="line">		&lt;ScalarVariable name=&quot;inertia1.phi&quot; valueReference=&quot;805306368&quot; description=&quot;Absolute rotation angle of component&quot; causality=&quot;output&quot;&gt;</span><br><span class="line">			&lt;Real declaredType=&quot;Modelica.SIunits.Angle&quot; /&gt;</span><br><span class="line">		&lt;/ScalarVariable&gt;</span><br><span class="line">		&lt;!—index=&quot;3&quot; --&gt;</span><br><span class="line"></span><br><span class="line">		&lt;ScalarVariable name=&quot;inertia1.w&quot; valueReference=&quot;805306369&quot; description=&quot;Absolute angular velocity of component (= der(phi))&quot;       		causality=&quot;output&quot;&gt;</span><br><span class="line">			&lt;Real declaredType=&quot;Modelica.SIunits.AngularVelocity&quot; /&gt;</span><br><span class="line">		&lt;/ScalarVariable&gt;</span><br><span class="line">		&lt;!—index=&quot;4&quot; --&gt;</span><br><span class="line"></span><br><span class="line">		&lt;ScalarVariable name=&quot;x[1]&quot; valueReference=&quot;0&quot;, initial=&quot;exact&quot;&gt; </span><br><span class="line">			&lt;Real/&gt;</span><br><span class="line">		&lt;/ScalarVariable&gt;</span><br><span class="line">		&lt;!—index=&quot;5&quot; --&gt;</span><br><span class="line"></span><br><span class="line">		&lt;ScalarVariable name=&quot;x[2]&quot; valueReference=&quot;1&quot;, initial=&quot;exact&quot;&gt;</span><br><span class="line">			&lt;Real/&gt;</span><br><span class="line">		&lt;/ScalarVariable&gt;</span><br><span class="line">		&lt;!—index=&quot;6&quot; --&gt;</span><br><span class="line"></span><br><span class="line">		&lt;ScalarVariable name=&quot;der(x[1])&quot; valueReference=&quot;2&quot;&gt;</span><br><span class="line">			&lt;Real derivative=&quot;5&quot;/&gt;</span><br><span class="line">		&lt;/ScalarVariable&gt;</span><br><span class="line">		&lt;!—index=&quot;7&quot; --&gt;</span><br><span class="line"></span><br><span class="line">		&lt;ScalarVariable name=&quot;der(x[2])&quot; valueReference=&quot;3&quot;&gt;</span><br><span class="line">			&lt;Real derivative=&quot;6&quot;/&gt;</span><br><span class="line">		&lt;/ScalarVariable&gt;</span><br><span class="line">		&lt;!—index=&quot;8&quot; --&gt;</span><br><span class="line"></span><br><span class="line">	&lt;/ModelVariables&gt;</span><br><span class="line"></span><br><span class="line">	&lt;ModelStructure&gt;</span><br><span class="line">		&lt;Outputs&gt;</span><br><span class="line">			&lt;Unknown index=&quot;3&quot; /&gt; </span><br><span class="line">			&lt;Unknown index=&quot;4&quot; /&gt;</span><br><span class="line">		&lt;/Outputs&gt;</span><br><span class="line"></span><br><span class="line">		&lt;Derivatives&gt;  </span><br><span class="line">		   &lt;Unknown index=&quot;7&quot; /&gt; </span><br><span class="line">		   &lt;Unknown index=&quot;8&quot; /&gt;</span><br><span class="line">		&lt;/Derivatives&gt;</span><br><span class="line"></span><br><span class="line">		&lt;InitialUnknowns&gt;</span><br><span class="line">			&lt;Unknown index=&quot;3&quot; /&gt;</span><br><span class="line">			&lt;Unknown index=&quot;4&quot; /&gt;</span><br><span class="line">			&lt;Unknown index=&quot;7&quot; dependencies=&quot;5 2&quot; /&gt;             </span><br><span class="line">			&lt;Unknown index=&quot;8&quot; dependencies=&quot;5 6&quot; /&gt; </span><br><span class="line">		&lt;/InitialUnknowns&gt;  </span><br><span class="line"></span><br><span class="line">	&lt;/ModelStructure&gt; </span><br><span class="line"></span><br><span class="line">&lt;/fmiModelDescription&gt;</span><br></pre></td></tr></table></figure>
+
+<h1 id="四、参考资料"><a href="#四、参考资料" class="headerlink" title="四、参考资料"></a>四、参考资料</h1><blockquote>
+<p>《Functional Mock-up Interface forModel Exchange and Co-Simulation v2.0》</p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/05/25/fmi-modelexchange/">http://zws6672.top/2021/05/25/fmi-modelexchange/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/co-simulation/">co-simulation</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/05/25/java-memory-model-thread/" class="pre">Java内存模型与线程</a><a href="/2021/05/21/git-branch-recover/" class="next">恢复git删除的分支</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、模型交换的数学描述"><span class="toc-text">一、模型交换的数学描述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基础"><span class="toc-text">基础</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事件-Event"><span class="toc-text">事件(Event)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模式（Mode）"><span class="toc-text">模式（Mode）</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#二、FMI应用程序编程接口"><span class="toc-text">二、FMI应用程序编程接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#提供自变量（Independent-Variables）和缓存的重新初始化（Re-initialization）"><span class="toc-text">提供自变量（Independent Variables）和缓存的重新初始化（Re-initialization）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型方程评估（Evaluation-of-Model-Equations）"><span class="toc-text">模型方程评估（Evaluation of Model Equations）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基于函数调用顺序的状态机"><span class="toc-text">基于函数调用顺序的状态机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#伪代码"><span class="toc-text">伪代码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、FMI描述文件（Schema-ModelExchange）"><span class="toc-text">三、FMI描述文件（Schema-ModelExchange）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四、参考资料"><span class="toc-text">四、参考资料</span></a></li></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/20/swagger2-1/">swagger2 通过OpenAPI文件生成JAVA代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/16/rustInstall/">rust安装与初试</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/interface-specification/">接口对接规范</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/swagger2/">swagger2的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/OpenAPI3-0/">OpenAPI 3.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/11/springboot-hot/">springboot实现热部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/07/jdk-source-Object/">jdk8 源码 —— Object</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/SHA-256/">SHA-256</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/jdk-thread-lock/">线程安全与锁优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/27/fmi-cos/">FMI2.0 ———— 联合仿真</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/co-simulation/" style="font-size: 15px;">co-simulation</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/soft-skills/" style="font-size: 15px;">soft-skills</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/jdk-source/" style="font-size: 15px;">jdk-source</a> <a href="/tags/jna/" style="font-size: 15px;">jna</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/rust/" style="font-size: 15px;">rust</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

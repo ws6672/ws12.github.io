@@ -1,0 +1,313 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>JDK8新特性 ———— Function接口 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">JDK8新特性 ———— Function接口</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">JDK8新特性 ———— Function接口</h1><div class="post-meta"><a href="/2021/05/20/jdk-function/#comments" class="comment-count"></a><p><span class="date">May 20, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>Function接口是JDK8定义的一个函数式接口；函数式接口(Functional Interface)就是一个有且仅有一个抽象方法，但是可以有多个非抽象方法的接口。函数式接口可以被隐式转换为 lambda 表达式。</p>
+<h1 id="一、Function接口"><a href="#一、Function接口" class="headerlink" title="一、Function接口"></a>一、Function接口</h1><p>java.util.function.Function是函数式接口，它的特点是有且只有一个抽象方法，这样的接口被@FunctionalInterface所注释，能够应用于JDK1.8开始的函数式编程。</p>
+<p>相关源码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">package java.util.function;</span><br><span class="line">import java.util.Objects;</span><br><span class="line"></span><br><span class="line">// @FunctionalInterface 来限制函数式接口不能修改为普通的接口</span><br><span class="line">@FunctionalInterface</span><br><span class="line">public interface Function&lt;T, R&gt; &#123;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 将此函数应用于给定参数。</span><br><span class="line">     *</span><br><span class="line">     * @param t the function argument</span><br><span class="line">     * @return the function result</span><br><span class="line">     */</span><br><span class="line">    R apply(T t);</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 先执行参数，然后执行调用者</span><br><span class="line">     *</span><br><span class="line">     * @param &lt;V&gt; the type of input to the &#123;@code before&#125; function, and to the</span><br><span class="line">     *           composed function</span><br><span class="line">     * @param before the function to apply before this function is applied</span><br><span class="line">     * @return a composed function that first applies the &#123;@code before&#125;</span><br><span class="line">     * function and then applies this function</span><br><span class="line">     * @throws NullPointerException if before is null</span><br><span class="line">     *</span><br><span class="line">     * @see #andThen(Function)</span><br><span class="line">     */</span><br><span class="line">    default &lt;V&gt; Function&lt;V, R&gt; compose(Function&lt;? super V, ? extends T&gt; before) &#123;</span><br><span class="line">        Objects.requireNonNull(before);</span><br><span class="line">        return (V v) -&gt; apply(before.apply(v));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     *  先执行调用者，然后再执行参数</span><br><span class="line">     *</span><br><span class="line">     * @param &lt;V&gt; the type of output of the &#123;@code after&#125; function, and of the</span><br><span class="line">     *           composed function</span><br><span class="line">     * @param after the function to apply after this function is applied</span><br><span class="line">     * @return a composed function that first applies this function and then</span><br><span class="line">     * applies the &#123;@code after&#125; function</span><br><span class="line">     * @throws NullPointerException if after is null</span><br><span class="line">     *</span><br><span class="line">     * @see #compose(Function)</span><br><span class="line">     */</span><br><span class="line">    default &lt;V&gt; Function&lt;T, V&gt; andThen(Function&lt;? super R, ? extends V&gt; after) &#123;</span><br><span class="line">        Objects.requireNonNull(after);</span><br><span class="line">        return (T t) -&gt; after.apply(apply(t));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 返回一个始终返回其输入参数的函数。</span><br><span class="line">     *</span><br><span class="line">     * @param &lt;T&gt; the type of the input and output objects to the function</span><br><span class="line">     * @return a function that always returns its input argument</span><br><span class="line">     */</span><br><span class="line">    static &lt;T&gt; Function&lt;T, T&gt; identity() &#123;</span><br><span class="line">        return t -&gt; t;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以进行如下定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Function&lt;Integer,Integer&gt; f1 = n-&gt;n+2;</span><br></pre></td></tr></table></figure>
+
+<p>在f1中，<code>n-&gt;n+2</code> 是Function接口中的抽象方法R apply(T t)的实现。</p>
+<p>相关示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Function&lt;Integer,Integer&gt; f1 = n-&gt;n+2;</span><br><span class="line">        Function&lt;Integer,Integer&gt; f2 = n-&gt;n*3;</span><br><span class="line"></span><br><span class="line">//      identity  使用identity方法来产生一个Function对象，那么其apply方法的作用为：返回所传入apply方法中的参数</span><br><span class="line">        System.out.println(Function.identity().apply(2));</span><br><span class="line">//      andThen 先执行调用者，然后再执行参数 (10+2)*3</span><br><span class="line">        System.out.println(f1.andThen(f2).apply(10));</span><br><span class="line">//      compose 先执行参数，然后执行调用者 10*3+2</span><br><span class="line">        System.out.println(f1.compose(f2).apply(10));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="二、java-util-function包"><a href="#二、java-util-function包" class="headerlink" title="二、java.util.function包"></a>二、java.util.function包</h1><p>function包是JDK8新增的，该包中的接口大致分为了以下四类：</p>
+<ul>
+<li>Function: 接收参数，并返回结果，主要方法 R apply(T t)</li>
+<li>Consumer: 接收参数，无返回结果, 主要方法为 void accept(T t)</li>
+<li>Supplier: 不接收参数，但返回结构，主要方法为 T get()</li>
+<li>Predicate: 接收参数，返回boolean值，主要方法为 boolean test(T t)</li>
+</ul>
+<ol>
+<li>Function（函数）</li>
+</ol>
+<p>接收一个参数，并返回结果：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Interface</th>
+<th align="left">functional method</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Function&lt;T,R&gt;</td>
+<td align="left">R apply(T t)</td>
+<td align="left">接收参数类型为T，返回参数类型为R</td>
+</tr>
+<tr>
+<td align="left">IntFunction<r></r></td>
+<td align="left">R apply(int value)</td>
+<td align="left">以下三个接口，指定了接收参数类型，返回参数类型为泛型R</td>
+</tr>
+<tr>
+<td align="left">LongFunction<r></r></td>
+<td align="left">R apply(long value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">Double<r></r></td>
+<td align="left">R apply(double value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">ToIntFunction<t></t></td>
+<td align="left">int applyAsInt(T value)</td>
+<td align="left">以下三个接口，指定了返回参数类型，接收参数类型为泛型T</td>
+</tr>
+<tr>
+<td align="left">ToLongFunction<t></t></td>
+<td align="left">long applyAsLong(T value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">ToDoubleFunction<t></t></td>
+<td align="left">double applyAsDouble(T value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">IntToLongFunction</td>
+<td align="left">long applyAsLong(int value)</td>
+<td align="left">以下六个接口，既指定了接收参数类型，也指定了返回参数类型</td>
+</tr>
+<tr>
+<td align="left">IntToDoubleFunction</td>
+<td align="left">double applyAsLong(int value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">LongToIntFunction</td>
+<td align="left">int applyAsLong(long value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">LongToDoubleFunction</td>
+<td align="left">double applyAsLong(long value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">DoubleToIntFunction</td>
+<td align="left">int applyAsLong(double value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">DoubleToLongFunction</td>
+<td align="left">long applyAsLong(double value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">UnaryOperator<t></t></td>
+<td align="left">T apply(T t)</td>
+<td align="left">特殊的Function，接收参数类型和返回参数类型一样</td>
+</tr>
+<tr>
+<td align="left">IntUnaryOperator</td>
+<td align="left">int applyAsInt(int left, int right)</td>
+<td align="left">以下三个接口，指定了接收参数和返回参数类型，并且都一样</td>
+</tr>
+<tr>
+<td align="left">LongUnaryOperator</td>
+<td align="left">long applyAsInt(long left, long right)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">DoubleUnaryOperator</td>
+<td align="left">double applyAsInt(double left, double right)</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<p>接受两个参数，并返回结果：</p>
+<table>
+<thead>
+<tr>
+<th align="left">interface</th>
+<th align="left">functional method</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">BiFunction&lt;T,U,R&gt;</td>
+<td align="left">R apply(T t, U u)</td>
+<td align="left">接收两个参数的Function</td>
+</tr>
+<tr>
+<td align="left">ToIntBiFunction&lt;T,U&gt;</td>
+<td align="left">int applyAsInt(T t, U u)</td>
+<td align="left">以下三个接口，指定了返回参数类型，接收参数类型分别为泛型T, U</td>
+</tr>
+<tr>
+<td align="left">ToLongBiFunction&lt;T,U&gt;</td>
+<td align="left">long applyAsLong(T t, U u)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">ToDoubleBiFunction&lt;T,U&gt;</td>
+<td align="left">double appleyAsDouble(T t, U u)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">BinaryOperator<t></t></td>
+<td align="left">T apply(T t, T u)</td>
+<td align="left">特殊的BiFunction, 接收参数和返回参数类型一样</td>
+</tr>
+<tr>
+<td align="left">IntBinaryOperator</td>
+<td align="left">int applyAsInt(int left, int right)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">LongBinaryOperator</td>
+<td align="left">long applyAsInt(long left, long right)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">DoubleBinaryOperator</td>
+<td align="left">double applyAsInt(double left, double right)</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<ol start="2">
+<li>Consumer（消费者）</li>
+</ol>
+<p>表示接收一个参数但不产生返回值：</p>
+<table>
+<thead>
+<tr>
+<th align="left">interface</th>
+<th align="left">functional method</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Consumer<t></t></td>
+<td align="left">void accept(T t)</td>
+<td align="left">接收一个泛型参数，无返回值</td>
+</tr>
+<tr>
+<td align="left">IntConsumer</td>
+<td align="left">void accept(int value)</td>
+<td align="left">以下三个类，接收一个指定类型的参数</td>
+</tr>
+<tr>
+<td align="left">LongConsumer</td>
+<td align="left">void accept(long value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">DoubleConsumer</td>
+<td align="left">void accept(double value)</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<p>表示接收两个个参数但不产生返回值：</p>
+<table>
+<thead>
+<tr>
+<th align="left">interface</th>
+<th align="left">functional method</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">BiConsumer&lt;T,U&gt;</td>
+<td align="left">void accept(T t, U u)</td>
+<td align="left">接收两个泛型参数</td>
+</tr>
+<tr>
+<td align="left">ObjIntConsumer<t></t></td>
+<td align="left">void accept(T t, int value)</td>
+<td align="left">以下三个类，接收一个泛型参数，一个指定类型的参数</td>
+</tr>
+<tr>
+<td align="left">ObjLongConsumer<t></t></td>
+<td align="left">void accept(T t, long value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">ObjDoubleConsumer<t></t></td>
+<td align="left">void accept(T t, double value)</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<ol start="3">
+<li>Supplier （提供者、创建对象）</li>
+</ol>
+<p>返回一个结果，并不要求每次调用都返回一个新的或者独一的结果：</p>
+<table>
+<thead>
+<tr>
+<th align="left">interface</th>
+<th align="left">functional method</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Supplier<t></t></td>
+<td align="left">T get()</td>
+<td align="left">返回类型为泛型T</td>
+</tr>
+<tr>
+<td align="left">BooleanSupplier</td>
+<td align="left">boolean getAsBoolean()</td>
+<td align="left">以下三个接口，返回指定类型</td>
+</tr>
+<tr>
+<td align="left">IntSupplier</td>
+<td align="left">int getAsInt()</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">LongSupplier</td>
+<td align="left">long getAsLong()</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">DoubleSupplier</td>
+<td align="left">double getAsDouble()</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<ol start="4">
+<li>Predicate（断言）</li>
+</ol>
+<p>根据接收参数进行断言，返回boolean类型：</p>
+<table>
+<thead>
+<tr>
+<th align="left">interface</th>
+<th align="left">functional method</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Predicate<t></t></td>
+<td align="left">boolean test(T t)</td>
+<td align="left">接收一个泛型参数</td>
+</tr>
+<tr>
+<td align="left">IntPredicate</td>
+<td align="left">boolean test(int value)</td>
+<td align="left">以下三个接口，接收指定类型的参数</td>
+</tr>
+<tr>
+<td align="left">LongPredicate</td>
+<td align="left">boolean test(long value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">DoublePredicate</td>
+<td align="left">boolean test(double value)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">BiPredicate&lt;T,U&gt;</td>
+<td align="left">boolean test(T t, U u)</td>
+<td align="left">接收两个泛型参数，分别为T，U</td>
+</tr>
+</tbody></table>
+<p>相关示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">//        创建对象</span><br><span class="line">        Supplier&lt;Test&gt; supplier = Test::new;</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line"></span><br><span class="line">        BooleanSupplier booleanSupplier = ()-&gt;7&gt;9;</span><br><span class="line">        System.out.println(booleanSupplier.getAsBoolean());</span><br><span class="line"></span><br><span class="line">        IntSupplier intSupplier = ()-&gt; 6*76;</span><br><span class="line">        System.out.println(intSupplier.getAsInt());</span><br><span class="line"></span><br><span class="line">        LongSupplier longSupplier = ()-&gt; 33*762;</span><br><span class="line">        System.out.println(longSupplier.getAsLong());</span><br><span class="line"></span><br><span class="line">//        断言</span><br><span class="line">        Predicate&lt;String&gt; predicate = (s)-&gt; s.matches(&quot;^[a-z][\\w]*&quot;);</span><br><span class="line">        System.out.println(predicate.test(&quot;abc&quot;));</span><br><span class="line">        System.out.println(predicate.test(&quot;1abc&quot;));</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、参考资料"><a href="#三、参考资料" class="headerlink" title="三、参考资料"></a>三、参考资料</h1><blockquote>
+<p><a href="https://segmentfault.com/a/1190000016596774" target="_blank" rel="noopener">java 8 函数式接口</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/05/20/jdk-function/">http://zws6672.top/2021/05/20/jdk-function/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/jdk/">jdk</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/05/21/fmi-jkwj/" class="pre">FMI2.0 ———— 接口与文件</a><a href="/2021/05/18/java-stream/" class="next">java Stream 流的使用</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、Function接口"><span class="toc-text">一、Function接口</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、java-util-function包"><span class="toc-text">二、java.util.function包</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、参考资料"><span class="toc-text">三、参考资料</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/20/swagger2-1/">swagger2 通过OpenAPI文件生成JAVA代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/16/rustInstall/">rust安装与初试</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/interface-specification/">接口对接规范</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/swagger2/">swagger2的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/OpenAPI3-0/">OpenAPI 3.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/11/springboot-hot/">springboot实现热部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/07/jdk-source-Object/">jdk8 源码 —— Object</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/SHA-256/">SHA-256</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/jdk-thread-lock/">线程安全与锁优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/27/fmi-cos/">FMI2.0 ———— 联合仿真</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/co-simulation/" style="font-size: 15px;">co-simulation</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/soft-skills/" style="font-size: 15px;">soft-skills</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/jdk-source/" style="font-size: 15px;">jdk-source</a> <a href="/tags/jna/" style="font-size: 15px;">jna</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/rust/" style="font-size: 15px;">rust</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

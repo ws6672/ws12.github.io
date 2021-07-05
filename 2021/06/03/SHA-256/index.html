@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="一些关于技术的碎语"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>SHA-256 | 微言术语</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">SHA-256</h1><a id="logo" href="/.">微言术语</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">SHA-256</h1><div class="post-meta"><a href="/2021/06/03/SHA-256/#comments" class="comment-count"></a><p><span class="date">Jun 03, 2021</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>SHA256是一种哈希函数，也是SHA-2下细分出的一种算法。</p>
+<h1 id="一、SHA族算法"><a href="#一、SHA族算法" class="headerlink" title="一、SHA族算法"></a>一、SHA族算法</h1><p>安全散列算法（英语：Secure Hash Algorithm，缩写为SHA）是一个密码散列函数家族，是FIPS所认证的安全散列算法。能计算出一个数字消息所对应到的，长度固定的字符串（又称消息摘要）的算法。且若输入的消息不同，它们对应到不同字符串的几率很高。</p>
+<p>SHA家族的算法，由美国国家安全局（NSA）所设计，并由美国国家标准与技术研究院（NIST）发布，是美国的政府标准，其分别是：</p>
+<ul>
+<li>SHA-0：1993年发布，当时称做安全散列标准（Secure Hash Standard），发布之后很快就被NSA撤回，是SHA-1的前身。</li>
+<li>SHA-1：1995年发布，SHA-1在许多安全协议中广为使用，包括TLS、GnuPG、SSH、S/MIME和IPsec，是MD5的后继者。但SHA-1的安全性在2010年以后已经不被大多数的加密场景所接受。2017年荷兰密码学研究小组CWI和Google正式宣布攻破了SHA-1[1]。</li>
+<li>SHA-2：2001年发布，包括SHA-224、SHA-256、SHA-384、SHA-512、SHA-512/224、SHA-512/256。SHA-2目前没有出现明显的弱点。虽然至今尚未出现对SHA-2有效的攻击，但它的算法跟SHA-1基本上仍然相似。</li>
+<li>SHA-3：2015年正式发布，由于对MD5出现成功的破解，以及对SHA-0和SHA-1出现理论上破解的方法，NIST感觉需要一个与之前算法不同的，可替换的加密散列算法，也就是现在的SHA-3</li>
+</ul>
+<p>在SHA-2下，又可再分为六个不同的算法标准，包括了：</p>
+<ul>
+<li>SHA-224</li>
+<li>SHA-256：对于任意长度的消息，SHA256都会产生一个256bit长的哈希值，称作消息摘要。</li>
+<li>SHA-384</li>
+<li>SHA-512</li>
+<li>SHA-512/224</li>
+<li>SHA-512/256</li>
+</ul>
+<p>这些变体除了生成摘要的长度 、循环运行的次数等一些微小差异外，算法的基本结构是一致的。</p>
+<blockquote>
+<p>哈希函数，又称散列算法，是一种从任何一种数据中创建小的数字“指纹”的方法。散列函数把消息或数据压缩成摘要，使得数据量变小，将数据的格式固定下来。该函数将数据打乱混合，重新创建一个叫做散列值（或哈希值）的指纹。散列值通常用一个短的随机字母和数字组成的字符串来代表。</p>
+</blockquote>
+<h1 id="二、SHA-256"><a href="#二、SHA-256" class="headerlink" title="二、SHA-256"></a>二、SHA-256</h1><p>对于任意长度的消息，SHA256都会产生一个256位的哈希值，称作消息摘要。这个摘要相当于是个长度为32个字节的数组、64位的十六进制字符串（一个十六进制四位）、256位哈希值。</p>
+<ol start="0">
+<li>涉及数据</li>
+</ol>
+<p>SHA256算法中用到了8个哈希初值以及64个哈希常量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">-- 哈希初值：质数（2,3,5,7,11,13,17,19）平方根的小数部分取前32bit</span><br><span class="line">h0 := 0x6a09e667</span><br><span class="line">h1 := 0xbb67ae85</span><br><span class="line">h2 := 0x3c6ef372</span><br><span class="line">h3 := 0xa54ff53a</span><br><span class="line">h4 := 0x510e527f</span><br><span class="line">h5 := 0x9b05688c</span><br><span class="line">h6 := 0x1f83d9ab</span><br><span class="line">h7 := 0x5be0cd19</span><br><span class="line"></span><br><span class="line">-- 64个常量：对自然数中前64个质数的立方根的小数部分取前32bit而来</span><br><span class="line">428a2f98 71374491 b5c0fbcf e9b5dba5</span><br><span class="line">3956c25b 59f111f1 923f82a4 ab1c5ed5</span><br><span class="line">d807aa98 12835b01 243185be 550c7dc3</span><br><span class="line">72be5d74 80deb1fe 9bdc06a7 c19bf174</span><br><span class="line">e49b69c1 efbe4786 0fc19dc6 240ca1cc</span><br><span class="line">2de92c6f 4a7484aa 5cb0a9dc 76f988da</span><br><span class="line">983e5152 a831c66d b00327c8 bf597fc7</span><br><span class="line">c6e00bf3 d5a79147 06ca6351 14292967</span><br><span class="line">27b70a85 2e1b2138 4d2c6dfc 53380d13</span><br><span class="line">650a7354 766a0abb 81c2c92e 92722c85</span><br><span class="line">a2bfe8a1 a81a664b c24b8b70 c76c51a3</span><br><span class="line">d192e819 d6990624 f40e3585 106aa070</span><br><span class="line">19a4c116 1e376c08 2748774c 34b0bcb5</span><br><span class="line">391c0cb3 4ed8aa4a 5b9cca4f 682e6ff3</span><br><span class="line">748f82ee 78a5636f 84c87814 8cc70208</span><br><span class="line">90befffa a4506ceb bef9a3f7 c67178f2</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>前置计算<br>哈希计算的前置步骤：</li>
+</ol>
+<ul>
+<li>填充：对消息进行补位处理，而最终的长度是512位的倍数（末尾补1，然后填充0到512位(长度为I)）；再添加一个64位比特串，该比特串是长度I的二进制表示</li>
+<li>消息分块：以512位为单位对消息进行分块为 M<sup>(1)</sup>、M<sup>(2)</sup>…M<sup>(N)</sup>。</li>
+</ul>
+<ol start="2">
+<li>消息拓展（构造64字）</li>
+</ol>
+<p>对于每一块，将块分解为16个32-bit的big-endian的字，记为w[0], …, w[15]；剩下的48字由以下公式获取：</p>
+<ul>
+<li>W<sub>t</sub>=σ<sub>1</sub>(W<sub>t−2</sub>)+W<sub>t−7</sub>+σ<sub>0</sub>(W<sub>t−15</sub>)+W<sub>t−16</sub><br>​<br>这些字在本文中称为消息字。（字为4字节、32位、256位）</li>
+</ul>
+<ol start="3">
+<li>压缩函数</li>
+</ol>
+<ul>
+<li>遍历消息块，在每个消息块中中还存在字循环：<ul>
+<li>初始八个字（哈希初值）与消息字以及常量进行如下图的位计算</li>
+<li>计算后与前哈希值相加（如果结果大于2^32，那么取2^32的余数）</li>
+</ul>
+</li>
+<li>返回哈希值</li>
+</ul>
+<p><img src="/image/leetcode/sha256-1.png" alt="位运算"></p>
+<ol start="4">
+<li>Java中实现SHA-256</li>
+</ol>
+<p>Java提供了MessageDigest 类为应用程序提供消息摘要算法的功能，例如 SHA-1 或 SHA-256。消息摘要是一种安全的单向散列函数，它采用任意大小的数据并输出一个固定长度的散列值。MessageDigest 对象开始时已初始化。使用update 方法通过它处理数据。在任何时候reset都可以调用来重置摘要。一旦所有要更新的数据都更新完毕，就digest应该调用其中一种方法来完成哈希计算。digest对于给定数量的更新，可以调用该方法一次。在digest被调用之后，MessageDigest 对象被重置为其初始化状态。</p>
+<p>相关方法如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">修饰符和类型</th>
+<th align="left">方法</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Object</td>
+<td align="left">clone()</td>
+<td align="left">如果实现是可克隆的，则返回一个克隆。</td>
+</tr>
+<tr>
+<td align="left">byte[]</td>
+<td align="left">digest()</td>
+<td align="left">通过执行填充等最终操作来完成哈希计算。</td>
+</tr>
+<tr>
+<td align="left">byte[]</td>
+<td align="left">digest?(byte[] input)</td>
+<td align="left">使用指定的字节数组对摘要执行最终更新，然后完成摘要计算。</td>
+</tr>
+<tr>
+<td align="left">int</td>
+<td align="left">digest?(byte[] buf, int offset, int len)</td>
+<td align="left">通过执行填充等最终操作来完成哈希计算。</td>
+</tr>
+<tr>
+<td align="left">String</td>
+<td align="left">getAlgorithm()</td>
+<td align="left">返回一个标识算法的字符串，与实现细节无关。</td>
+</tr>
+<tr>
+<td align="left">int</td>
+<td align="left">getDigestLength()</td>
+<td align="left">以字节为单位返回摘要的长度，如果提供者不支持此操作并且实现不可克隆，则返回 0。</td>
+</tr>
+<tr>
+<td align="left">static MessageDigest</td>
+<td align="left">getInstance?(String algorithm)</td>
+<td align="left">返回实现指定摘要算法的 MessageDigest 对象。</td>
+</tr>
+<tr>
+<td align="left">static MessageDigest</td>
+<td align="left">getInstance?(String algorithm, String provider)</td>
+<td align="left">返回实现指定摘要算法的 MessageDigest 对象。</td>
+</tr>
+<tr>
+<td align="left">static MessageDigest</td>
+<td align="left">getInstance?(String algorithm, Provider provider)</td>
+<td align="left">返回实现指定摘要算法的 MessageDigest 对象。</td>
+</tr>
+<tr>
+<td align="left">Provider</td>
+<td align="left">getProvider()</td>
+<td align="left">返回此消息摘要对象的提供者。</td>
+</tr>
+<tr>
+<td align="left">static boolean</td>
+<td align="left">isEqual?(byte[] digesta, byte[] digestb)</td>
+<td align="left">比较两个摘要是否相等。</td>
+</tr>
+<tr>
+<td align="left">void</td>
+<td align="left">reset()</td>
+<td align="left">重置摘要以供进一步使用。</td>
+</tr>
+<tr>
+<td align="left">String</td>
+<td align="left">toString()</td>
+<td align="left">返回此消息摘要对象的字符串表示形式。</td>
+</tr>
+<tr>
+<td align="left">void</td>
+<td align="left">update?(byte input)</td>
+<td align="left">使用指定的字节更新摘要。</td>
+</tr>
+<tr>
+<td align="left">void</td>
+<td align="left">update?(byte[] input)</td>
+<td align="left">使用指定的字节数组更新摘要。</td>
+</tr>
+<tr>
+<td align="left">void</td>
+<td align="left">update?(byte[] input, int offset, int len)</td>
+<td align="left">使用指定的字节数组更新摘要，从指定的偏移量开始。</td>
+</tr>
+<tr>
+<td align="left">void</td>
+<td align="left">update?(ByteBuffer input)</td>
+<td align="left">使用指定的 ByteBuffer 更新摘要。</td>
+</tr>
+</tbody></table>
+<p>定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Class MessageDigest </span><br><span class="line">	java.lang.Object </span><br><span class="line">		java.security.MessageDigestSpi</span><br><span class="line">			java.security.MessageDigest</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            MessageDigest messageDigest = MessageDigest.getInstance(&quot;SHA-256&quot;);</span><br><span class="line">            String message = &quot;需要加密的信息&quot;;</span><br><span class="line">            messageDigest.update(message.getBytes());</span><br><span class="line">            byte[] res = messageDigest.digest();</span><br><span class="line">            System.out.println(String.valueOf(res));</span><br><span class="line">        &#125; catch (NoSuchAlgorithmException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、参考资料"><a href="#三、参考资料" class="headerlink" title="三、参考资料"></a>三、参考资料</h1><blockquote>
+<p><a href="https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/security/MessageDigest.html" target="_blank" rel="noopener">MessageDigest</a><br><a href="https://zh.wikipedia.org/zh-cn/SHA%E5%AE%B6%E6%97%8F" target="_blank" rel="noopener">相关资料</a><br><a href="https://blog.csdn.net/qq_31811537/article/details/81740434" target="_blank" rel="noopener">SHA256算法原理详解</a></p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: 古城烟雨</p><p>原文链接: <a href="http://zws6672.top/2021/06/03/SHA-256/">http://zws6672.top/2021/06/03/SHA-256/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2021/06/07/jdk-source-Object/" class="pre">jdk8 源码 —— Object</a><a href="/2021/06/03/jdk-thread-lock/" class="next">线程安全与锁优化</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、SHA族算法"><span class="toc-text">一、SHA族算法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、SHA-256"><span class="toc-text">二、SHA-256</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、参考资料"><span class="toc-text">三、参考资料</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/20/swagger2-1/">swagger2 通过OpenAPI文件生成JAVA代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/16/rustInstall/">rust安装与初试</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/interface-specification/">接口对接规范</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/swagger2/">swagger2的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/15/OpenAPI3-0/">OpenAPI 3.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/11/springboot-hot/">springboot实现热部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/07/jdk-source-Object/">jdk8 源码 —— Object</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/SHA-256/">SHA-256</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/03/jdk-thread-lock/">线程安全与锁优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/05/27/fmi-cos/">FMI2.0 ———— 联合仿真</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/devops/" style="font-size: 15px;">devops</a> <a href="/tags/CI/" style="font-size: 15px;">CI</a> <a href="/tags/tool/" style="font-size: 15px;">tool</a> <a href="/tags/neo4j/" style="font-size: 15px;">neo4j</a> <a href="/tags/微信小程序/" style="font-size: 15px;">微信小程序</a> <a href="/tags/oracle/" style="font-size: 15px;">oracle</a> <a href="/tags/linux/" style="font-size: 15px;">linux</a> <a href="/tags/系统/" style="font-size: 15px;">系统</a> <a href="/tags/博客搭建/" style="font-size: 15px;">博客搭建</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/co-simulation/" style="font-size: 15px;">co-simulation</a> <a href="/tags/设计模式/" style="font-size: 15px;">设计模式</a> <a href="/tags/ms/" style="font-size: 15px;">ms</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/es6/" style="font-size: 15px;">es6</a> <a href="/tags/分布式/" style="font-size: 15px;">分布式</a> <a href="/tags/http/" style="font-size: 15px;">http</a> <a href="/tags/运维/" style="font-size: 15px;">运维</a> <a href="/tags/并发/" style="font-size: 15px;">并发</a> <a href="/tags/javaweb/" style="font-size: 15px;">javaweb</a> <a href="/tags/mq/" style="font-size: 15px;">mq</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/Netty/" style="font-size: 15px;">Netty</a> <a href="/tags/Redis/" style="font-size: 15px;">Redis</a> <a href="/tags/springboot/" style="font-size: 15px;">springboot</a> <a href="/tags/微服务/" style="font-size: 15px;">微服务</a> <a href="/tags/soft-skills/" style="font-size: 15px;">soft-skills</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/elasticsearch/" style="font-size: 15px;">elasticsearch</a> <a href="/tags/Collection/" style="font-size: 15px;">Collection</a> <a href="/tags/jdk/" style="font-size: 15px;">jdk</a> <a href="/tags/jdk-source/" style="font-size: 15px;">jdk-source</a> <a href="/tags/jna/" style="font-size: 15px;">jna</a> <a href="/tags/leetcode/" style="font-size: 15px;">leetcode</a> <a href="/tags/nk/" style="font-size: 15px;">nk</a> <a href="/tags/rust/" style="font-size: 15px;">rust</a> <a href="/tags/源码/" style="font-size: 15px;">源码</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="https://juejin.im/" title="掘金" target="_blank">掘金</a><ul></ul><a href="https://www.cnblogs.com/" title="博客园" target="_blank">博客园</a><ul></ul><a href="https://www.infoq.cn/" title="info" target="_blank">info</a><ul></ul><a href="https://www.ibm.com/" title="ibm" target="_blank">ibm</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">古城烟雨.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
